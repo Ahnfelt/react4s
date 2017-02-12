@@ -61,11 +61,18 @@ object CssChild {
 
     def emitCssChildren(builder : StringBuilder, media : String, selector : String, children : Seq[CssChild]) : Unit = {
 
-        if(children.exists(_.isInstanceOf[Style])) {
+        def flatten(children : Seq[CssChild]) : Seq[CssChild] = children.flatMap {
+            case c : CssClass => flatten(c.children)
+            case c => Seq(c)
+        }
+
+        val flattened = flatten(children)
+
+        if(flattened.exists(_.isInstanceOf[Style])) {
             val mediaSpaces = if(media.nonEmpty) "  " else ""
             if(media.nonEmpty) builder.append("@media" + media + " {\n")
             builder.append(mediaSpaces + selector + " {\n")
-            for(c <- children) c match {
+            for(c <- flattened) c match {
                 case s : Style => builder.append(mediaSpaces + "  " + s + "\n")
                 case _ =>
             }
@@ -73,7 +80,7 @@ object CssChild {
             if(media.nonEmpty) builder.append("}\n")
         }
 
-        for(c <- children) c match {
+        for(c <- flattened) c match {
             case CssPseudoClass(name, cs) => emitCssChildren(builder, media, selector + ":" + name, cs)
             case CssMediaQuery(query, cs) => emitCssChildren(builder, media + " " + query, selector, cs)
             case CssSelector(s, cs) => emitCssChildren(builder, media, selector + s, cs)

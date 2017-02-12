@@ -53,7 +53,7 @@ case class Text(value : String) extends Tag {}
 
 case class EventHandler(name : String, handler : SyntheticEvent => Unit) extends Tag {}
 
-abstract class CssClass(val children : CssChild*) extends Tag {
+abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
     override def toString = name
     Css.nextClassId += 1
     val name = getClass.getSimpleName + "-" + Css.nextClassId
