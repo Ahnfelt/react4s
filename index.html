@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <title></title>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/react/15.4.2/react-dom.js"></script>
+        <script src="target/scala-2.12/react4s-fastopt.js"></script>
+    </head>
+    <body>
+        <div id="main"></div>
+        <script>dk.ahnfelt.react4s.Main().main()</script>
+    </body>
+</html>
+
+<!--
+
+    TODOs:
+    - Implement Routing with type safe links
+    - Think about components that emit no messages
+    - Think about componentDidUpdate - it runs after render
+
+    PROs:
+    - Implements shouldComponentUpdate() correctly out of the box
+    - No implicits
+    - No macros
+    - No hard-to-understand types
+    - No postfix operators
+    - No non-alpha-numeric identifiers (ie. no $<^-)
+
+    Why this library?
+    - Existing React-based libraries for scala felt "alien" to use.
+    - They have lots of complicated types, macros and strangely named identifiers.
+    - You had to memoize callbacks in order to get something as simple as an input field to work.
+    - They are full of gotchas where you'd silently lose performance.
+    This library is very simple to use, and the resulting code is easy to read and easy to get right.
+    Most of all, it feels like you're writing a Scala code, rather than using some alien DSL for emitting React code.
+
+-->
