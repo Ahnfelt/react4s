@@ -109,7 +109,7 @@ object FancyButtonCss extends CssClass(
 )
 ```
 
-It styles a button to be white with a black border, and black with white text when the mouse is hovered over it. The resulting `<style>...</style>` will be added to the DOM the first time `FancyButtonCss` used to render a component.
+It styles a button to be white with a black border, and black with white text when the mouse is hovered over it. The resulting `<style>...</style>` will be added to the DOM the first time `FancyButtonCss` is used to render a component.
 
 
 # Binding it to the DOM
