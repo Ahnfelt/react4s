@@ -97,7 +97,7 @@ The above uses one inline style `S.color.rgb(0, 0, 255)` and one css class `Fanc
 ```scala
 object FancyButtonCss extends CssClass(
     S.cursor.pointer(),
-    S.border.px(2)("solid").rgb(0, 0, 0),
+    S.border.px(2).solid().rgb(0, 0, 0),
     S.color.rgb(0, 0, 0),
     S.backgroundColor.rgb(255, 255, 255),
     Css.hover(
