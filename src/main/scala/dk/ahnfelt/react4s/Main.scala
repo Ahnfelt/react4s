@@ -57,7 +57,7 @@ case class CounterListComponent() extends Component[Unit] {
             E.button(H.text("Add"), A.onClick(_ => onAddCounter()), FancyButtonCss),
             H.list(
                 counters().zipWithIndex.map { case (counter, index) =>
-                    H(CounterComponent, counter, onCounterMessage(index)).withKey(index.toString)
+                    H(CounterComponent, counter, onCounterMessage(index))
                 }
             )
         )
