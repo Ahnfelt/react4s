@@ -5,7 +5,7 @@ import dk.ahnfelt.react4s.FancyButton._
 
 object Main extends js.JSApp {
     def main() : Unit = {
-        val component = H(EchoMyNameWithState, H.swallow)
+        val component = H(CounterListComponent, H.swallow)
         ReactBridge.renderToDomById(component, "main")
     }
 }
@@ -130,4 +130,64 @@ case class ButtonList(labels : P[List[String]]) extends Component[String] {
             })
         )
     }
+}
+
+
+
+// List of removable counters example
+
+case class Counter(value : Int)
+
+sealed abstract class CounterMessage
+case object Increment extends CounterMessage
+case object Decrement extends CounterMessage
+case object Remove extends CounterMessage
+
+case class CounterListComponent() extends Component[Unit] {
+
+    val counters = State(List[Counter]())
+
+    def onAddCounter() = {
+        counters.set(counters() :+ Counter(0))
+    }
+
+    def onCounterMessage(index : Int)(message : CounterMessage) = message match {
+        case Increment =>
+            val counter = Counter(counters()(index).value + 1)
+            counters.set(counters().updated(index, counter))
+        case Decrement =>
+            val counter = Counter(counters()(index).value - 1)
+            counters.set(counters().updated(index, counter))
+        case Remove =>
+            counters.set(counters().take(index) ++ counters().drop(index + 1))
+    }
+
+    override def render() = {
+        E.div(
+            E.button(H.text("Add"), A.onClick(_ => onAddCounter())),
+            H.list(
+                counters().zipWithIndex.map { case (counter, index) =>
+                    H(CounterComponent, counter, onCounterMessage(index)).withKey(index.toString)
+                }
+            )
+        )
+    }
+}
+
+case class CounterComponent(counter : P[Counter]) extends Component[CounterMessage] {
+
+    def spacer(width : Int) = E.span(S.display.inlineBlock(), S.width.px(width))
+
+    override def render() = {
+        E.div(
+            E.button(H.text("-"), A.onClick(_ => emit(Decrement))),
+            spacer(20),
+            H.text(counter().value.toString),
+            spacer(20),
+            E.button(H.text("+"), A.onClick(_ => emit(Increment))),
+            spacer(50),
+            E.button(H.text("X"), A.onClick(_ => emit(Remove)))
+        )
+    }
+
 }
