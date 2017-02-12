@@ -58,10 +58,10 @@ case class Counter() extends Component[Unit] {
     }
     
     override def render() = {
-        H(OkCancel, "Would you like some icecream?", onClick)
+        H(OkCancel, "Would you like some icecream?", onClick),
         E.hr(),
         E.div(H.text("You've clicked OK " + okClicks() + " times.")),
-        E.div(H.text("You've clicked Cancel " + cancelClicks() + " times.")),
+        E.div(H.text("You've clicked Cancel " + cancelClicks() + " times."))
     }
     
 }
@@ -96,6 +96,7 @@ The above uses one inline style `S.color.rgb(0, 0, 255)` and one css class `Fanc
 
 ```scala
 object FancyButtonCss extends CssClass(
+    S.cursor.pointer(),
     S.borderStyle("solid"),
     S.color.rgb(0, 0, 0),
     S.borderWidth.px(2),
@@ -103,12 +104,12 @@ object FancyButtonCss extends CssClass(
     S.backgroundColor.rgb(255, 255, 255),
     Css.hover(
         S.color.rgb(255, 255, 255),
-        S.backgroundColor.rgb(0, 0, 0),
+        S.backgroundColor.rgb(0, 0, 0)
     )
 )
 ```
 
-It styles a button to be white with a black border, and black with white text when the mouse is hovered over it.
+It styles a button to be white with a black border, and black with white text when the mouse is hovered over it. The resulting `<style>...</style>` will be added to the DOM the first time `FancyButtonCss` used to render a component.
 
 
 # Binding it to the DOM
