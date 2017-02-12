@@ -70,6 +70,47 @@ case class Counter() extends Component[Unit] {
 The `State` type allows the library to detect when you update the state, so it can rerender your component. You can read it with eg. `okClicks()` and update it with eg. `okClicks.set(42)`.
 
 
+# Styles and CSS
+
+```scala
+case class OkCancel(label : P[String]) extends Component[Boolean] {
+    override def render() = {
+        E.div(H.text(label()), S.color.rgb(0, 0, 255)),
+        E.div(
+            E.button(
+                FancyButtonCss,
+                H.text("OK"),
+                A.onClick(_ => emit(true))
+            ),
+            E.button(
+                FancyButtonCss,
+                H.text("Cancel"),
+                A.onClick(_ => emit(false))
+            )
+        )
+    }
+}
+```
+
+The above uses one inline style `S.color.rgb(0, 0, 255)` and one css class `FancyButtonCss`. The css class is defined as follows:
+
+```scala
+object FancyButtonCss extends CssClass(
+    S.borderStyle("solid"),
+    S.color.rgb(0, 0, 0),
+    S.borderWidth.px(2),
+    S.borderColor.rgb(0, 0, 0),
+    S.backgroundColor.rgb(255, 255, 255),
+    Css.hover(
+        S.color.rgb(255, 255, 255),
+        S.backgroundColor.rgb(0, 0, 0),
+    )
+)
+```
+
+It styles a button to be white with a black border, and black with white text when the mouse is hovered over it.
+
+
 # Binding it to the DOM
 
 ```scala
