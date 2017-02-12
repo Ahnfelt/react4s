@@ -1,7 +1,17 @@
 package dk.ahnfelt.react4s
 
+
+
+//
+// The code in this file is just example code, and not really part of the library.
+// The example code will be removed from this repository eventually.
+//
+
+
+
 import scala.scalajs.js
 import dk.ahnfelt.react4s.FancyButton._
+
 
 object Main extends js.JSApp {
     def main() : Unit = {
