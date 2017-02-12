@@ -32,7 +32,7 @@ and the component is rerendered automatically when the props or state changes.
 The `E`, `H`, `S` and `A` objects provide methods for building the Virtual DOM.
 
 Emitting messages instead of taking in callbacks via props is a departure from the usual React API, 
-and is how we give you `shouldComponentUpdate()` for free.
+and is how you get `shouldComponentUpdate()` for free.
 It also clearly separates input (props) from output (callbacks).
 
 You can use a component like this: `H(OkCancel, "Would you like some icecream?", onClick)`. 
