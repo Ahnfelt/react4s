@@ -105,6 +105,9 @@ case class Style(name : String, value : String) extends Tag with CssChild {
     def bold() = apply("bold")
     def italic() = apply("italic")
     def pointer() = apply("pointer")
+    def solid() = apply("solid")
+    def dotted() = apply("dotted")
+    def dashed() = apply("dashed")
 }
 
 sealed abstract class Constructor[M](val props : Seq[Any]) extends ElementOrComponent { val f : Any; val data : ConstructorData[M] }
@@ -242,6 +245,7 @@ object S {
     val borderWidth = Style("border-width", "")
     val borderColor = Style("border-color", "")
     val borderStyle = Style("border-style", "")
+    val outline = Style("outline", "")
     val boxShadow = Style("box-shadow", "")
     val textShadow = Style("text-shadow", "")
     val font = Style("font", "")
