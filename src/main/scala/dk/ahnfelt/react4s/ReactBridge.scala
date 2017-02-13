@@ -100,7 +100,7 @@ object ReactBridge {
     def createComponentClass(constructor : Constructor[_]) = {
         React.createClass(js.Dictionary(
             "getInitialState" -> { () =>
-                js.Dictionary("updates" -> 0.0)
+                js.Dictionary("stateUpdates" -> 0.0)
             },
             "componentWillMount" -> ({ (self : js.Dynamic) =>
                 def newP[T](name : String) : P[T] = new P[T] {
@@ -121,8 +121,8 @@ object ReactBridge {
                 instance.update = { () =>
                     if(!instance.updateScheduled) {
                         instance.updateScheduled = true
-                        val updates = self.state.updates.asInstanceOf[Double] + 1.0
-                        self.setState(js.Dictionary("updates" -> updates))
+                        val stateUpdates = self.state.stateUpdates.asInstanceOf[Double] + 1.0
+                        self.setState(js.Dictionary("stateUpdates" -> stateUpdates))
                     }
                 }
                 instance.emit = { message =>
@@ -135,7 +135,7 @@ object ReactBridge {
                 self.instance.asInstanceOf[Component[_]].componentWillUnmount()
             } : js.ThisFunction),
             "shouldComponentUpdate" -> ({ (self : js.Dynamic, nextProps : js.Dictionary[js.Any], nextState : js.Dictionary[Double]) =>
-                self.state.updates.asInstanceOf[Double] != nextState("updates") ||
+                self.state.stateUpdates.asInstanceOf[Double] != nextState("stateUpdates") ||
                     (1 to constructor.props.length).exists(i =>
                         self.props.selectDynamic("p" + i).asInstanceOf[js.Any] != nextProps("p" + i)
                     )
