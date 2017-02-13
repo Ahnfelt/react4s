@@ -135,7 +135,7 @@ Beware that what you pass via props must be immutable and have structural equali
 
 ![image](https://cloud.githubusercontent.com/assets/78472/22898855/198ae112-f229-11e6-8784-b854dd679f50.png)
 
-This is the complete component lifecycle for React4s. It's simpler than plain React because the React4s model makes some assumptions about immutable props with structural equality and handles state updates a little bit differently.
+This is the complete component lifecycle for React4s. It's simpler than plain React because the React4s model makes the assumption that your props are immutable and have structural equality.
 
 1. When your component is added to the Virtual DOM, the constructor is invoked.
 2. Before each render, the componentWillRender() method is called.
