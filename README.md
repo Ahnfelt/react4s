@@ -130,3 +130,16 @@ In React, you implement `shouldComponentUpdate()` to avoid rerendering unrelated
 
 Beware that what you pass via props must be immutable and have structural equality. You can't pass mutable objects or functions as props, or you will get a stale view or a slow view respectively. However, it's completely safe to pass immutable collections and immutable case classes.
 
+
+# Lifecycle
+
+![image](https://cloud.githubusercontent.com/assets/78472/22898855/198ae112-f229-11e6-8784-b854dd679f50.png)
+
+This is the complete component lifecycle for React4s. It's simpler than plain React because the React4s model makes some assumptions about immutable props with structural equality and handles state updates a little bit differently.
+
+1. When your component is added to the Virtual DOM, the constructor is invoked.
+2. Before each render, the componentWillRender() method is called.
+3. Then in render(), you'll return the Virual DOM that displays your component.
+4. When your component is removed from the Virtual DOM, componentWillUnmount() is called.
+
+Step 1 is a good place to initialize the component. Step 2 is a good place to make changes in state that depends on props. Step 3 should be a pure function of your state and props. Step 4 is a good place to clean up any resources you've allocated.
