@@ -112,7 +112,7 @@ It styles a button to be white with a black border, and black with white text wh
 
 # Performance
 
-In React, you implement `shouldComponentUpdate()` to avoid rerendering unrelated components when your model is updated. In react4s, this method is already implemented for you. It uses Scala's `!=` operator to check if any props changed, and only updates the component if either that is the case, or the internal state has changed. That means that everything that hasn't been reallocated, it just compares the references, and thus doesn't traverse deep into the props.
+In React, you implement `shouldComponentUpdate()` to avoid rerendering unrelated components when your model is updated. In react4s, this method is already implemented for you. It uses Scala's `!=` operator to check if any props changed, and only updates the component if either that is the case, or the internal state has changed. That means that for everything that hasn't been reallocated, it just compares the references, and thus doesn't traverse deep into the props.
 
 Beware that what you pass via props must be immutable and have structural equality. You can't pass mutable objects or functions as props, or you will get a stale view or a slow view respectively. It's totally safe to pass immutable collections and immutable case classes, however.
 
