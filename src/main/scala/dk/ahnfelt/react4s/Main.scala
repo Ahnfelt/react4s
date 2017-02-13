@@ -85,6 +85,7 @@ case class CounterComponent(counter : P[Counter]) extends Component[CounterMessa
 object FancyButtonCss extends CssClass(
     S.cursor.pointer(),
     S.border.px(2).solid().rgb(0, 0, 0),
+    S.margin.px(2),
     S.color.rgb(0, 0, 0),
     S.backgroundColor.rgb(255, 255, 255),
     Css.hover(
