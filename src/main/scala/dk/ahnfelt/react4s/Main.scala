@@ -43,13 +43,11 @@ case class CounterListComponent() extends Component[Unit] {
 
     def onCounterMessage(index : Int)(message : CounterMessage) = message match {
         case Increment =>
-            val counter = Counter(counters()(index).value + 1)
-            counters.set(counters().updated(index, counter))
+            counters.modify(l => l.updated(index, l(index).copy(value = l(index).value + 1)))
         case Decrement =>
-            val counter = Counter(counters()(index).value - 1)
-            counters.set(counters().updated(index, counter))
+            counters.modify(l => l.updated(index, l(index).copy(value = l(index).value - 1)))
         case Remove =>
-            counters.set(counters().take(index) ++ counters().drop(index + 1))
+            counters.modify(l => l.take(index) ++ l.drop(index + 1))
     }
 
     override def render() = {

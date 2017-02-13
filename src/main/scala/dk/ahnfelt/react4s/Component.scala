@@ -24,6 +24,7 @@ abstract class Component[M] {
 abstract class State[T] {
     def apply() : T
     def set(value : T) : Unit
+    def modify(update : T => T) : Unit = set(update(apply()))
 }
 
 abstract class P[T] extends (() => T)
