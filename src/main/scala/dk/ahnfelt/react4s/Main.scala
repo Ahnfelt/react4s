@@ -50,6 +50,7 @@ case class CounterListComponent() extends Component[Unit] {
             counters.modify(l => l.take(index) ++ l.drop(index + 1))
     }
 
+
     override def render() = {
         E.div(
             E.button(H.text("Add"), A.onClick(_ => onAddCounter()), FancyButtonCss),

@@ -134,9 +134,6 @@ object ReactBridge {
             "componentWillUnmount" -> ({ (self : js.Dynamic) =>
                 self.instance.asInstanceOf[Component[_]].componentWillUnmount()
             } : js.ThisFunction),
-            "componentDidUpdate" -> ({ (self : js.Dynamic) =>
-                self.instance.asInstanceOf[Component[_]].componentDidUpdate()
-            } : js.ThisFunction),
             "shouldComponentUpdate" -> ({ (self : js.Dynamic, nextProps : js.Dictionary[js.Any], nextState : js.Dictionary[Double]) =>
                 self.state.updates.asInstanceOf[Double] != nextState("updates") ||
                     (1 to constructor.props.length).exists(i =>
@@ -144,8 +141,11 @@ object ReactBridge {
                     )
             } : js.ThisFunction),
             "render" -> ({ (self : js.Dynamic) =>
-                self.instance.asInstanceOf[Component[_]].updateScheduled = false
-                elementToReact(self.instance.asInstanceOf[Component[_]].render())
+                val instance = self.instance.asInstanceOf[Component[_]]
+                instance.updateScheduled = true // Suppresses update() calls inside componentWillUpdate
+                instance.componentWillRender()
+                instance.updateScheduled = false
+                elementToReact(instance.render())
             } : js.ThisFunction)
         ))
     }

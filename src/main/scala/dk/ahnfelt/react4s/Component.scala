@@ -1,10 +1,10 @@
 package dk.ahnfelt.react4s
 
 abstract class Component[M] {
-    var updateScheduled = false
+    private[react4s] var updateScheduled = false
     var emit : M => Unit = H.swallow
     var update : () => Unit = H.pass
-    def componentDidUpdate() : Unit = {}
+    def componentWillRender() : Unit = {}
     def componentWillUnmount() : Unit = {}
     def render() : Element
 
