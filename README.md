@@ -110,13 +110,6 @@ object FancyButtonCss extends CssClass(
 It styles a button to be white with a black border, and black with white text when the mouse is hovered over it. The resulting `<style>...</style>` will be added to the DOM the first time `FancyButtonCss` is used to render a component.
 
 
-# Performance
-
-In React, you implement `shouldComponentUpdate()` to avoid rerendering unrelated components when your model is updated. In react4s, this method is already implemented for you. It uses Scala's `!=` operator to check if any props changed, and only updates the component if either that is the case, or the internal state has changed. That means that for everything that hasn't been reallocated, it just compares the references, and thus doesn't traverse deep into the props.
-
-Beware that what you pass via props must be immutable and have structural equality. You can't pass mutable objects or functions as props, or you will get a stale view or a slow view respectively. It's totally safe to pass immutable collections and immutable case classes, however.
-
-
 # Binding it to the DOM
 
 ```scala
@@ -129,3 +122,11 @@ object Main extends js.JSApp {
 ```
 
 Just create the component and call `renderToDomById`. In the example, the `Counter` component does not emit any messages, so we just ignore it with `H.swallow`. The `"main"` argument is the ID refering to an existing HTML element, eg. `<div id="main"></div>`.
+
+
+# Performance
+
+In React, you implement `shouldComponentUpdate()` to avoid rerendering unrelated components when your model is updated. In react4s, this method is already implemented for you. It uses Scala's `!=` operator to check if any props changed, and only updates the component if either that is the case, or the internal state has changed. That means that for everything that hasn't been reallocated, it just compares the references, and thus doesn't traverse deep into the props.
+
+Beware that what you pass via props must be immutable and have structural equality. You can't pass mutable objects or functions as props, or you will get a stale view or a slow view respectively. It's totally safe to pass immutable collections and immutable case classes, however.
+
