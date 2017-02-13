@@ -38,7 +38,7 @@ case class CounterListComponent() extends Component[Unit] {
     val counters = State(List[Counter]())
 
     def onAddCounter() = {
-        counters.set(counters() :+ Counter(0))
+        counters.modify(_ :+ Counter(0))
     }
 
     def onCounterMessage(index : Int)(message : CounterMessage) = message match {
