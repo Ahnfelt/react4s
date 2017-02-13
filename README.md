@@ -143,3 +143,5 @@ This is the complete component lifecycle for React4s. It's simpler than plain Re
 4. When your component is removed from the Virtual DOM, componentWillUnmount() is called.
 
 Step 1 is a good place to initialize the component. Step 2 is a good place to make changes in state that depends on props. Step 3 should be a pure function of your state and props. Step 4 is a good place to clean up any resources you've allocated.
+
+The component will only be rerendered when your props have changed, as defined by Scala's structural inequality `!=`, or your state has been updated. The state is considered updated when you've called `update()` explicitly or called `state.set(...)` or state `state.modify(...)`. React4s never looks inside your state to see if it changed.
