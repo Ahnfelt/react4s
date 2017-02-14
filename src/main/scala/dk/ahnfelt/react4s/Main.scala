@@ -14,7 +14,7 @@ import scala.scalajs.js
 
 object Main extends js.JSApp {
     def main() : Unit = {
-        val component = H(CounterListComponent, H.swallow)
+        val component = Component(CounterListComponent)
         ReactBridge.renderToDomById(component, "main")
     }
 }
@@ -50,13 +50,12 @@ case class CounterListComponent() extends Component[Unit] {
             counters.modify(l => l.take(index) ++ l.drop(index + 1))
     }
 
-
     override def render() = {
         E.div(
-            E.button(H.text("Add"), A.onClick(_ => onAddCounter()), FancyButtonCss),
-            H.list(
+            E.button(Text("Add"), A.onClick(_ => onAddCounter()), FancyButtonCss),
+            TagList(
                 counters().zipWithIndex.map { case (counter, index) =>
-                    H(CounterComponent, counter, onCounterMessage(index))
+                    Component(CounterComponent, counter).withHandler(onCounterMessage(index))
                 }
             )
         )
@@ -70,13 +69,13 @@ case class CounterComponent(counter : P[Counter]) extends Component[CounterMessa
 
     override def render() = {
         E.div(
-            E.button(H.text("-"), A.onClick(_ => emit(Decrement)), FancyButtonCss),
+            E.button(Text("-"), A.onClick(_ => emit(Decrement)), FancyButtonCss),
             spacer(20),
-            H.text(counter().value.toString),
+            Text(counter().value.toString),
             spacer(20),
-            E.button(H.text("+"), A.onClick(_ => emit(Increment)), FancyButtonCss),
+            E.button(Text("+"), A.onClick(_ => emit(Increment)), FancyButtonCss),
             spacer(50),
-            E.button(H.text("X"), A.onClick(_ => emit(Remove)), FancyButtonCss)
+            E.button(Text("X"), A.onClick(_ => emit(Remove)), FancyButtonCss)
         )
     }
 

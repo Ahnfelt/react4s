@@ -2,8 +2,8 @@ package dk.ahnfelt.react4s
 
 abstract class Component[M] {
     private[react4s] var updateScheduled = false
-    var emit : M => Unit = H.swallow
-    var update : () => Unit = H.pass
+    var emit : M => Unit = { _ => }
+    var update : () => Unit = { () => }
     def componentWillRender() : Unit = {}
     def componentWillUnmount() : Unit = {}
     def render() : Element
@@ -19,6 +19,19 @@ abstract class Component[M] {
     object State {
         def apply[T](value : T) = new ComponentState(value)
     }
+}
+
+object Component {
+    def apply[M](                                       f : { def apply() : Component[M] })                                                                                                                                                                                                 = ConstructorData(Constructor0(f))
+    def apply[P1, M](                                   f : { def apply(p1 : P[P1]) : Component[M] }, p1 : P1)                                                                                                                                                                              = ConstructorData(Constructor1(f, p1))
+    def apply[P1, P2, M](                               f : { def apply(p1 : P[P1], p2 : P[P2]) : Component[M] }, p1 : P1, p2 : P2)                                                                                                                                                         = ConstructorData(Constructor2(f, p1, p2))
+    def apply[P1, P2, P3, M](                           f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3)                                                                                                                                    = ConstructorData(Constructor3(f, p1, p2, p3))
+    def apply[P1, P2, P3, P4, M](                       f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4)                                                                                                               = ConstructorData(Constructor4(f, p1, p2, p3, p4))
+    def apply[P1, P2, P3, P4, P5, M](                   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5)                                                                                          = ConstructorData(Constructor5(f, p1, p2, p3, p4, p5))
+    def apply[P1, P2, P3, P4, P5, P6, M](               f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6)                                                                     = ConstructorData(Constructor6(f, p1, p2, p3, p4, p5, p6))
+    def apply[P1, P2, P3, P4, P5, P6, P7, M](           f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7)                                                = ConstructorData(Constructor7(f, p1, p2, p3, p4, p5, p6, p7))
+    def apply[P1, P2, P3, P4, P5, P6, P7, P8, M](       f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8)                           = ConstructorData(Constructor8(f, p1, p2, p3, p4, p5, p6, p7, p8))
+    def apply[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9)      = ConstructorData(Constructor9(f, p1, p2, p3, p4, p5, p6, p7, p8, p9))
 }
 
 abstract class State[T] {
@@ -112,19 +125,28 @@ case class Style(name : String, value : String) extends Tag with CssChild {
     def dashed() = apply("dashed")
 }
 
-sealed abstract class Constructor[M](val props : Seq[Any]) extends ElementOrComponent { val f : Any; val data : ConstructorData[M] }
-case class Constructor0[M](                                     f : { def apply() : Component[M] }, data : ConstructorData[M])                                                                                                                                                                                              extends Constructor[M](Seq()) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor1[P1, M](                                 f : { def apply(p1 : P[P1]) : Component[M] }, p1 : P1, data : ConstructorData[M])                                                                                                                                                                           extends Constructor[M](Seq(p1)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor2[P1, P2, M](                             f : { def apply(p1 : P[P1], p2 : P[P2]) : Component[M] }, p1 : P1, p2 : P2, data : ConstructorData[M])                                                                                                                                                      extends Constructor[M](Seq(p1, p2)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor3[P1, P2, P3, M](                         f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, data : ConstructorData[M])                                                                                                                                 extends Constructor[M](Seq(p1, p2, p3)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor4[P1, P2, P3, P4, M](                     f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, data : ConstructorData[M])                                                                                                            extends Constructor[M](Seq(p1, p2, p3, p4)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor5[P1, P2, P3, P4, P5, M](                 f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, data : ConstructorData[M])                                                                                       extends Constructor[M](Seq(p1, p2, p3, p4, p5)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor6[P1, P2, P3, P4, P5, P6, M](             f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, data : ConstructorData[M])                                                                  extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor7[P1, P2, P3, P4, P5, P6, P7, M](         f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, data : ConstructorData[M])                                             extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor8[P1, P2, P3, P4, P5, P6, P7, P8, M](     f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, data : ConstructorData[M])                        extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
-case class Constructor9[P1, P2, P3, P4, P5, P6, P7, P8, P9, M]( f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9, data : ConstructorData[M])   extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8, p9)) { def withKey(key : String) = copy(data = data.copy(key = Some(key))); def withRef(onAddToDom : Any => Unit) = copy(data = data.copy(ref = Some(onAddToDom))) }
+sealed abstract class Constructor[M](val props : Seq[Any]) { val f : Any }
+case class Constructor0[M](                                     f : { def apply() : Component[M] })                                                                                                                                                                                             extends Constructor[M](Seq())
+case class Constructor1[P1, M](                                 f : { def apply(p1 : P[P1]) : Component[M] }, p1 : P1)                                                                                                                                                                          extends Constructor[M](Seq(p1))
+case class Constructor2[P1, P2, M](                             f : { def apply(p1 : P[P1], p2 : P[P2]) : Component[M] }, p1 : P1, p2 : P2)                                                                                                                                                     extends Constructor[M](Seq(p1, p2))
+case class Constructor3[P1, P2, P3, M](                         f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3)                                                                                                                                extends Constructor[M](Seq(p1, p2, p3))
+case class Constructor4[P1, P2, P3, P4, M](                     f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4)                                                                                                           extends Constructor[M](Seq(p1, p2, p3, p4))
+case class Constructor5[P1, P2, P3, P4, P5, M](                 f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5)                                                                                      extends Constructor[M](Seq(p1, p2, p3, p4, p5))
+case class Constructor6[P1, P2, P3, P4, P5, P6, M](             f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6)                                                                 extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6))
+case class Constructor7[P1, P2, P3, P4, P5, P6, P7, M](         f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7)                                            extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7))
+case class Constructor8[P1, P2, P3, P4, P5, P6, P7, P8, M](     f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8)                       extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8))
+case class Constructor9[P1, P2, P3, P4, P5, P6, P7, P8, P9, M]( f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9)  extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8, p9))
 
-case class ConstructorData[M](handler : M => Unit, key : Option[String] = None, ref : Option[Any => Unit] = None)
+case class ConstructorData[M](
+    constructor : Constructor[M],
+    handler : M => Unit = { _ : M => },
+    key : Option[String] = None,
+    ref : Option[Any => Unit] = None
+) extends ElementOrComponent {
+    def withHandler(handler : M => Unit) = copy(handler = handler)
+    def withKey(key : String) = copy(key = Some(key))
+    def withRef(onAddToDom : Any => Unit) = copy(ref = Some(onAddToDom))
+}
 
 object E {
     def apply(tagName : String, children : Tag*) = Element(tagName, children)
@@ -163,6 +185,15 @@ object E {
 
 object A extends CommonEvents {
     def apply(attributeName : String, value : String) = Attributes(attributeName, value)
+    /** A helper method for setting up A.onChange that just looks at e.target.value.}}} */
+    def onValue(onChange : String => Unit) = {
+        A.onChange(e => onChange(e.target.value.asInstanceOf[String]))
+    }
+    /** A helper method for setting up A.value and A.onChange for State[String]. Example: {{{E.input(A.bindValue(name))}}} */
+    def bindValue(state : State[String]) : TagList = TagList(List(
+        A.value(state()),
+        A.onValue(v => state.set(v))
+    ))
     def action(value : String) = Attributes("action", value)
     def src(value : String) = Attributes("src", value)
     def href(value : String) = Attributes("href", value)
@@ -183,42 +214,6 @@ object A extends CommonEvents {
     def className(value : String*) = Attributes("className", value.mkString(" "))
     /** Set up an event handler. Note that the event name must contain the 'on', eg. 'onClick' instead of 'click'. */
     def on(eventName : String, handler : SyntheticEvent => Unit) = EventHandler(eventName, handler)
-}
-
-object H {
-    def text(value : String) = Text(value)
-    def list(children : List[Tag]) = TagList(children)
-    def apply[M](                                       f : { def apply() : Component[M] }, handler : M => Unit)                                                                                                                                                                                                = Constructor0(f, ConstructorData(handler))
-    def apply[P1, M](                                   f : { def apply(p1 : P[P1]) : Component[M] }, p1 : P1, handler : M => Unit)                                                                                                                                                                             = Constructor1(f, p1, ConstructorData(handler))
-    def apply[P1, P2, M](                               f : { def apply(p1 : P[P1], p2 : P[P2]) : Component[M] }, p1 : P1, p2 : P2, handler : M => Unit)                                                                                                                                                        = Constructor2(f, p1, p2, ConstructorData(handler))
-    def apply[P1, P2, P3, M](                           f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, handler : M => Unit)                                                                                                                                   = Constructor3(f, p1, p2, p3, ConstructorData(handler))
-    def apply[P1, P2, P3, P4, M](                       f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, handler : M => Unit)                                                                                                              = Constructor4(f, p1, p2, p3, p4, ConstructorData(handler))
-    def apply[P1, P2, P3, P4, P5, M](                   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, handler : M => Unit)                                                                                         = Constructor5(f, p1, p2, p3, p4, p5, ConstructorData(handler))
-    def apply[P1, P2, P3, P4, P5, P6, M](               f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, handler : M => Unit)                                                                    = Constructor6(f, p1, p2, p3, p4, p5, p6, ConstructorData(handler))
-    def apply[P1, P2, P3, P4, P5, P6, P7, M](           f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, handler : M => Unit)                                               = Constructor7(f, p1, p2, p3, p4, p5, p6, p7, ConstructorData(handler))
-    def apply[P1, P2, P3, P4, P5, P6, P7, P8, M](       f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, handler : M => Unit)                          = Constructor8(f, p1, p2, p3, p4, p5, p6, p7, p8, ConstructorData(handler))
-    def apply[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9, handler : M => Unit)     = Constructor9(f, p1, p2, p3, p4, p5, p6, p7, p8, p9, ConstructorData(handler))
-    val swallow = { _ : Any => }
-    val pass = { () => }
-    /** A helper method for setting up A.onChange that just looks at e.target.value.}}} */
-    def onValue(onChange : String => Unit) = A.onChange(e => onChange(e.target.value.asInstanceOf[String]))
-    /** A helper method for setting up A.value and A.onChange for State[String]. Example: {{{E.input(H.bind(name))}}} */
-    def bind(state : State[String]) : TagList = H.bind[String](state, identity, identity)
-    /** A helper method for setting up A.value and A.onChange for State[T]. Example: {{{E.input(H.bind(age, _.toString, _.toInt))}}} */
-    def bind[T](state : State[T], toString : T => String, fromString : String => T) = TagList(List(
-        A.value(toString(state())),
-        H.onValue(v => state.set(fromString(v)))
-    ))
-    /** A helper method for setting up A.value and A.onChange for component vars. Example: {{{E.input(H.bindState(name, {name = _}, update))}}} */
-    def bindVar(value : String, onChange : String => Unit, update : () => Unit) = TagList(List(
-        A.value(value),
-        H.onValue { v => onChange(v); update() }
-    ))
-    /** A helper method for setting up A.value and A.onChange for props. Example: {{{E.input(H.bindProp(age(), m => emit(m.toInt)))}}} */
-    def bindProp[M](value : String, emit : String => Unit) = TagList(List(
-        A.value(value),
-        H.onValue(emit)
-    ))
 }
 
 object S {
