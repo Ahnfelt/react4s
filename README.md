@@ -137,10 +137,8 @@ Beware that what you pass via props must be immutable and have structural equali
 This is the complete component lifecycle for React4s. It's simpler than plain React because the React4s model makes the assumption that your props are immutable and have structural equality.
 
 1. When your component is added to the Virtual DOM, the constructor is invoked.
-2. Before each render, the componentWillRender() method is called.
-3. Then in render(), you'll return the Virual DOM that displays your component.
+2. Before each render, the componentWillRender() method is called. Here you can update any state that depends on props that have changed.
+3. Then in render(), you'll return the Virual DOM that displays your component. State updates are not allowed during this call.
 4. When your component is removed from the Virtual DOM, componentWillUnmount() is called.
-
-Step 1 is a good place to initialize the component. Step 2 is a good place to update state that depends on props. Step 3 should be a pure function of your state and props. Step 4 is a good place to clean up any resources you've allocated.
 
 The component will only be rerendered when your props have changed, as defined by Scala's structural inequality `!=`, or your state has been updated. The state is considered updated when you've called `update()` explicitly or called `.set(...)` or `.modify(...)` on State objects. React4s never looks inside your state to see if it changed.
