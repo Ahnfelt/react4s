@@ -10,14 +10,14 @@ It uses no macros, no implicits and no complicated types.
 ```scala
 case class OkCancel(label : P[String]) extends Component[Boolean] {
     override def render() = {
-        E.div(H.text(label())),
+        E.div(Text(label())),
         E.div(
             E.button(
-                H.text("OK"),
+                Text("OK"),
                 A.onClick(_ => emit(true))
             ),
             E.button(
-                H.text("Cancel"),
+                Text("Cancel"),
                 A.onClick(_ => emit(false))
             )
         )
@@ -29,16 +29,15 @@ This defines a component `OkCancel` that takes one String "prop" named `label`.
 The `Boolean` in `Component[Boolean]` says that this component emits `Boolean` messages, which is done with the `emit(...)` method.
 The `render()` method is what renders your component, 
 and the component is rerendered automatically when the props change or the state is updated.
-The `E`, `H`, `S` and `A` objects provide methods for building the Virtual DOM.
+The `E`, `A` and `S` objects provide methods for building the Virtual DOM.
 
 Emitting messages instead of taking in callbacks via props is a departure from the usual React API, 
 and is how you get `shouldComponentUpdate()` for free.
 It also clearly separates input (props) from output (callbacks).
 
-You can use a component like this: `H(OkCancel, "Would you like some icecream?", onClick)`. 
+You can use a component like this: `Component(OkCancel, "Would you like some icecream?")`. 
 The first argument is the components companion object. 
-The second argument is the prop argument to the component (you can have multiple props if you like).
-The third argument is the function to call when the component emits a message. See the next section for an example.
+The remaining arguments are the props for the component.
 
 
 # Keeping state
@@ -51,23 +50,23 @@ case class Counter() extends Component[Unit] {
     
     def onClick(ok : Boolean) = {
         if(ok) {
-            okClicks.set(okClicks() + 1)
+            okClicks.modify(_ + 1)
         } else {
-            cancelClicks.set(cancelClicks() + 1)
+            cancelClicks.modify(_ + 1)
         }
     }
     
     override def render() = {
-        H(OkCancel, "Would you like some icecream?", onClick),
+        Component(OkCancel, "Would you like some icecream?").withHandler(onClick),
         E.hr(),
-        E.div(H.text("You've clicked OK " + okClicks() + " times.")),
-        E.div(H.text("You've clicked Cancel " + cancelClicks() + " times."))
+        E.div(Text("You've clicked OK " + okClicks() + " times.")),
+        E.div(Text("You've clicked Cancel " + cancelClicks() + " times."))
     }
     
 }
 ```
 
-The `State` type allows the library to detect when you update the state, so it can rerender your component. You can read it with eg. `okClicks()` and update it with eg. `okClicks.set(42)`.
+The `State` type allows the library to detect when you update the state, so it can rerender your component. You can read it with eg. `okClicks()` and update it with eg. `okClicks.set(42)` or `okClicks.modify(_ + 1)`.
 
 
 # Styles and CSS
@@ -75,16 +74,16 @@ The `State` type allows the library to detect when you update the state, so it c
 ```scala
 case class OkCancel(label : P[String]) extends Component[Boolean] {
     override def render() = {
-        E.div(H.text(label()), S.color.rgb(0, 0, 255)),
+        E.div(Text(label()), S.color.rgb(0, 0, 255)),
         E.div(
             E.button(
                 FancyButtonCss,
-                H.text("OK"),
+                Text("OK"),
                 A.onClick(_ => emit(true))
             ),
             E.button(
                 FancyButtonCss,
-                H.text("Cancel"),
+                Text("Cancel"),
                 A.onClick(_ => emit(false))
             )
         )
@@ -115,13 +114,13 @@ It styles a button to be white with a black border, and black with white text wh
 ```scala
 object Main extends js.JSApp {
     def main() : Unit = {
-        val component = H(Counter, H.swallow)
+        val component = Component(Counter)
         ReactBridge.renderToDomById(component, "main")
     }
 }
 ```
 
-Just create the component and call `renderToDomById`. In the example, the `Counter` component does not emit any messages, so we just ignore it with `H.swallow`. The `"main"` argument is the ID refering to an existing HTML element, eg. `<div id="main"></div>`.
+Just create the component and call `renderToDomById`. The `"main"` argument is the ID refering to an existing HTML element, eg. `<div id="main"></div>`.
 
 
 # Performance
