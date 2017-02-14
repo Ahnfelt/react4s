@@ -28,7 +28,7 @@ case class OkCancel(label : P[String]) extends Component[Boolean] {
 This defines a component `OkCancel` that takes one String "prop" named `label`. 
 The `Boolean` in `Component[Boolean]` says that this component emits `Boolean` messages, which is done with the `emit(...)` method.
 The `render()` method is what renders your component, 
-and the component is rerendered automatically when the props or state changes.
+and the component is rerendered automatically when the props change or the state is updated.
 The `E`, `H`, `S` and `A` objects provide methods for building the Virtual DOM.
 
 Emitting messages instead of taking in callbacks via props is a departure from the usual React API, 
@@ -126,7 +126,22 @@ Just create the component and call `renderToDomById`. In the example, the `Count
 
 # Performance
 
-In React, you implement `shouldComponentUpdate()` to avoid rerendering unrelated components when your model is updated. In react4s, this method is already implemented for you. It uses Scala's `!=` operator to check if any props changed, and only updates the component if either the props or the state has changed. That means that for everything that hasn't been reallocated, it just compares the references, and thus doesn't traverse deep into the props.
+In React, you implement `shouldComponentUpdate()` to avoid rerendering unrelated components when your model is updated. In React4s, this method is already implemented for you. It uses Scala's `!=` operator to check if any props changed, and only updates the component if either the props changed or the state has been updated. That means that for everything that hasn't been reallocated, it just compares the references, and thus doesn't traverse deep into the props.
 
 Beware that what you pass via props must be immutable and have structural equality. You can't pass mutable objects or functions as props, or you will get a stale view or a slow view respectively. However, it's completely safe to pass immutable collections and immutable case classes.
 
+
+# Lifecycle
+
+![image](https://cloud.githubusercontent.com/assets/78472/22898855/198ae112-f229-11e6-8784-b854dd679f50.png)
+
+This is the complete component lifecycle for React4s. It's simpler than plain React because the React4s model makes the assumption that your props are immutable and have structural equality.
+
+1. When your component is added to the Virtual DOM, the constructor is invoked.
+2. Before each render, the componentWillRender() method is called.
+3. Then in render(), you'll return the Virual DOM that displays your component.
+4. When your component is removed from the Virtual DOM, componentWillUnmount() is called.
+
+Step 1 is a good place to initialize the component. Step 2 is a good place to update state that depends on props. Step 3 should be a pure function of your state and props. Step 4 is a good place to clean up any resources you've allocated.
+
+The component will only be rerendered when your props have changed, as defined by Scala's structural inequality `!=`, or your state has been updated. The state is considered updated when you've called `update()` explicitly or called `.set(...)` or `.modify(...)` on State objects. React4s never looks inside your state to see if it changed.
