@@ -9,7 +9,7 @@ It uses no macros, no implicits and no complicated types.
 
 ```scala
 case class OkCancel(label : P[String]) extends Component[Boolean] {
-    override def render() = {
+    override def render() = E.div(
         E.div(Text(label())),
         E.div(
             E.button(
@@ -21,7 +21,7 @@ case class OkCancel(label : P[String]) extends Component[Boolean] {
                 A.onClick(_ => emit(false))
             )
         )
-    }
+    )
 }
 ```
 
@@ -56,14 +56,12 @@ case class Counter() extends Component[Unit] {
         }
     }
     
-    override def render() = {
-        E.div(
-            Component(OkCancel, "Would you like some icecream?").withHandler(onClick),
-            E.hr(),
-            E.div(Text("You've clicked OK " + okClicks() + " times.")),
-            E.div(Text("You've clicked Cancel " + cancelClicks() + " times."))
-        )
-    }
+    override def render() = E.div(
+        Component(OkCancel, "Would you like some icecream?").withHandler(onClick),
+        E.hr(),
+        E.div(Text("You've clicked OK " + okClicks() + " times.")),
+        E.div(Text("You've clicked Cancel " + cancelClicks() + " times."))
+    )
     
 }
 ```
@@ -75,7 +73,7 @@ The `State` type allows the library to detect when you update the state, so it c
 
 ```scala
 case class OkCancel(label : P[String]) extends Component[Boolean] {
-    override def render() = {
+    override def render() = E.div(
         E.div(Text(label()), S.color.rgb(0, 0, 255)),
         E.div(
             E.button(
@@ -89,7 +87,7 @@ case class OkCancel(label : P[String]) extends Component[Boolean] {
                 A.onClick(_ => emit(false))
             )
         )
-    }
+    )
 }
 ```
 
