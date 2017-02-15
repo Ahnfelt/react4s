@@ -57,10 +57,12 @@ case class Counter() extends Component[Unit] {
     }
     
     override def render() = {
-        Component(OkCancel, "Would you like some icecream?").withHandler(onClick),
-        E.hr(),
-        E.div(Text("You've clicked OK " + okClicks() + " times.")),
-        E.div(Text("You've clicked Cancel " + cancelClicks() + " times."))
+        E.div(
+            Component(OkCancel, "Would you like some icecream?").withHandler(onClick),
+            E.hr(),
+            E.div(Text("You've clicked OK " + okClicks() + " times.")),
+            E.div(Text("You've clicked Cancel " + cancelClicks() + " times."))
+        )
     }
     
 }
