@@ -43,7 +43,7 @@ The remaining arguments are the props for the component.
 # Keeping state
 
 ```scala
-case class Counter() extends Component[Unit] {
+case class Counter() extends Component[NoEmit] {
     
     val okClicks = State(0)
     val cancelClicks = State(0)
