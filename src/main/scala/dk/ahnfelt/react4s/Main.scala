@@ -33,7 +33,7 @@ case object Decrement extends CounterMessage
 case object Remove extends CounterMessage
 
 
-case class CounterListComponent() extends Component[Unit] {
+case class CounterListComponent() extends Component[NoEmit] {
 
     val counters = State(List[Counter]())
 

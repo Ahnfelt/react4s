@@ -1,6 +1,6 @@
 package dk.ahnfelt.react4s
 
-abstract class Component[M] {
+trait Component[M] {
     private[react4s] var updateScheduled = false
     var emit : M => Unit = { _ => }
     var update : () => Unit = { () => }
@@ -32,6 +32,7 @@ object Component {
     def apply[P1, P2, P3, P4, P5, P6, P7, M](           f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7)                                                = ConstructorData(Constructor7(f, p1, p2, p3, p4, p5, p6, p7))
     def apply[P1, P2, P3, P4, P5, P6, P7, P8, M](       f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8)                           = ConstructorData(Constructor8(f, p1, p2, p3, p4, p5, p6, p7, p8))
     def apply[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9)      = ConstructorData(Constructor9(f, p1, p2, p3, p4, p5, p6, p7, p8, p9))
+
 }
 
 abstract class State[T] {
@@ -41,6 +42,8 @@ abstract class State[T] {
 }
 
 abstract class P[T] extends (() => T)
+
+final abstract class NoEmit
 
 sealed abstract class Tag {
     def when(condition : Boolean) : Tag = if(condition) this else Empty
