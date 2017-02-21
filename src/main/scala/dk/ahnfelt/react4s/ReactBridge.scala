@@ -2,13 +2,16 @@ package dk.ahnfelt.react4s
 
 import scala.scalajs.js
 
+/** Used to bridge between the React4s API and the plain React API. */
 object ReactBridge {
 
+    /** Insert the specified element or component inside the DOM element with the given ID. The DOM element must already exist in the DOM. */
     def renderToDomById(elementOrComponent : ElementOrComponent, id : String) : Unit = {
         val domElement = js.Dynamic.global.document.getElementById(id)
         renderToDom(elementOrComponent, domElement)
     }
 
+    /** Insert the specified element or component inside the given DOM element. The DOM element must already exist in the DOM. */
     def renderToDom(elementOrComponent : ElementOrComponent, domElement : js.Any) : Unit = {
         val e = elementOrComponentToReact(elementOrComponent)
         js.Dynamic.global.ReactDOM.render(e, domElement)
@@ -55,8 +58,6 @@ object ReactBridge {
 
             case EventHandler(name, handler) =>
                 props.update(name, handler)
-
-            case Empty =>
 
         }
 
@@ -152,14 +153,12 @@ object ReactBridge {
 
 }
 
+/** Represents a plain React element. */
 @js.native
 trait ReactElement extends js.Object {}
 
 @js.native
-object React extends js.Object {
+private object React extends js.Object {
     def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any]) : ReactElement = js.native
     def createClass(methods : js.Dictionary[js.Any]) : js.Any = js.native
 }
-
-@js.native
-trait ReactEvent extends js.Object {}

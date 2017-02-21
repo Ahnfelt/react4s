@@ -1,14 +1,22 @@
 package dk.ahnfelt.react4s
 
+/** Represents a React component that can emit messages of type M. Use Component[NoEmit] for components that never emit messages. */
 trait Component[M] {
+    /** Internal flag that ensures we only update the state once between renderings. */
     private[react4s] var updateScheduled = false
+    /** Emit a message of type M, which can be handled by a parent component by using .withHandler(...). */
     var emit : M => Unit = { _ => }
+    /** Signal that the component state has changed. This always results in a re-rendering of this component. */
     var update : () => Unit = { () => }
+    /** Called just before render(). You can modify component state here. */
     def componentWillRender() : Unit = {}
+    /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
     def componentWillUnmount() : Unit = {}
+    /** Called when the component needs to be rendered. Rerendering only happens when this components props are change or it's state is updated. */
     def render() : Element
 
-    class ComponentState[T](var value : T) extends State[T] {
+    /** Internal implementation of a component state variable that automatically calls update() when changed. */
+    private class ComponentState[T](var value : T) extends State[T] {
         def apply() : T = value
         def set(value : T) : Unit = {
             this.value = value
@@ -16,60 +24,90 @@ trait Component[M] {
         }
     }
 
+    /** Used to represent local component state. The component update() method is automatically called when .set or .modify is called. */
     object State {
-        def apply[T](value : T) = new ComponentState(value)
+        def apply[T](value : T) : State[T] = new ComponentState(value)
     }
 }
 
 object Component {
+    /** Captures a Component constructor with zero props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[M](                                       f : { def apply() : Component[M] })                                                                                                                                                                                                 = ConstructorData(Constructor0(f))
+    /** Captures a Component constructor with one prop so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, M](                                   f : { def apply(p1 : P[P1]) : Component[M] }, p1 : P1)                                                                                                                                                                              = ConstructorData(Constructor1(f, p1))
+    /** Captures a Component constructor with two props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, M](                               f : { def apply(p1 : P[P1], p2 : P[P2]) : Component[M] }, p1 : P1, p2 : P2)                                                                                                                                                         = ConstructorData(Constructor2(f, p1, p2))
+    /** Captures a Component constructor with three props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, P3, M](                           f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3)                                                                                                                                    = ConstructorData(Constructor3(f, p1, p2, p3))
+    /** Captures a Component constructor with four props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, P3, P4, M](                       f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4)                                                                                                               = ConstructorData(Constructor4(f, p1, p2, p3, p4))
+    /** Captures a Component constructor with five props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, P3, P4, P5, M](                   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5)                                                                                          = ConstructorData(Constructor5(f, p1, p2, p3, p4, p5))
+    /** Captures a Component constructor with six props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, P3, P4, P5, P6, M](               f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6)                                                                     = ConstructorData(Constructor6(f, p1, p2, p3, p4, p5, p6))
+    /** Captures a Component constructor with seven props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, P3, P4, P5, P6, P7, M](           f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7)                                                = ConstructorData(Constructor7(f, p1, p2, p3, p4, p5, p6, p7))
+    /** Captures a Component constructor with eight props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, P3, P4, P5, P6, P7, P8, M](       f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8)                           = ConstructorData(Constructor8(f, p1, p2, p3, p4, p5, p6, p7, p8))
+    /** Captures a Component constructor with nine props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9)      = ConstructorData(Constructor9(f, p1, p2, p3, p4, p5, p6, p7, p8, p9))
-
 }
 
+/** Represents local component state. */
 abstract class State[T] {
+    /** Get the current value. */
     def apply() : T
+    /** Set the value. In components, State(...) objects automatically call component.update() when this method is called. */
     def set(value : T) : Unit
+    /** Modify the value. In components, State(...) objects automatically call component.update() when this method is called. */
     def modify(update : T => T) : Unit = set(update(apply()))
 }
 
+/** Represents a prop, ie. an argument to a Component. The value it holds can be read with .apply() and may change over time. */
 abstract class P[T] extends (() => T)
 
+/** A class with no instances, used as the type parameter for Component when the component doesn't emit messages. */
 final abstract class NoEmit
 
+/** An interface for anything that can be the child of an Element. */
 sealed abstract class Tag {
-    def when(condition : Boolean) : Tag = if(condition) this else Empty
+    /** Conditionally replaces the tag with Empty, which does nothing. */
+    def when(condition : Boolean) : Tag = if(condition) this else TagList.empty
 }
 
+/** An interface for things that are either elements or components. */
 sealed trait ElementOrComponent extends Tag {
+    /** Change the key for this element or component. React uses this to reorder components, thus saving time and keeping the internal component state where it belongs. */
     def withKey(key : String) : ElementOrComponent
+    /** Set up a callback that is called when this element or component is first added to to the DOM. The callback receives the actual DOM element. */
     def withRef(onAddToDom : Any => Unit) : ElementOrComponent
 }
 
+/** Represents an element (eg. div, span, p, h1, b, etc.). */
 final case class Element(tagName : String, children : Seq[Tag], key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
+    /** Appends the extra children to this element. */
     def apply(moreChildren : Tag*) = copy(children = children ++ moreChildren)
     def withKey(key : String) = copy(key = Some(key))
     def withRef(onAddToDom : Any => Unit) = copy(ref = Some(onAddToDom))
 }
 
-case class TagList(elements : List[Tag]) extends Tag {}
+/** A list of tags. The list will be flattened into the parent before the Virtual DOM is reconciled. */
+case class TagList(tags : List[Tag]) extends Tag {}
+object TagList {
+    /** An empty list of tags. Since the list is empty, it will be completely removed before the Virtual DOM is reconciled. */
+    val empty : TagList = TagList(List())
+}
 
-case object Empty extends Tag {}
-
+/** A tag that will be removed before the Virtual DOM is reconciled, and thus completely ignored. */
 case class Attributes(name : String, value : String, next : Option[Attributes] = None) extends Tag {}
 
+/** A piece of plain text. */
 case class Text(value : String) extends Tag {}
 
+/** An event handler, eg. onClick(...). */
 case class EventHandler(name : String, handler : SyntheticEvent => Unit) extends Tag {}
 
+/** A CSS class that will be inserted into the DOM the first time it's used to render a component. Be careful not to create these dynamically, or you'll end up filling up the DOM with styles. */
 abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
     override def toString : String = name
     def toCss : String = CssChild.cssToString(this)
@@ -78,11 +116,17 @@ abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
     var emitted = false
 }
 
+/** A style, eg. color: rgb(255, 0, 0). Can be used inline to style an Element or in a CssClass. */
 case class Style(name : String, value : String) extends Tag with CssChild {
+    /** Converts this style to the CSS syntax followed by a semicolon, eg. Style("background-color", "red").toString == "background-color: red;" */
     override def toString : String = name + ":" + value + ";"
+    /** Appends a space followed by the argument to the right-hand side of the style. */
     def apply(value : String) = copy(value = this.value + " " + value)
+    /** Appends a comma to the right-hand side of the style. */
     def comma() = copy(value = this.value + ",")
+    /** Appends an escaped URL to the right-hand side of the style. */
     def url(value : String) = apply("url('" + value.replace("'", "\\'").replace("\n", "\\n") + "')")
+    /** Appends the value and the % unit to the right-hand side of the style. */
     def percent(value : Double) = apply(value + "%")
     def em(value : Double) = apply(value + "em")
     def ex(value : Double) = apply(value + "ex")
@@ -128,6 +172,7 @@ case class Style(name : String, value : String) extends Tag with CssChild {
     def dashed() = apply("dashed")
 }
 
+/** Represents a component constructor. This class is used to delay creating the instance until necessary. */
 sealed abstract class Constructor[M](val props : Seq[Any]) { val f : Any }
 case class Constructor0[M](                                     f : { def apply() : Component[M] })                                                                                                                                                                                             extends Constructor[M](Seq())
 case class Constructor1[P1, M](                                 f : { def apply(p1 : P[P1]) : Component[M] }, p1 : P1)                                                                                                                                                                          extends Constructor[M](Seq(p1))
@@ -140,6 +185,7 @@ case class Constructor7[P1, P2, P3, P4, P5, P6, P7, M](         f : { def apply(
 case class Constructor8[P1, P2, P3, P4, P5, P6, P7, P8, M](     f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8)                       extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8))
 case class Constructor9[P1, P2, P3, P4, P5, P6, P7, P8, P9, M]( f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9)  extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8, p9))
 
+/** Represents a component constructor plus an associated handler, key and ref. */
 case class ConstructorData[M](
     constructor : Constructor[M],
     handler : M => Unit = { _ : M => },
@@ -151,7 +197,9 @@ case class ConstructorData[M](
     def withRef(onAddToDom : Any => Unit) = copy(ref = Some(onAddToDom))
 }
 
+/** A convenience object for constructing Elements. */
 object E {
+    /** Synonym for Element(tagName, children) */
     def apply(tagName : String, children : Tag*) = Element(tagName, children)
     def div(children : Tag*) = Element("div", children)
     def span(children : Tag*) = Element("span", children)
@@ -186,7 +234,9 @@ object E {
     def iframe(children : Tag*) = Element("iframe", children)
 }
 
+/** A convenience object for constructing Attributes. */
 object A extends CommonEvents {
+    /** A synonym for Attributes(attributeName, value). */
     def apply(attributeName : String, value : String) = Attributes(attributeName, value)
     /** A helper method for setting up A.onChange that just looks at e.target.value.}}} */
     def onValue(onChange : String => Unit) = {
@@ -219,7 +269,9 @@ object A extends CommonEvents {
     def on(eventName : String, handler : SyntheticEvent => Unit) = EventHandler(eventName, handler)
 }
 
+/** A convenience object for constructing Styles. */
 object S {
+    /** A synonym for Style(name, value). */
     def apply(name : String, value : String = "") = Style(name, value)
     val position = Style("position", "")
     val display = Style("display", "")
