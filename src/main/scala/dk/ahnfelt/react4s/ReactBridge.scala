@@ -133,7 +133,9 @@ object ReactBridge {
                 self.instance = instance.asInstanceOf[js.Any]
             } : js.ThisFunction),
             "componentWillUnmount" -> ({ (self : js.Dynamic) =>
-                self.instance.asInstanceOf[Component[_]].componentWillUnmount()
+                val instance = self.instance.asInstanceOf[Component[_]]
+                instance.componentWillUnmount()
+                for(attachable <- instance.attachedAttachables) attachable.componentWillUnmount()
             } : js.ThisFunction),
             "shouldComponentUpdate" -> ({ (self : js.Dynamic, nextProps : js.Dictionary[js.Any], nextState : js.Dictionary[Double]) =>
                 self.state.stateUpdates.asInstanceOf[Double] != nextState("stateUpdates") ||
@@ -145,6 +147,7 @@ object ReactBridge {
                 val instance = self.instance.asInstanceOf[Component[_]]
                 instance.updateScheduled = true // Suppresses update() calls inside componentWillUpdate
                 instance.componentWillRender()
+                for(attachable <- instance.attachedAttachables) attachable.componentWillRender()
                 instance.updateScheduled = false
                 elementToReact(instance.render())
             } : js.ThisFunction)

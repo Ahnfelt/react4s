@@ -1,13 +1,19 @@
 package dk.ahnfelt.react4s
 
+import scala.collection.mutable.ListBuffer
+
 /** Represents a React component that can emit messages of type M. Use Component[NoEmit] for components that never emit messages. */
 trait Component[M] {
     /** Internal flag that ensures we only update the state once between renderings. */
     private[react4s] var updateScheduled = false
+    /** Internal list of attached listeners. */
+    private[react4s] val attachedAttachables = ListBuffer[Attachable]()
     /** Emit a message of type M, which can be handled by a parent component by using .withHandler(...). */
     var emit : M => Unit = { _ => }
     /** Signal that the component state has changed. This always results in a re-rendering of this component. */
     var update : () => Unit = { () => }
+    /** Attach an Attachable that can listen for events in this components lifecycle. */
+    def attach[T <: Attachable](attachable : T) : T = { attachedAttachables += attachable; attachable }
     /** Called just before render(). You can modify component state here. */
     def componentWillRender() : Unit = {}
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
@@ -51,6 +57,14 @@ object Component {
     def apply[P1, P2, P3, P4, P5, P6, P7, P8, M](       f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8)                           = ConstructorData(Constructor8(f, p1, p2, p3, p4, p5, p6, p7, p8))
     /** Captures a Component constructor with nine props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
     def apply[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9)      = ConstructorData(Constructor9(f, p1, p2, p3, p4, p5, p6, p7, p8, p9))
+}
+
+/** Can be attached to a Component to listen for lifecycle events. */
+trait Attachable {
+    /** Called after componentWillRender() returns on the component to which this is attached. */
+    def componentWillRender() : Unit = {}
+    /** Called after componentWillUnmount() returns on the component to which this is attached. */
+    def componentWillUnmount() : Unit = {}
 }
 
 /** Represents local component state. */
