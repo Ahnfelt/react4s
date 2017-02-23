@@ -62,7 +62,7 @@ object Component {
 /** Can be attached to a Component to listen for lifecycle events. */
 trait Attachable {
     /** Called after componentWillRender() returns on the component to which this is attached. */
-    def componentWillRender() : Unit = {}
+    def componentWillRender(update : () => Unit) : Unit = {}
     /** Called after componentWillUnmount() returns on the component to which this is attached. */
     def componentWillUnmount() : Unit = {}
 }

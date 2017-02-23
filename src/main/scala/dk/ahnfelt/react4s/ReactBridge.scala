@@ -147,7 +147,7 @@ object ReactBridge {
                 val instance = self.instance.asInstanceOf[Component[_]]
                 instance.updateScheduled = true // Suppresses update() calls inside componentWillUpdate
                 instance.componentWillRender()
-                for(attachable <- instance.attachedAttachables) attachable.componentWillRender()
+                for(attachable <- instance.attachedAttachables) attachable.componentWillRender(instance.update)
                 instance.updateScheduled = false
                 elementToReact(instance.render())
             } : js.ThisFunction)
