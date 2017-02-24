@@ -245,13 +245,13 @@ object A extends CommonEvents {
     /** A synonym for Attributes(attributeName, value). */
     def apply(attributeName : String, value : String) = Attributes(attributeName, value)
     /** A helper method for setting up A.onChange that just looks at e.target.value.}}} */
-    def onValue(onChange : String => Unit) = {
+    def onChangeText(onChange : String => Unit) = {
         A.onChange(e => onChange(e.target.value.asInstanceOf[String]))
     }
     /** A helper method for setting up A.value and A.onChange for State[String]. Example: {{{E.input(A.bindValue(name))}}} */
     def bindValue(state : State[String]) : TagList = TagList(List(
         A.value(state()),
-        A.onValue(v => state.set(v))
+        A.onChangeText(v => state.set(v))
     ))
     def action(value : String) = Attributes("action", value)
     def src(value : String) = Attributes("src", value)
