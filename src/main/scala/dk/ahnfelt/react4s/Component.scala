@@ -134,6 +134,8 @@ case class Style(name : String, value : String) extends Tag with CssChild {
     def url(value : String) = apply("url('" + value.replace("'", "\\'").replace("\n", "\\n") + "')")
     /** Appends the value and the % unit to the right-hand side of the style. */
     def percent(value : Double) = apply(value + "%")
+    /** Appends the unit-less 0 to the right-hand side of the style. */
+    def zero() = apply("0")
     def em(value : Double) = apply(value + "em")
     def ex(value : Double) = apply(value + "ex")
     def ch(value : Double) = apply(value + "ch")
@@ -164,6 +166,10 @@ case class Style(name : String, value : String) extends Tag with CssChild {
     def rgba(r : Double, g : Double, b : Double, a : Double) = apply("rgba(" + r.round + ", " + g.round + ", " + b.round + ", " + a + ")")
     def hsl(h : Double, s : Double, l : Double) = apply("hsl(" + h.round + ", " + s.round + "%, " + l.round + "%)")
     def hsla(h : Double, s : Double, l : Double, a : Double) = apply("hsla(" + h.round + ", " + s.round + "%, " + l.round + "%, " + a + ")")
+    def absolute() = apply("absolute")
+    def relative() = apply("relative")
+    def static() = apply("static")
+    def fixed() = apply("fixed")
     def block() = apply("block")
     def inlineBlock() = apply("inline-block")
     def inline() = apply("inline")
