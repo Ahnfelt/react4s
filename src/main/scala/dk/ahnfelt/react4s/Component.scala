@@ -134,8 +134,8 @@ case class Style(name : String, value : String) extends Tag with CssChild {
     def url(value : String) = apply("url('" + value.replace("'", "\\'").replace("\n", "\\n") + "')")
     /** Appends the value and the % unit to the right-hand side of the style. */
     def percent(value : Double) = apply(value + "%")
-    /** Appends the unit-less 0 to the right-hand side of the style. */
-    def zero() = apply("0")
+    /** Appends the unit-less number to the right-hand side of the style. */
+    def number(value : Double) = apply(value.toString)
     def em(value : Double) = apply(value + "em")
     def ex(value : Double) = apply(value + "ex")
     def ch(value : Double) = apply(value + "ch")
