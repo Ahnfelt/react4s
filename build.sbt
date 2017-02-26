@@ -4,7 +4,8 @@ name := "react4s"
 organization := "com.github.ahnfelt"
 version := "0.2-SNAPSHOT"
 
-scalaVersion := "2.11.8"
+crossScalaVersions := Seq( "2.11.8", scalaVersion.value )
+scalaVersion := "2.12.1"
 scalacOptions += "-feature"
 
 
