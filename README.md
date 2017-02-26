@@ -4,6 +4,10 @@ It exposes an API that makes it easy to write plain and simple Scala code for yo
 You get the indispensable `shouldComponentUpdate()` for free, no callback memoization required.
 It uses no macros, no implicits and no complicated types.
 
+```sbt
+resolvers += Resolver.sonatypeRepo("snapshots")
+libraryDependencies += "com.github.ahnfelt" %%% "react4s" % "0.1-SNAPSHOT"
+```
 
 # Writing a component
 
