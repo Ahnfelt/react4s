@@ -146,26 +146,23 @@ object Debounce {
     trait AttachableDebounce[T] extends Debounce[T] with Attachable
 
     /** When the dependency is changed, don't propagate the value immediately - instead wait until no change has been made for the specified milliseconds. If immediate is set, propagate the first change after a pause immediately. */
-    def apply[T](component : Component[_], dependency : () => T, milliseconds : Long = 250, immediate : Boolean = false, onPropagate : T => Unit = {_ : T => }) = component.attach(new AttachableDebounce[T] {
+    def apply[T](component : Component[_], dependency : () => T, milliseconds : Long = 250, immediate : Boolean = false) : Debounce[T] = component.attach(new AttachableDebounce[T] {
         private var timeout : Option[SetTimeoutHandle] = None
         private var oldValue : T = dependency()
 
         override def apply() = oldValue
-        onPropagate(oldValue)
 
         override def componentWillRender(update : () => Unit) : Unit = {
             val newValue = dependency()
             if(oldValue != newValue) {
                 if(immediate && timeout.isEmpty) {
                     oldValue = newValue
-                    onPropagate(newValue)
                 }
                 for(oldTimeout <- timeout) js.timers.clearTimeout(oldTimeout)
                 timeout = Some(js.timers.setTimeout(milliseconds) {
                     oldValue = newValue
                     timeout = None
                     update()
-                    onPropagate(newValue)
                 })
             }
         }
