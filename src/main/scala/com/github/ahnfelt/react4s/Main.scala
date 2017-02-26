@@ -1,6 +1,4 @@
-package dk.ahnfelt.react4s
-
-
+package com.github.ahnfelt.react4s
 
 //
 // The code in this file is just example code, and not really part of the library.

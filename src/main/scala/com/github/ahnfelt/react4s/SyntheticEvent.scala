@@ -1,4 +1,4 @@
-package dk.ahnfelt.react4s
+package com.github.ahnfelt.react4s
 
 import scala.scalajs.js
 

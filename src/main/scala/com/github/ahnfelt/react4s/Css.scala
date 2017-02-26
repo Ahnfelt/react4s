@@ -1,6 +1,4 @@
-package dk.ahnfelt.react4s
-
-import scala.scalajs.js
+package com.github.ahnfelt.react4s
 
 trait CssChild
 case class CssPseudoClass(name : String, children : Seq[CssChild]) extends CssChild
