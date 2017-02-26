@@ -60,7 +60,7 @@ object Component {
 }
 
 /** Represents local component state. */
-abstract class State[T] {
+abstract class State[T] extends (() => T) {
     /** Get the current value. */
     def apply() : T
     /** Set the value. In components, State(...) objects automatically call component.update() when this method is called. */
