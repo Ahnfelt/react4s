@@ -5,6 +5,7 @@ organization := "com.github.ahnfelt"
 version := "0.2-SNAPSHOT"
 
 scalaVersion := "2.11.8"
+scalacOptions += "-feature"
 
 
 publishMavenStyle := true

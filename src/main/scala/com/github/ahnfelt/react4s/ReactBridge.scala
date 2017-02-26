@@ -1,5 +1,6 @@
 package com.github.ahnfelt.react4s
 
+import scala.language.reflectiveCalls
 import scala.scalajs.js
 
 /** Used to bridge between the React4s API and the plain React API. */
