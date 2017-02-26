@@ -73,7 +73,7 @@ object CssChild {
             if(media.nonEmpty) builder.append("@media" + media + " {\n")
             builder.append(mediaSpaces + selector + " {\n")
             for(c <- flattened) c match {
-                case s : Style => builder.append(mediaSpaces + "  " + s + "\n")
+                case s : Style => builder.append(mediaSpaces + "  " + Style.toStandardName(s.name) + ":" + s.value + ";\n")
                 case _ =>
             }
             builder.append(mediaSpaces + "}\n")

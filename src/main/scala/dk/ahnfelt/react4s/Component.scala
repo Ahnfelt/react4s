@@ -127,7 +127,7 @@ abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
 /** A style, eg. color: rgb(255, 0, 0). Can be used inline to style an Element or in a CssClass. */
 case class Style(name : String, value : String) extends Tag with CssChild {
     /** Converts this style to the CSS syntax followed by a semicolon, eg. Style("background-color", "red").toString == "background-color: red;" */
-    override def toString : String = name + ":" + value + ";"
+    override def toString : String = Style.toStandardName(name) + ":" + value + ";"
     /** Appends a space followed by the argument to the right-hand side of the style. */
     def apply(value : String) = copy(value = this.value + " " + value)
     /** Appends a comma to the right-hand side of the style. */
@@ -184,6 +184,13 @@ case class Style(name : String, value : String) extends Tag with CssChild {
     def solid() = apply("solid")
     def dotted() = apply("dotted")
     def dashed() = apply("dashed")
+}
+
+object Style {
+    private val camelPattern = "([A-Z])".r
+    private val snakePattern = "[-]([a-z])".r
+    def toStandardName(name : String) : String = camelPattern.replaceAllIn(name, m => "-" + m.group(1).toLowerCase)
+    def toReactName(name : String) : String = snakePattern.replaceAllIn(name, m => m.group(1).toUpperCase)
 }
 
 /** Represents a component constructor. This class is used to delay creating the instance until necessary. */

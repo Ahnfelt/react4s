@@ -51,7 +51,7 @@ object ReactBridge {
                 props.update("className", props.get("className").map(_ + " " + cssClass.name : js.Any).getOrElse(cssClass.name))
 
             case Style(name, value) =>
-                style.update(name, value)
+                style.update(Style.toReactName(name), value)
 
             case Text(value) =>
                 children.push(value)
