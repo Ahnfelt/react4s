@@ -37,7 +37,7 @@ object ReactBridge {
             case constructor : ConstructorData[_] =>
                 children.push(componentToReact(constructor))
 
-            case TagList(tags) =>
+            case Tags(tags) =>
                 for(t <- tags) insert(t)
 
             case Attributes(name, value, next) =>

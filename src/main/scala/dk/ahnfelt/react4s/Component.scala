@@ -78,7 +78,7 @@ final abstract class NoEmit
 /** An interface for anything that can be the child of an Element. */
 sealed abstract class Tag {
     /** Conditionally replaces the tag with Empty, which does nothing. */
-    def when(condition : Boolean) : Tag = if(condition) this else TagList.empty
+    def when(condition : Boolean) : Tag = if(condition) this else Tags.empty
 }
 
 /** An interface for things that are either elements or components. */
@@ -98,10 +98,12 @@ final case class Element(tagName : String, children : Seq[Tag], key : Option[Str
 }
 
 /** A list of tags. The list will be flattened into the parent before the Virtual DOM is reconciled. */
-case class TagList(tags : List[Tag]) extends Tag {}
-object TagList {
+case class Tags(tags : Seq[Tag]) extends Tag {}
+object Tags {
+    /** An optional tag. */
+    def apply(option : Option[Tag]) = option.getOrElse(empty)
     /** An empty list of tags. Since the list is empty, it will be completely removed before the Virtual DOM is reconciled. */
-    val empty : TagList = TagList(List())
+    val empty : Tags = Tags(Seq())
 }
 
 /** A tag that will be removed before the Virtual DOM is reconciled, and thus completely ignored. */
@@ -255,7 +257,7 @@ object A extends CommonEvents {
         A.onChange(e => onChange(e.target.value.asInstanceOf[String]))
     }
     /** A helper method for setting up A.value and A.onChange for State[String]. Example: {{{E.input(A.bindValue(name))}}} */
-    def bindValue(state : State[String]) : TagList = TagList(List(
+    def bindValue(state : State[String]) : Tags = Tags(List(
         A.value(state()),
         A.onChangeText(v => state.set(v))
     ))

@@ -53,7 +53,7 @@ case class CounterListComponent() extends Component[NoEmit] {
     override def render() = {
         E.div(
             E.button(Text("Add"), A.onClick(_ => onAddCounter()), FancyButtonCss),
-            TagList(
+            Tags(
                 counters().zipWithIndex.map { case (counter, index) =>
                     Component(CounterComponent, counter).withHandler(onCounterMessage(index))
                 }
