@@ -146,3 +146,5 @@ This is the complete component lifecycle for React4s. It's simpler than plain Re
 4. When your component is removed from the Virtual DOM, componentWillUnmount() is called.
 
 The component will only be rerendered when your props have changed, as defined by Scala's structural inequality `!=`, or your state has been updated. The state is considered updated when you've called `update()` explicitly or called `.set(...)` or `.modify(...)` on State objects. React4s never looks inside your state to see if it changed.
+
+You can attach Attachables that listen on these lifecycle events, and react4s comes with three of those: `Timeout`, `Debounce` and `Loader`.
