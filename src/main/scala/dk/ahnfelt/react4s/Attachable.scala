@@ -18,9 +18,9 @@ trait Attachable {
 /**
 For loading things based on props and state asynchronously without introducing race conditions. Assuming itemId : P[Long], here's an example:
 {{{
-val itemName = attach(Loader(itemId) { id =>
+val itemName = Loader(this, itemId) { id =>
     Ajax.get("/item/" + id + "/name")
-})
+}
 
 def render() = E.div(
     E.div(Text("Loading...")).when(itemName.loading()),
