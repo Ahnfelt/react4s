@@ -24,48 +24,48 @@ object ReactBridge {
         js.Dynamic.global.document.head.appendChild(domStyle)
     }
 
+    private def insert(tag : Tag, props : js.Dictionary[js.Any], children : js.Array[js.Any], style : js.Dictionary[js.Any]) : Unit = tag match {
+
+        case element : Element =>
+            children.push(elementToReact(element))
+
+        case constructor : ConstructorData[_] =>
+            children.push(componentToReact(constructor))
+
+        case dynamic : DynamicComponent =>
+            children.push(dynamicComponentToReact(dynamic))
+
+        case Tags(tags) =>
+            for(t <- tags) insert(t, props, children, style)
+
+        case Attributes(name, value, next) =>
+            props.update(name, value)
+
+        case cssClass : CssClass =>
+            if(!cssClass.emitted) {
+                cssClass.emitted = true
+                addStyle(cssClass.name, CssChild.cssToString(cssClass))
+            }
+            props.update("className", props.get("className").map(_ + " " + cssClass.name : js.Any).getOrElse(cssClass.name))
+
+        case Style(name, value) =>
+            style.update(Style.toReactName(name), value)
+
+        case Text(value) =>
+            children.push(value)
+
+        case EventHandler(name, handler) =>
+            props.update(name, handler)
+
+    }
+
     def elementToReact(element : Element) : ReactElement = {
 
         val props = js.Dictionary[js.Any]()
         val children = js.Array[js.Any]()
         val style = js.Dictionary[js.Any]()
 
-        def insert(tag : Tag) : Unit = tag match {
-
-            case element : Element =>
-                children.push(elementToReact(element))
-
-            case constructor : ConstructorData[_] =>
-                children.push(componentToReact(constructor))
-
-            case dynamic : DynamicComponent =>
-                children.push(dynamicComponentToReact(dynamic))
-
-            case Tags(tags) =>
-                for(t <- tags) insert(t)
-
-            case Attributes(name, value, next) =>
-                props.update(name, value)
-
-            case cssClass : CssClass =>
-                if(!cssClass.emitted) {
-                    cssClass.emitted = true
-                    addStyle(cssClass.name, CssChild.cssToString(cssClass))
-                }
-                props.update("className", props.get("className").map(_ + " " + cssClass.name : js.Any).getOrElse(cssClass.name))
-
-            case Style(name, value) =>
-                style.update(Style.toReactName(name), value)
-
-            case Text(value) =>
-                children.push(value)
-
-            case EventHandler(name, handler) =>
-                props.update(name, handler)
-
-        }
-
-        for(tag <- element.children) insert(tag)
+        for(tag <- element.children) insert(tag, props, children, style)
 
         for(k <- element.key) props.update("key", k)
         for(r <- element.ref) props.update("ref", r)
@@ -97,10 +97,17 @@ object ReactBridge {
 
     def dynamicComponentToReact(dynamic : DynamicComponent) : ReactElement = {
         val originalDictionary = dynamic.props.asInstanceOf[js.Dictionary[js.Any]]
-        val dictionary = if(dynamic.key.isDefined || dynamic.ref.isDefined) js.Dictionary(originalDictionary.toSeq : _*) else originalDictionary
-        for(k <- dynamic.key) dictionary.update("key", k)
-        for(r <- dynamic.ref) dictionary.update("ref", r)
-        React.createElement(dynamic.componentClass.asInstanceOf[js.Any], dictionary)
+        val props = if(dynamic.key.isDefined || dynamic.ref.isDefined) js.Dictionary(originalDictionary.toSeq : _*) else originalDictionary
+        val children = js.Array[js.Any]()
+        val style = js.Dictionary[js.Any]()
+
+        for(tag <- dynamic.children) insert(tag, props, children, style)
+
+        for(k <- dynamic.key) props.update("key", k)
+        for(r <- dynamic.ref) props.update("ref", r)
+        if(dynamic.children.nonEmpty) props.update("children", children)
+
+        React.createElement(dynamic.componentClass.asInstanceOf[js.Any], props)
     }
 
     def elementOrComponentToReact(elementOrComponent : ElementOrComponent) : ReactElement = {
