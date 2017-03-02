@@ -90,7 +90,7 @@ sealed trait ElementOrComponent extends Tag {
 }
 
 /** Wraps a React component written in JavaScript. Example: ```DynamicComponent(js.Dynamic.global.MyJsComponent, js.Dictionary("label" -> "Go!"))``` */
-final case class DynamicComponent(componentClass : Any, props : Any, key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
+final case class DynamicElement( componentClass : Any, props : Any, key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
     override def withKey(key : String) = copy(key = Some(key))
     override def withRef(onAddToDom : Any => Unit) = copy(ref = Some(onAddToDom))
 }

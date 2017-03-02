@@ -38,7 +38,7 @@ object ReactBridge {
             case constructor : ConstructorData[_] =>
                 children.push(componentToReact(constructor))
 
-            case dynamic : DynamicComponent =>
+            case dynamic : DynamicElement =>
                 children.push(dynamicComponentToReact(dynamic))
 
             case Tags(tags) =>
@@ -95,7 +95,7 @@ object ReactBridge {
         React.createElement(componentClass, props)
     }
 
-    def dynamicComponentToReact(dynamic : DynamicComponent) : ReactElement = {
+    def dynamicComponentToReact(dynamic : DynamicElement) : ReactElement = {
         val originalDictionary = dynamic.props.asInstanceOf[js.Dictionary[js.Any]]
         val dictionary = if(dynamic.key.isDefined || dynamic.ref.isDefined) js.Dictionary(originalDictionary.toSeq : _*) else originalDictionary
         for(k <- dynamic.key) dictionary.update("key", k)
@@ -107,7 +107,7 @@ object ReactBridge {
         elementOrComponent match {
             case element : Element => elementToReact(element)
             case constructor : ConstructorData[_] => componentToReact(constructor)
-            case dynamic : DynamicComponent => dynamicComponentToReact(dynamic)
+            case dynamic : DynamicElement => dynamicComponentToReact(dynamic)
         }
     }
 
