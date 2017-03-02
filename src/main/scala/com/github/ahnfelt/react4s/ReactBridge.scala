@@ -105,6 +105,7 @@ object ReactBridge {
 
         for(k <- dynamic.key) props.update("key", k)
         for(r <- dynamic.ref) props.update("ref", r)
+        if(style.nonEmpty) props.update("style", style)
         if(children.nonEmpty) props.update("children", children)
 
         React.createElement(dynamic.componentClass.asInstanceOf[js.Any], props)
