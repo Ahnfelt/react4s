@@ -97,7 +97,7 @@ object ReactBridge {
 
     def dynamicComponentToReact(dynamic : DynamicComponent) : ReactElement = {
         val originalDictionary = dynamic.props.asInstanceOf[js.Dictionary[js.Any]]
-        val props = if(dynamic.key.isDefined || dynamic.ref.isDefined) js.Dictionary(originalDictionary.toSeq : _*) else originalDictionary
+        val props = if(dynamic.children.nonEmpty || dynamic.key.isDefined || dynamic.ref.isDefined) js.Dictionary(originalDictionary.toSeq : _*) else originalDictionary
         val children = js.Array[js.Any]()
         val style = js.Dictionary[js.Any]()
 
