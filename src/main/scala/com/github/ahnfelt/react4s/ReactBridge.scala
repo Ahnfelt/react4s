@@ -24,7 +24,7 @@ object ReactBridge {
         js.Dynamic.global.document.head.appendChild(domStyle)
     }
 
-    def elementToReact(element : Element) : ReactElement = {
+    def htmlElementToReact( element : HtmlElement) : ReactElement = {
 
         val props = js.Dictionary[js.Any]()
         val children = js.Array[js.Any]()
@@ -32,8 +32,8 @@ object ReactBridge {
 
         def insert(tag : Tag) : Unit = tag match {
 
-            case element : Element =>
-                children.push(elementToReact(element))
+            case element : HtmlElement =>
+                children.push(htmlElementToReact(element))
 
             case constructor : ConstructorData[_] =>
                 children.push(componentToReact(constructor))
@@ -105,7 +105,7 @@ object ReactBridge {
 
     def elementOrComponentToReact(elementOrComponent : ElementOrComponent) : ReactElement = {
         elementOrComponent match {
-            case element : Element => elementToReact(element)
+            case html : HtmlElement => htmlElementToReact(html)
             case constructor : ConstructorData[_] => componentToReact(constructor)
             case dynamic : DynamicElement => dynamicComponentToReact(dynamic)
         }
@@ -162,7 +162,7 @@ object ReactBridge {
                 instance.componentWillRender()
                 for(attachable <- instance.attachedAttachables) attachable.componentWillRender(instance.update)
                 instance.updateScheduled = false
-                elementToReact(instance.render())
+                htmlElementToReact(instance.render())
             } : js.ThisFunction)
         ))
     }

@@ -19,7 +19,7 @@ trait Component[M] {
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
     def componentWillUnmount() : Unit = {}
     /** Called when the component needs to be rendered. Rerendering only happens when this components props are change or it's state is updated. */
-    def render() : Element
+    def render() : HtmlElement
 
     /** Internal implementation of a component state variable that automatically calls update() when changed. */
     private class ComponentState[T](var value : T) extends State[T] {
@@ -89,14 +89,14 @@ sealed trait ElementOrComponent extends Tag {
     def withRef(onAddToDom : Any => Unit) : ElementOrComponent
 }
 
-/** Wraps a React component written in JavaScript. Example: ```DynamicComponent(js.Dynamic.global.MyJsComponent, js.Dictionary("label" -> "Go!"))``` */
-final case class DynamicElement( componentClass : Any, props : Any, key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
+/** Wraps a React component written in JavaScript. Example: ```DynamicElement(js.Dynamic.global.MyJsComponent, js.Dictionary("label" -> "Go!"))``` */
+final case class DynamicElement(componentClass : Any, props : Any, key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
     override def withKey(key : String) = copy(key = Some(key))
     override def withRef(onAddToDom : Any => Unit) = copy(ref = Some(onAddToDom))
 }
 
 /** Represents an element (eg. div, span, p, h1, b, etc.). */
-final case class Element(tagName : String, children : Seq[Tag], key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
+final case class HtmlElement(tagName : String, children : Seq[Tag], key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
     /** Appends the extra children to this element. */
     def apply(moreChildren : Tag*) = copy(children = children ++ moreChildren)
     def withKey(key : String) = copy(key = Some(key))
@@ -227,38 +227,38 @@ case class ConstructorData[M](
 /** A convenience object for constructing Elements. */
 object E {
     /** Synonym for Element(tagName, children) */
-    def apply(tagName : String, children : Tag*) = Element(tagName, children)
-    def div(children : Tag*) = Element("div", children)
-    def span(children : Tag*) = Element("span", children)
-    def button(children : Tag*) = Element("button", children)
-    def input(children : Tag*) = Element("input", children)
-    def textarea(children : Tag*) = Element("textarea", children)
-    def select(children : Tag*) = Element("select", children)
-    def option(children : Tag*) = Element("option", children)
-    def form(children : Tag*) = Element("form", children)
-    def label(children : Tag*) = Element("label", children)
-    def table(children : Tag*) = Element("table", children)
-    def thead(children : Tag*) = Element("thead", children)
-    def tbody(children : Tag*) = Element("tbody", children)
-    def tr(children : Tag*) = Element("tr", children)
-    def td(children : Tag*) = Element("td", children)
-    def th(children : Tag*) = Element("th", children)
-    def p(children : Tag*) = Element("p", children)
-    def hr(children : Tag*) = Element("hr", children)
-    def br(children : Tag*) = Element("br", children)
-    def a(children : Tag*) = Element("a", children)
-    def img(children : Tag*) = Element("img", children)
-    def h1(children : Tag*) = Element("h1", children)
-    def h2(children : Tag*) = Element("h2", children)
-    def h3(children : Tag*) = Element("h3", children)
-    def h4(children : Tag*) = Element("h4", children)
-    def h5(children : Tag*) = Element("h5", children)
-    def h6(children : Tag*) = Element("h6", children)
-    def blockquote(children : Tag*) = Element("blockquote", children)
-    def ol(children : Tag*) = Element("ol", children)
-    def ul(children : Tag*) = Element("ul", children)
-    def li(children : Tag*) = Element("li", children)
-    def iframe(children : Tag*) = Element("iframe", children)
+    def apply(tagName : String, children : Tag*) = HtmlElement(tagName, children)
+    def div(children : Tag*) = HtmlElement("div", children)
+    def span(children : Tag*) = HtmlElement("span", children)
+    def button(children : Tag*) = HtmlElement("button", children)
+    def input(children : Tag*) = HtmlElement("input", children)
+    def textarea(children : Tag*) = HtmlElement("textarea", children)
+    def select(children : Tag*) = HtmlElement("select", children)
+    def option(children : Tag*) = HtmlElement("option", children)
+    def form(children : Tag*) = HtmlElement("form", children)
+    def label(children : Tag*) = HtmlElement("label", children)
+    def table(children : Tag*) = HtmlElement("table", children)
+    def thead(children : Tag*) = HtmlElement("thead", children)
+    def tbody(children : Tag*) = HtmlElement("tbody", children)
+    def tr(children : Tag*) = HtmlElement("tr", children)
+    def td(children : Tag*) = HtmlElement("td", children)
+    def th(children : Tag*) = HtmlElement("th", children)
+    def p(children : Tag*) = HtmlElement("p", children)
+    def hr(children : Tag*) = HtmlElement("hr", children)
+    def br(children : Tag*) = HtmlElement("br", children)
+    def a(children : Tag*) = HtmlElement("a", children)
+    def img(children : Tag*) = HtmlElement("img", children)
+    def h1(children : Tag*) = HtmlElement("h1", children)
+    def h2(children : Tag*) = HtmlElement("h2", children)
+    def h3(children : Tag*) = HtmlElement("h3", children)
+    def h4(children : Tag*) = HtmlElement("h4", children)
+    def h5(children : Tag*) = HtmlElement("h5", children)
+    def h6(children : Tag*) = HtmlElement("h6", children)
+    def blockquote(children : Tag*) = HtmlElement("blockquote", children)
+    def ol(children : Tag*) = HtmlElement("ol", children)
+    def ul(children : Tag*) = HtmlElement("ul", children)
+    def li(children : Tag*) = HtmlElement("li", children)
+    def iframe(children : Tag*) = HtmlElement("iframe", children)
 }
 
 /** A convenience object for constructing Attributes. */
