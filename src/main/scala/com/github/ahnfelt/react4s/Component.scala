@@ -19,7 +19,7 @@ trait Component[M] {
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
     def componentWillUnmount() : Unit = {}
     /** Called when the component needs to be rendered. Rerendering only happens when this components props are change or it's state is updated. */
-    def render() : HtmlElement
+    def render() : Element
 
     /** Internal implementation of a component state variable that automatically calls update() when changed. */
     private class ComponentState[T](var value : T) extends State[T] {
@@ -89,14 +89,25 @@ sealed trait ElementOrComponent extends Tag {
     def withRef(onAddToDom : Any => Unit) : ElementOrComponent
 }
 
+sealed trait Element extends ElementOrComponent {
+    type Self <: Element
+    def apply(moreChildren : Tag*): Self
+    def withKey(key : String): Self
+    def withRef(onAddToDom : Any => Unit): Self
+}
+
 /** Wraps a React component written in JavaScript. Example: ```DynamicElement(js.Dynamic.global.MyJsComponent, js.Dictionary("label" -> "Go!"))``` */
-final case class DynamicElement(componentClass : Any, props : Any, key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
+final case class DynamicElement(componentClass : Any, props : Any, children : Seq[Tag], key : Option[String] = None, ref : Option[Any => Unit] = None) extends Element {
+    override type Self = DynamicElement
+    /** Appends the extra children to this element. */
+    override def apply( moreChildren: Tag* ) = copy(children = children ++ moreChildren)
     override def withKey(key : String) = copy(key = Some(key))
     override def withRef(onAddToDom : Any => Unit) = copy(ref = Some(onAddToDom))
 }
 
 /** Represents an element (eg. div, span, p, h1, b, etc.). */
-final case class HtmlElement(tagName : String, children : Seq[Tag], key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
+final case class HtmlElement(tagName : String, children : Seq[Tag], key : Option[String] = None, ref : Option[Any => Unit] = None) extends Element {
+    override type Self = HtmlElement
     /** Appends the extra children to this element. */
     def apply(moreChildren : Tag*) = copy(children = children ++ moreChildren)
     def withKey(key : String) = copy(key = Some(key))

@@ -24,7 +24,12 @@ object ReactBridge {
         js.Dynamic.global.document.head.appendChild(domStyle)
     }
 
-    def htmlElementToReact( element : HtmlElement) : ReactElement = {
+    def elementToReact(element : Element) : ReactElement = element match {
+        case html: HtmlElement => htmlElementToReact(html)
+        case dynamic: DynamicElement => dynamicElementToReact(dynamic)
+    }
+
+    def htmlElementToReact(html : HtmlElement) : ReactElement = {
 
         val props = js.Dictionary[js.Any]()
         val children = js.Array[js.Any]()
@@ -39,7 +44,7 @@ object ReactBridge {
                 children.push(componentToReact(constructor))
 
             case dynamic : DynamicElement =>
-                children.push(dynamicComponentToReact(dynamic))
+                children.push(dynamicElementToReact(dynamic))
 
             case Tags(tags) =>
                 for(t <- tags) insert(t)
@@ -65,15 +70,23 @@ object ReactBridge {
 
         }
 
-        for(tag <- element.children) insert(tag)
+        for(tag <- html.children) insert(tag)
 
-        for(k <- element.key) props.update("key", k)
-        for(r <- element.ref) props.update("ref", r)
+        for(k <- html.key) props.update("key", k)
+        for(r <- html.ref) props.update("ref", r)
         if(style.nonEmpty) props.update("style", style)
         if(children.nonEmpty) props.update("children", children)
 
-        React.createElement(element.tagName, props)
+        React.createElement(html.tagName, props)
 
+    }
+
+    def dynamicElementToReact(dynamic : DynamicElement) : ReactElement = {
+        val originalDictionary = dynamic.props.asInstanceOf[js.Dictionary[js.Any]]
+        val dictionary = if(dynamic.key.isDefined || dynamic.ref.isDefined) js.Dictionary(originalDictionary.toSeq : _*) else originalDictionary
+        for(k <- dynamic.key) dictionary.update("key", k)
+        for(r <- dynamic.ref) dictionary.update("ref", r)
+        React.createElement(dynamic.componentClass.asInstanceOf[js.Any], dictionary)
     }
 
     private val componentClassMap = js.Dictionary[js.Any]()
@@ -95,19 +108,11 @@ object ReactBridge {
         React.createElement(componentClass, props)
     }
 
-    def dynamicComponentToReact(dynamic : DynamicElement) : ReactElement = {
-        val originalDictionary = dynamic.props.asInstanceOf[js.Dictionary[js.Any]]
-        val dictionary = if(dynamic.key.isDefined || dynamic.ref.isDefined) js.Dictionary(originalDictionary.toSeq : _*) else originalDictionary
-        for(k <- dynamic.key) dictionary.update("key", k)
-        for(r <- dynamic.ref) dictionary.update("ref", r)
-        React.createElement(dynamic.componentClass.asInstanceOf[js.Any], dictionary)
-    }
-
     def elementOrComponentToReact(elementOrComponent : ElementOrComponent) : ReactElement = {
         elementOrComponent match {
             case html : HtmlElement => htmlElementToReact(html)
             case constructor : ConstructorData[_] => componentToReact(constructor)
-            case dynamic : DynamicElement => dynamicComponentToReact(dynamic)
+            case dynamic : DynamicElement => dynamicElementToReact(dynamic)
         }
     }
 
@@ -162,7 +167,7 @@ object ReactBridge {
                 instance.componentWillRender()
                 for(attachable <- instance.attachedAttachables) attachable.componentWillRender(instance.update)
                 instance.updateScheduled = false
-                htmlElementToReact(instance.render())
+                elementToReact(instance.render())
             } : js.ThisFunction)
         ))
     }
