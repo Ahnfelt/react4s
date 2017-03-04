@@ -104,7 +104,7 @@ final case class Element(tagName : String, children : Seq[Tag], key : Option[Str
 }
 
 /** A list of tags. The list will be flattened into the parent before the Virtual DOM is reconciled. */
-case class Tags(tags : Seq[Tag]) extends Tag {}
+case class Tags(tags : Seq[Tag]) extends Tag
 object Tags {
     /** An optional tag. */
     def apply(option : Option[Tag]) = option.getOrElse(empty)
@@ -113,13 +113,13 @@ object Tags {
 }
 
 /** A tag that will be removed before the Virtual DOM is reconciled, and thus completely ignored. */
-case class Attribute(name : String, value : String) extends Tag {}
+case class Attribute(name : String, value : String) extends Tag
 
 /** A piece of plain text. */
-case class Text(value : String) extends Tag {}
+case class Text(value : String) extends Tag
 
 /** An event handler, eg. onClick(...). */
-case class EventHandler(name : String, handler : SyntheticEvent => Unit) extends Tag {}
+case class EventHandler(name : String, handler : SyntheticEvent => Unit) extends Tag
 
 /** A CSS class that will be inserted into the DOM the first time it's used to render a component. Be careful not to create these dynamically, or you'll end up filling up the DOM with styles. */
 abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
