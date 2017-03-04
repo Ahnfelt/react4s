@@ -44,7 +44,7 @@ object ReactBridge {
             case Tags(tags) =>
                 for(t <- tags) insert(t)
 
-            case Attributes(name, value, next) =>
+            case Attribute(name, value) =>
                 props.update(name, value)
 
             case cssClass : CssClass =>

@@ -113,7 +113,7 @@ object Tags {
 }
 
 /** A tag that will be removed before the Virtual DOM is reconciled, and thus completely ignored. */
-case class Attributes(name : String, value : String, next : Option[Attributes] = None) extends Tag {}
+case class Attribute(name : String, value : String) extends Tag {}
 
 /** A piece of plain text. */
 case class Text(value : String) extends Tag {}
@@ -264,7 +264,7 @@ object E {
 /** A convenience object for constructing Attributes. */
 object A extends CommonEvents {
     /** A synonym for Attributes(attributeName, value). */
-    def apply(attributeName : String, value : String) = Attributes(attributeName, value)
+    def apply(attributeName : String, value : String) = Attribute(attributeName, value)
     /** A helper method for setting up A.onChange that just looks at e.target.value.}}} */
     def onChangeText(onChange : String => Unit) = {
         A.onChange(e => onChange(e.target.value.asInstanceOf[String]))
@@ -274,24 +274,24 @@ object A extends CommonEvents {
         A.value(state()),
         A.onChangeText(v => state.set(v))
     ))
-    def action(value : String) = Attributes("action", value)
-    def src(value : String) = Attributes("src", value)
-    def href(value : String) = Attributes("href", value)
-    def target(value : String) = Attributes("target", value)
-    def alt(value : String) = Attributes("alt", value)
-    def title(value : String) = Attributes("title", value)
-    def id(value : String) = Attributes("id", value)
-    def name(value : String) = Attributes("name", value)
-    def placeholder(value : String) = Attributes("placeholder", value)
-    def value(value : String) = Attributes("value", value)
-    def htmlType(value : String) = Attributes("type", value)
-    def htmlFor(value : String) = Attributes("htmlFor", value)
-    def colSpan(value : Int) = Attributes("colSpan", value.toString)
-    def rowSpan(value : Int) = Attributes("rowSpan", value.toString)
-    def autoFocus() = Attributes("autoFocus", "true")
-    def checked() = Attributes("checked", "true")
-    def disabled() = Attributes("disabled", "true")
-    def className(value : String*) = Attributes("className", value.mkString(" "))
+    def action(value : String) = Attribute("action", value)
+    def src(value : String) = Attribute("src", value)
+    def href(value : String) = Attribute("href", value)
+    def target(value : String) = Attribute("target", value)
+    def alt(value : String) = Attribute("alt", value)
+    def title(value : String) = Attribute("title", value)
+    def id(value : String) = Attribute("id", value)
+    def name(value : String) = Attribute("name", value)
+    def placeholder(value : String) = Attribute("placeholder", value)
+    def value(value : String) = Attribute("value", value)
+    def htmlType(value : String) = Attribute("type", value)
+    def htmlFor(value : String) = Attribute("htmlFor", value)
+    def colSpan(value : Int) = Attribute("colSpan", value.toString)
+    def rowSpan(value : Int) = Attribute("rowSpan", value.toString)
+    def autoFocus() = Attribute("autoFocus", "true")
+    def checked() = Attribute("checked", "true")
+    def disabled() = Attribute("disabled", "true")
+    def className(value : String*) = Attribute("className", value.mkString(" "))
     /** Set up an event handler. Note that the event name must contain the 'on', eg. 'onClick' instead of 'click'. */
     def on(eventName : String, handler : SyntheticEvent => Unit) = EventHandler(eventName, handler)
 }
