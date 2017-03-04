@@ -162,7 +162,7 @@ object ReactBridge {
                 instance.componentWillRender()
                 for(attachable <- instance.attachedAttachables) attachable.componentWillRender(instance.update)
                 instance.updateScheduled = false
-                elementToReact(instance.render())
+                elementOrComponentToReact(instance.render())
             } : js.ThisFunction)
         ))
     }

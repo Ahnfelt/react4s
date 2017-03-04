@@ -19,7 +19,7 @@ trait Component[M] {
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
     def componentWillUnmount() : Unit = {}
     /** Called when the component needs to be rendered. Rerendering only happens when this components props are change or it's state is updated. */
-    def render() : Element
+    def render() : ElementOrComponent
 
     /** Internal implementation of a component state variable that automatically calls update() when changed. */
     private class ComponentState[T](var value : T) extends State[T] {
