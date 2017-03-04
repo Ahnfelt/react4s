@@ -114,7 +114,7 @@ object Tags {
     val empty : Tags = Tags(Seq())
 }
 
-/** A tag that will be removed before the Virtual DOM is reconciled, and thus completely ignored. */
+/** An attribute, such as "name" (or prop, for dynamic components). */
 case class Attribute(name : String, value : String) extends Tag
 
 /** A piece of plain text. */
