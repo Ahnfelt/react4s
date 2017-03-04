@@ -38,7 +38,7 @@ object ReactBridge {
         case Tags(tags) =>
             for(t <- tags) insert(t, props, children, style)
 
-        case Attributes(name, value, next) =>
+        case Attribute(name, value) =>
             props.update(name, value)
 
         case cssClass : CssClass =>
@@ -170,7 +170,7 @@ object ReactBridge {
                 instance.componentWillRender()
                 for(attachable <- instance.attachedAttachables) attachable.componentWillRender(instance.update)
                 instance.updateScheduled = false
-                elementToReact(instance.render())
+                elementOrComponentToReact(instance.render())
             } : js.ThisFunction)
         ))
     }
