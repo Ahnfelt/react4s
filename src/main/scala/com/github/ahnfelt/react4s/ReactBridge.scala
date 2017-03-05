@@ -18,6 +18,18 @@ object ReactBridge {
         js.Dynamic.global.ReactDOM.render(e, domElement)
     }
 
+    /** Generates static HTML with additional attributes that preserves the HTML if renderToDom is later called on the same element. For server-side use. */
+    def renderToString(elementOrComponent : ElementOrComponent) : String = {
+        val e = elementOrComponentToReact(elementOrComponent)
+        js.Dynamic.global.ReactDOMServer.renderToString(e).asInstanceOf[String]
+    }
+
+    /** Generates plain static HTML without the additional attributes of renderToString. For server-side use. */
+    def renderToStaticMarkup(elementOrComponent : ElementOrComponent) : String = {
+        val e = elementOrComponentToReact(elementOrComponent)
+        js.Dynamic.global.ReactDOMServer.renderToStaticMarkup(e).asInstanceOf[String]
+    }
+
     private var addStyle = { (name : String, css : String) =>
         val domStyle = js.Dynamic.global.document.createElement("style")
         domStyle.textContent = "\n" + css
