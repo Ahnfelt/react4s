@@ -1,10 +1,32 @@
 package com.github.ahnfelt.react4s
 
+import com.github.ahnfelt.react4s.ReactBridge._
+
 import scala.language.reflectiveCalls
 import scala.scalajs.js
 
+/** Used to bridge between the React4s API and the plain React API. This instances uses React etc. form the global namespace. */
+object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.global.ReactDOM, js.Dynamic.global.ReactDOMServer) {
+
+    /** Represents a plain React element. */
+    @js.native
+    trait ReactElement extends js.Object {}
+
+    /** Represents a React. */
+    @js.native
+    trait React extends js.Object {
+        def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any]) : ReactElement = js.native
+        def createClass(methods : js.Dictionary[js.Any]) : js.Any = js.native
+    }
+
+}
+
 /** Used to bridge between the React4s API and the plain React API. */
-object ReactBridge {
+class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServer : => Any = js.undefined) {
+
+    private lazy val React = react.asInstanceOf[React]
+    private lazy val ReactDOM = reactDom.asInstanceOf[js.Dynamic]
+    private lazy val ReactDOMServer = reactDomServer.asInstanceOf[js.Dynamic]
 
     /** Insert the specified element or component inside the DOM element with the given ID. The DOM element must already exist in the DOM. */
     def renderToDomById(elementOrComponent : ElementOrComponent, id : String) : Unit = {
@@ -15,19 +37,19 @@ object ReactBridge {
     /** Insert the specified element or component inside the given DOM element. The DOM element must already exist in the DOM. */
     def renderToDom(elementOrComponent : ElementOrComponent, domElement : js.Any) : Unit = {
         val e = elementOrComponentToReact(elementOrComponent)
-        js.Dynamic.global.ReactDOM.render(e, domElement)
+        ReactDOM.render(e, domElement)
     }
 
     /** Generates static HTML with additional attributes that preserves the HTML if renderToDom is later called on the same element. For server-side use. */
     def renderToString(elementOrComponent : ElementOrComponent) : String = {
         val e = elementOrComponentToReact(elementOrComponent)
-        js.Dynamic.global.ReactDOMServer.renderToString(e).asInstanceOf[String]
+        ReactDOMServer.renderToString(e).asInstanceOf[String]
     }
 
     /** Generates plain static HTML without the additional attributes of renderToString. For server-side use. */
     def renderToStaticMarkup(elementOrComponent : ElementOrComponent) : String = {
         val e = elementOrComponentToReact(elementOrComponent)
-        js.Dynamic.global.ReactDOMServer.renderToStaticMarkup(e).asInstanceOf[String]
+        ReactDOMServer.renderToStaticMarkup(e).asInstanceOf[String]
     }
 
     private var addStyle = { (name : String, css : String) =>
@@ -187,14 +209,4 @@ object ReactBridge {
         ))
     }
 
-}
-
-/** Represents a plain React element. */
-@js.native
-trait ReactElement extends js.Object {}
-
-@js.native
-private object React extends js.Object {
-    def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any]) : ReactElement = js.native
-    def createClass(methods : js.Dictionary[js.Any]) : js.Any = js.native
 }
