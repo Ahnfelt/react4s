@@ -13,7 +13,7 @@ object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.globa
     @js.native
     trait ReactElement extends js.Object {}
 
-    /** Represents a React. */
+    /** Represents the React object. */
     @js.native
     trait React extends js.Object {
         def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any]) : ReactElement = js.native
