@@ -4,6 +4,7 @@ import com.github.ahnfelt.react4s.ReactBridge._
 
 import scala.language.reflectiveCalls
 import scala.scalajs.js
+import scala.scalajs.js.annotation.JSImport
 
 /** Used to bridge between the React4s API and the plain React API. This instances uses React etc. form the global namespace. */
 object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.global.ReactDOM, js.Dynamic.global.ReactDOMServer) {
@@ -21,7 +22,24 @@ object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.globa
 
 }
 
-/** Used to bridge between the React4s API and the plain React API. */
+/**
+  Used to bridge between the React4s API and the plain React API.
+  Normally you should use the ReactBridge object directly, but
+  if you use a JavaScript module system, use the following instead:
+<pre>
+object ModularReactBridge extends ReactBridge(React, ReactDOM)
+
+&#64;js.native &#64;JSImport("react", JSImport.Namespace)
+private object React extends js.Object
+
+&#64;js.native &#64;JSImport("react-dom", JSImport.Namespace)
+private object ReactDOM extends js.Object
+</pre>
+  <p>And then you can do, for example:</p>
+<pre>
+ModularReactBridge.renderToDomById(component, "main")
+</pre>
+*/
 class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServer : => Any = js.undefined) {
 
     private lazy val React = react.asInstanceOf[React]
