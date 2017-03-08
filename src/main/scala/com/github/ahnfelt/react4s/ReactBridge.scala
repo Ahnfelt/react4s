@@ -1,10 +1,9 @@
 package com.github.ahnfelt.react4s
 
-import com.github.ahnfelt.react4s.ReactBridge._
+import com.github.ahnfelt.react4s.ReactBridge.{React, ReactElement}
 
 import scala.language.reflectiveCalls
 import scala.scalajs.js
-import scala.scalajs.js.annotation.JSImport
 
 /** Used to bridge between the React4s API and the plain React API. This instances uses React etc. form the global namespace. */
 object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.global.ReactDOM, js.Dynamic.global.ReactDOMServer) {
