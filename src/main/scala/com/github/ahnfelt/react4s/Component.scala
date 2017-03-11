@@ -75,8 +75,10 @@ abstract class P[T] extends (() => T)
 /** A class with no instances, used as the type parameter for Component when the component doesn't emit messages. */
 final abstract class NoEmit
 
+abstract class JsTag
+
 /** An interface for anything that can be the child of an Element. */
-sealed abstract class Tag {
+sealed abstract class Tag extends JsTag {
     /** Conditionally replaces the tag with Empty, which does nothing. */
     def when(condition : Boolean) : Tag = if(condition) this else Tags.empty
 }
@@ -89,10 +91,11 @@ sealed trait ElementOrComponent extends Tag {
     def withRef(onAddToDom : Any => Unit) : ElementOrComponent
 }
 
-/** Wraps a React component written in JavaScript. Example: ```DynamicComponent(js.Dynamic.global.MyJsComponent, js.Dictionary("label" -> "Go!"))``` */
-final case class DynamicComponent(componentClass : Any, props : Any, children : Seq[Tag] = Seq.empty, key : Option[String] = None, ref : Option[Any => Unit] = None) extends ElementOrComponent {
-    /** Appends the extra children to this element. */
-    def apply(moreChildren : Tag*) = copy(children = children ++ moreChildren)
+abstract class JsComponent(componentClass : Any) {
+    def apply(children : JsTag*) = JsComponentConstructor(componentClass, children, None, None)
+}
+
+case class JsComponentConstructor(componentClass : Any, children : Seq[JsTag], key : Option[String], ref : Option[Any => Unit]) extends ElementOrComponent {
     override def withKey(key : String) = copy(key = Some(key))
     override def withRef(onAddToDom : Any => Unit) = copy(ref = Some(onAddToDom))
 }

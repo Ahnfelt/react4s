@@ -75,7 +75,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         js.Dynamic.global.document.head.appendChild(domStyle)
     }
 
-    private def insert(tag : Tag, props : js.Dictionary[js.Any], children : js.Array[js.Any], style : js.Dictionary[js.Any]) : Unit = tag match {
+    private def insert(tag : JsTag, props : js.Dictionary[js.Any], children : js.Array[js.Any], style : js.Dictionary[js.Any]) : Unit = tag match {
 
         case element : Element =>
             children.push(elementToReact(element))
@@ -83,13 +83,16 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case constructor : ConstructorData[_] =>
             children.push(componentToReact(constructor))
 
-        case dynamic : DynamicComponent =>
-            children.push(dynamicComponentToReact(dynamic))
+        case dynamic : JsComponentConstructor =>
+            children.push(jsComponentToReact(dynamic))
 
         case Tags(tags) =>
             for(t <- tags) insert(t, props, children, style)
 
         case Attribute(name, value) =>
+            props.update(name, value)
+
+        case JsProp(name, value) =>
             props.update(name, value)
 
         case cssClass : CssClass =>
@@ -146,9 +149,8 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         React.createElement(componentClass, props)
     }
 
-    def dynamicComponentToReact(dynamic : DynamicComponent) : ReactElement = {
-        val originalDictionary = dynamic.props.asInstanceOf[js.Dictionary[js.Any]]
-        val props = if(dynamic.children.nonEmpty || dynamic.key.isDefined || dynamic.ref.isDefined) js.Dictionary(originalDictionary.toSeq : _*) else originalDictionary
+    def jsComponentToReact(dynamic : JsComponentConstructor) : ReactElement = {
+        val props = js.Dictionary[js.Any]()
         val children = js.Array[js.Any]()
         val style = js.Dictionary[js.Any]()
 
@@ -157,7 +159,8 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         for(k <- dynamic.key) props.update("key", k)
         for(r <- dynamic.ref) props.update("ref", r)
         if(style.nonEmpty) props.update("style", style)
-        if(children.nonEmpty) props.update("children", children)
+        if(children.size == 1) props.update("children", children.head)
+        if(children.size > 1) props.update("children", children)
 
         React.createElement(dynamic.componentClass.asInstanceOf[js.Any], props)
     }
@@ -166,7 +169,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         elementOrComponent match {
             case element : Element => elementToReact(element)
             case constructor : ConstructorData[_] => componentToReact(constructor)
-            case dynamic : DynamicComponent => dynamicComponentToReact(dynamic)
+            case dynamic : JsComponentConstructor => jsComponentToReact(dynamic)
         }
     }
 
