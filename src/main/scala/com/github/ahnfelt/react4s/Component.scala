@@ -91,10 +91,26 @@ sealed trait ElementOrComponent extends Tag {
     def withRef(onAddToDom : Any => Unit) : ElementOrComponent
 }
 
+/**
+  For exposing existing components written in JavaScript. Example:
+<pre>
+object FancyButton extends JsComponent(js.Dynamic.global.FancyButton)
+</pre>
+<p>Usage:</p>
+<pre>
+FancyButton(
+    J("onClick", {_ => println("Clicked!")}),
+    J("labelStyle", S.color.rgb(255, 0, 0), S("text-transform", "uppercase")),
+    J("tip", "Click me"),
+    Text("Submit")
+)
+</pre>
+*/
 abstract class JsComponent(componentClass : Any) {
     def apply(children : JsTag*) = JsComponentConstructor(componentClass, children, None, None)
 }
 
+/** Internal capture of the JsComponent constructor and apply arguments. */
 case class JsComponentConstructor(componentClass : Any, children : Seq[JsTag], key : Option[String], ref : Option[Any => Unit]) extends ElementOrComponent {
     override def withKey(key : String) = copy(key = Some(key))
     override def withRef(onAddToDom : Any => Unit) = copy(ref = Some(onAddToDom))
