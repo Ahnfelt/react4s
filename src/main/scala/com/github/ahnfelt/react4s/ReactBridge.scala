@@ -95,6 +95,10 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case JsProp(name, value) =>
             props.update(name, value)
 
+        case JsPropChildren(name, elements) =>
+            val cs = elements.map(elementOrComponentToReact)
+            props.update(name, if(cs.size == 1) cs.head else js.Array(cs : _*))
+
         case cssClass : CssClass =>
             if(!cssClass.emitted) {
                 cssClass.emitted = true
