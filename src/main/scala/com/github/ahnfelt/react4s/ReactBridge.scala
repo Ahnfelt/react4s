@@ -177,6 +177,13 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         }
     }
 
+    def nodeToReact(node : Node) : ReactElement = {
+        node match {
+            case element : ElementOrComponent => elementOrComponentToReact(element)
+            case Text(text : String) => text.asInstanceOf[ReactElement]
+        }
+    }
+
     def createComponentClass(constructorData : ConstructorData[_]) = {
         React.createClass(js.Dictionary(
             "getInitialState" -> { () =>

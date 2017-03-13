@@ -83,8 +83,11 @@ sealed abstract class Tag extends JsTag {
     def when(condition : Boolean) : Tag = if(condition) this else Tags.empty
 }
 
+/** An interface for things that are either elements, components or text. */
+sealed trait Node extends Tag
+
 /** An interface for things that are either elements or components. */
-sealed trait ElementOrComponent extends Tag {
+sealed trait ElementOrComponent extends Node {
     /** Change the key for this element or component. React uses this to reorder components, thus saving time and keeping the internal component state where it belongs. */
     def withKey(key : String) : ElementOrComponent
     /** Set up a callback that is called when this element or component is first added to to the DOM. The callback receives the actual DOM element. */
@@ -137,7 +140,7 @@ object Tags {
 case class Attribute(name : String, value : String) extends Tag
 
 /** A piece of plain text. */
-case class Text(value : String) extends Tag
+case class Text(value : String) extends Node
 
 /** An event handler, eg. onClick(...). */
 case class EventHandler(name : String, handler : SyntheticEvent => Unit) extends Tag
