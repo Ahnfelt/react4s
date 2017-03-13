@@ -96,7 +96,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
             props.update(name, value)
 
         case JsPropChildren(name, elements) =>
-            val cs = elements.map(elementOrComponentToReact)
+            val cs = elements.map(nodeToReact)
             props.update(name, if(cs.size == 1) cs.head else js.Array(cs : _*))
 
         case cssClass : CssClass =>
