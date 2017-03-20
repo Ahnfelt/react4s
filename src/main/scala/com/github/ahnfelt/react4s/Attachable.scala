@@ -5,15 +5,17 @@ import scala.scalajs.js
 import scala.scalajs.js.timers.SetTimeoutHandle
 import scala.util._
 
-/** Can be attached to a Component to listen for lifecycle events. */
+/**
+  Can be attached to a Component to listen for lifecycle events.
+  Please note that componentWillRender() of attachables are run <u>after</u> componentWillRender() of the component,
+  so during that, the values of attachables won't be updated yet.
+ */
 trait Attachable {
     /** Called after componentWillRender() returns on the component to which this is attached. Use update() to signal to the component that state has changed. */
     def componentWillRender(update : () => Unit) : Unit = {}
     /** Called after componentWillUnmount() returns on the component to which this is attached. */
     def componentWillUnmount() : Unit = {}
 }
-
-// TODO: It's too easy to forget to attach() Attachables. Fix it.
 
 /**
 For loading things based on props and state asynchronously without introducing race conditions. Assuming itemId : P[Long], here's an example:

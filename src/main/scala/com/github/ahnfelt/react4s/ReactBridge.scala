@@ -231,7 +231,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
             } : js.ThisFunction),
             "render" -> ({ (self : js.Dynamic) =>
                 val instance = self.instance.asInstanceOf[Component[_]]
-                instance.updateScheduled = true // Suppresses update() calls inside componentWillUpdate
+                instance.updateScheduled = true // Suppresses update() calls inside componentWillRender
                 instance.componentWillRender()
                 for(attachable <- instance.attachedAttachables) attachable.componentWillRender(instance.update)
                 instance.updateScheduled = false
