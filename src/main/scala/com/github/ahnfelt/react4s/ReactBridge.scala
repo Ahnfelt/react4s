@@ -46,6 +46,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     private lazy val ReactDOMServer = reactDomServer.asInstanceOf[js.Dynamic]
 
     private def doAddStyle(name : String, css : String) : Unit = if(addStyle != null) addStyle(name, css) else {
+        if(js.isUndefined(js.Dynamic.global.document) || js.isUndefined(js.Dynamic.global.document.createElement)) return
         val domStyle = js.Dynamic.global.document.createElement("style")
         domStyle.textContent = "\n" + css
         js.Dynamic.global.document.head.appendChild(domStyle)
