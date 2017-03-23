@@ -7,8 +7,6 @@ case class CssSelector(selector : String, children : Seq[CssChild]) extends CssC
 
 object Css {
 
-    private[react4s] var nextClassId = 0
-
     def selector(selector : String, children : CssChild*) = CssSelector(selector, children)
     def media(query : String, children : CssChild*) = CssMediaQuery(query, children)
     def pseudo(pseudoClass : String, children : CssChild*) = CssPseudoClass(pseudoClass, children)

@@ -6,7 +6,7 @@ import scala.language.reflectiveCalls
 import scala.scalajs.js
 
 /** Used to bridge between the React4s API and the plain React API. This instances uses React etc. form the global namespace. */
-object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.global.ReactDOM, js.Dynamic.global.ReactDOMServer) {
+object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.global.ReactDOM, js.Dynamic.global.ReactDOMServer, null) {
 
     /** Represents a plain React element. */
     @js.native
@@ -39,11 +39,20 @@ private object ReactDOM extends js.Object
 ModularReactBridge.renderToDomById(component, "main")
 </pre>
 */
-class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServer : => Any = js.undefined) {
+class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServer : => Any = js.undefined, addStyle : (String, String, String) => Unit = null) {
 
     private lazy val React = react.asInstanceOf[React]
     private lazy val ReactDOM = reactDom.asInstanceOf[js.Dynamic]
     private lazy val ReactDOMServer = reactDomServer.asInstanceOf[js.Dynamic]
+
+    private def doAddStyle(id : String, name : String, css : String) : Unit = if(addStyle != null) addStyle(id, name, css) else {
+        // TODO: How to dish out deterministic names for styles, for serverside + clienside rendering?
+        if(js.Dynamic.global.document.getElementById(id) != null) return
+        val domStyle = js.Dynamic.global.document.createElement("style")
+        domStyle.id = id
+        domStyle.textContent = "\n" + css
+        js.Dynamic.global.document.head.appendChild(domStyle)
+    }
 
     /** Insert the specified element or component inside the DOM element with the given ID. The DOM element must already exist in the DOM. */
     def renderToDomById(elementOrComponent : ElementOrComponent, id : String) : Unit = {
@@ -67,12 +76,6 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     def renderToStaticMarkup(elementOrComponent : ElementOrComponent) : String = {
         val e = elementOrComponentToReact(elementOrComponent)
         ReactDOMServer.renderToStaticMarkup(e).asInstanceOf[String]
-    }
-
-    private var addStyle = { (name : String, css : String) =>
-        val domStyle = js.Dynamic.global.document.createElement("style")
-        domStyle.textContent = "\n" + css
-        js.Dynamic.global.document.head.appendChild(domStyle)
     }
 
     private def insert(tag : JsTag, props : js.Dictionary[js.Any], children : js.Array[js.Any], style : js.Dictionary[js.Any]) : Unit = tag match {
@@ -102,7 +105,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case cssClass : CssClass =>
             if(!cssClass.emitted) {
                 cssClass.emitted = true
-                addStyle(cssClass.name, CssChild.cssToString(cssClass))
+                doAddStyle(cssClass.id, cssClass.name, CssChild.cssToString(cssClass))
             }
             props.update("className", props.get("className").map(_ + " " + cssClass.name : js.Any).getOrElse(cssClass.name))
 

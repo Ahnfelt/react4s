@@ -149,8 +149,8 @@ case class EventHandler(name : String, handler : SyntheticEvent => Unit) extends
 abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
     override def toString : String = name
     def toCss : String = CssChild.cssToString(this)
-    Css.nextClassId += 1
-    val name = getClass.getSimpleName + "-" + Css.nextClassId
+    val name = getClass.getSimpleName + "-" + getClass.getName.hashCode.toHexString
+    val id = "React4s-style-" + name
     var emitted = false
 }
 
