@@ -150,7 +150,6 @@ abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
     override def toString : String = name
     def toCss : String = CssChild.cssToString(this)
     val name = getClass.getSimpleName + "-" + getClass.getName.hashCode.toHexString
-    val id = "React4s-style-" + name
     var emitted = false
 }
 

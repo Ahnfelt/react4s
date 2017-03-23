@@ -39,17 +39,14 @@ private object ReactDOM extends js.Object
 ModularReactBridge.renderToDomById(component, "main")
 </pre>
 */
-class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServer : => Any = js.undefined, addStyle : (String, String, String) => Unit = null) {
+class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServer : => Any = js.undefined, addStyle : (String, String) => Unit = null) {
 
     private lazy val React = react.asInstanceOf[React]
     private lazy val ReactDOM = reactDom.asInstanceOf[js.Dynamic]
     private lazy val ReactDOMServer = reactDomServer.asInstanceOf[js.Dynamic]
 
-    private def doAddStyle(id : String, name : String, css : String) : Unit = if(addStyle != null) addStyle(id, name, css) else {
-        // TODO: How to dish out deterministic names for styles, for serverside + clienside rendering?
-        if(js.Dynamic.global.document.getElementById(id) != null) return
+    private def doAddStyle(name : String, css : String) : Unit = if(addStyle != null) addStyle(name, css) else {
         val domStyle = js.Dynamic.global.document.createElement("style")
-        domStyle.id = id
         domStyle.textContent = "\n" + css
         js.Dynamic.global.document.head.appendChild(domStyle)
     }
@@ -105,7 +102,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case cssClass : CssClass =>
             if(!cssClass.emitted) {
                 cssClass.emitted = true
-                doAddStyle(cssClass.id, cssClass.name, CssChild.cssToString(cssClass))
+                doAddStyle(cssClass.name, CssChild.cssToString(cssClass))
             }
             props.update("className", props.get("className").map(_ + " " + cssClass.name : js.Any).getOrElse(cssClass.name))
 

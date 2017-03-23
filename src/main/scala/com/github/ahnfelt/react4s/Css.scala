@@ -86,3 +86,38 @@ object CssChild {
     }
 
 }
+
+/** For serving .css files. Example:
+<pre>
+object FancyStylesheet extends CssStylesheet(
+    FancyButtonCss,
+    FancyInputCss,
+    FancyLinkCss
+)
+</pre>
+<p>Server-side:</p>
+<pre>
+val stylesheetToServeViaHttp = FancyStylesheet.emitAsStylesheet(true)
+</pre>
+<p>Client-side:</p>
+<pre>
+FancyStylesheet.emitAsStylesheet(false)
+</pre>
+<p>The emitAsStylesheet method must be called before components are rendered. Otherwise, the CSS classes may be emitted twice.</p>
+*/
+class CssStylesheet(cssClasses : CssClass*) {
+
+    /** Emits the stylesheet code (or the empty string, if generateOutput is false) and marks all the cssClasses as emitted. */
+    def emitAsStylesheet(generateOutput : Boolean) : String = {
+        val builder = new StringBuilder()
+        for(cssClass <- cssClasses) {
+            cssClass.emitted = true
+            if(generateOutput) {
+                builder.append(CssChild.cssToString(cssClass))
+                builder.append("\n")
+            }
+        }
+        builder.toString()
+    }
+
+}
