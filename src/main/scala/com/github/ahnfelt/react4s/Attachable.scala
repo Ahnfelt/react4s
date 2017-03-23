@@ -11,7 +11,7 @@ import scala.util._
   so during that, the values of attachables won't be updated yet.
  */
 trait Attachable {
-    /** Called after componentWillRender() returns on the component to which this is attached. Use update() to signal to the component that state has changed. */
+    /** Called after componentWillRender() returns on the component to which this is attached. Use update() to signal to the component that state has changed. Note that componentWillRender() won't fire for reactBridge.renderToString and .renderToStaticMarkup. */
     def componentWillRender(update : () => Unit) : Unit = {}
     /** Called after componentWillUnmount() returns on the component to which this is attached. */
     def componentWillUnmount() : Unit = {}

@@ -14,7 +14,7 @@ trait Component[M] {
     var update : () => Unit = { () => }
     /** Attach an Attachable that can listen for events in this components lifecycle. */
     def attach[T <: Attachable](attachable : T) : T = { attachedAttachables += attachable; attachable }
-    /** Called just before render(). You can modify component state here. */
+    /** Called just before render(). You can modify component state here. Note that componentWillRender() won't fire for ReactBridge.renderToString and ReactBridge.renderToStaticMarkup. */
     def componentWillRender() : Unit = {}
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
     def componentWillUnmount() : Unit = {}
