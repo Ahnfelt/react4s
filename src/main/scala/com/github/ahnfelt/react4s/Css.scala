@@ -20,6 +20,11 @@ object Css {
     def default(children : CssChild*) = CssPseudoClass("default", children)
     def empty(children : CssChild*) = CssPseudoClass("empty", children)
     def enabled(children : CssChild*) = CssPseudoClass("enabled", children)
+    def disabled(children : CssChild*) = CssPseudoClass("disabled", children)
+    def evenChild(children : CssChild*) = CssPseudoClass("nth-child(even)", children)
+    def oddChild(children : CssChild*) = CssPseudoClass("nth-child(odd)", children)
+    def evenOfType(children : CssChild*) = CssPseudoClass("nth-of-type(even)", children)
+    def oddOfType(children : CssChild*) = CssPseudoClass("nth-of-type(odd)", children)
     def first(children : CssChild*) = CssPseudoClass("first", children)
     def firstChild(children : CssChild*) = CssPseudoClass("first-child", children)
     def firstOfType(children : CssChild*) = CssPseudoClass("first-of-type", children)
@@ -44,6 +49,9 @@ object Css {
     def firstLetter(children : CssChild*) = CssPseudoClass(":first-letter", children)
     def firstLine(children : CssChild*) = CssPseudoClass(":first-line", children)
     def selection(children : CssChild*) = CssPseudoClass(":selection", children)
+
+    def not(cssClass : CssClass, children : CssChild*) = CssPseudoClass("not(." + cssClass.name + ")", children)
+    def not(pseudoClass : CssPseudoClass, children : CssChild*) = CssPseudoClass("not(:" + pseudoClass.name + ")", children)
 }
 
 object CssChild {
