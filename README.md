@@ -8,7 +8,7 @@ It uses no macros, no implicits and no complicated types.
 
 ```sbt
 resolvers += Resolver.sonatypeRepo("snapshots")
-libraryDependencies += "com.github.ahnfelt" %%% "react4s" % "0.7.3-SNAPSHOT"
+libraryDependencies += "com.github.ahnfelt" %%% "react4s" % "0.7.4-SNAPSHOT"
 ```
 
 # Writing a component
