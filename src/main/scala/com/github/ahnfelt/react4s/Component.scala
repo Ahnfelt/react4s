@@ -153,6 +153,19 @@ abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
     var emitted = false
 }
 
+/** CSS keyframes that will be inserted into the DOM the first time it's used to render a component. When keyframes are used in a CssClass, the appropriate animation-name rule is automatically inserted. Be careful not to create these dynamically, or you'll end up filling up the DOM with keyframes. */
+abstract class CssKeyframes(val keyframes : (String, Seq[Style])*) extends CssChild {
+    override def toString : String = name
+    def toCss : String =
+        "@keyframes " + name + " {\n" +
+        (for((at, styles) <- keyframes) yield {
+            "  " + at + " {\n" + styles.map("    " + _).mkString("\n") + "\n  }\n"
+        }).mkString +
+        "}\n"
+    val name = getClass.getSimpleName + "-" + getClass.getName.hashCode.toHexString
+    var emitted = false
+}
+
 /** A style, eg. color: rgb(255, 0, 0). Can be used inline to style an Element or in a CssClass. */
 case class Style(name : String, value : String) extends Tag with CssChild {
     /** Converts this style to the CSS syntax followed by a semicolon, eg. Style("background-color", "red").toString == "background-color: red;" */

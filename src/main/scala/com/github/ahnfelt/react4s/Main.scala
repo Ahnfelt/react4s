@@ -88,6 +88,12 @@ object FancyButtonCss extends CssClass(
     S.backgroundColor.rgb(255, 255, 255),
     Css.hover(
         S.color.rgb(255, 255, 255),
-        S.backgroundColor.rgb(0, 0, 0)
+        S.backgroundColor.rgb(0, 0, 0),
+        RotateKeyframes
     )
+)
+
+object RotateKeyframes extends CssKeyframes(
+    "0%" -> Seq(S.color.rgb(0, 0, 0)),
+    "100%" -> Seq(S.color.rgb(0, 0, 255))
 )

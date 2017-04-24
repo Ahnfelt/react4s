@@ -1,5 +1,7 @@
 package com.github.ahnfelt.react4s
 
+import scala.collection.mutable.ListBuffer
+
 trait CssChild
 case class CssPseudoClass(name : String, children : Seq[CssChild]) extends CssChild
 case class CssMediaQuery(query : String, children : Seq[CssChild]) extends CssChild
@@ -56,14 +58,21 @@ object Css {
 
 object CssChild {
 
-    def cssToString(cssClass : CssClass) : String = {
+    def cssToString(cssClass : CssClass, emitKeyframes : Boolean = false) : String = {
         val selector = "." + cssClass.name
         val builder = new StringBuilder()
-        emitCssChildren(builder, "", selector, cssClass.children)
+        val keyframes = ListBuffer[CssKeyframes]()
+        emitCssChildren(builder, keyframes, "", selector, cssClass.children)
+        if(emitKeyframes) {
+            for(frames <- keyframes) if(!frames.emitted) {
+                frames.emitted = true
+                builder.append(frames.toCss)
+            }
+        }
         builder.toString()
     }
 
-    def emitCssChildren(builder : StringBuilder, media : String, selector : String, children : Seq[CssChild]) : Unit = {
+    def emitCssChildren(builder : StringBuilder, keyframes : ListBuffer[CssKeyframes], media : String, selector : String, children : Seq[CssChild]) : Unit = {
 
         def flatten(children : Seq[CssChild]) : Seq[CssChild] = children.flatMap {
             case c : CssClass => flatten(c.children)
@@ -76,18 +85,25 @@ object CssChild {
             val mediaSpaces = if(media.nonEmpty) "  " else ""
             if(media.nonEmpty) builder.append("@media" + media + " {\n")
             builder.append(mediaSpaces + selector + " {\n")
+            val animationNames = ListBuffer[String]()
             for(c <- flattened) c match {
                 case s : Style => builder.append(mediaSpaces + "  " + Style.toStandardName(s.name) + ":" + s.value + ";\n")
+                case f : CssKeyframes => animationNames += f.name
                 case _ =>
+            }
+            if(animationNames.nonEmpty) {
+                builder.append(mediaSpaces + "  animation-name: " + animationNames.mkString(", ") + ";\n")
             }
             builder.append(mediaSpaces + "}\n")
             if(media.nonEmpty) builder.append("}\n")
         }
 
         for(c <- flattened) c match {
-            case CssPseudoClass(name, cs) => emitCssChildren(builder, media, selector + ":" + name, cs)
-            case CssMediaQuery(query, cs) => emitCssChildren(builder, media + " " + query, selector, cs)
-            case CssSelector(s, cs) => emitCssChildren(builder, media, selector + s, cs)
+            case CssPseudoClass(name, cs) => emitCssChildren(builder, keyframes, media, selector + ":" + name, cs)
+            case CssMediaQuery(query, cs) => emitCssChildren(builder, keyframes, media + " " + query, selector, cs)
+            case CssSelector(s, cs) => emitCssChildren(builder, keyframes, media, selector + s, cs)
+            case frames : CssKeyframes =>
+                keyframes += frames
             case _ =>
         }
 
@@ -121,7 +137,7 @@ class CssStylesheet(cssClasses : CssClass*) {
         for(cssClass <- cssClasses) {
             cssClass.emitted = true
             if(generateOutput) {
-                builder.append(CssChild.cssToString(cssClass))
+                builder.append(CssChild.cssToString(cssClass, emitKeyframes = true))
                 builder.append("\n")
             }
         }

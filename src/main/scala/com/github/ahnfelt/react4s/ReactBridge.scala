@@ -103,7 +103,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case cssClass : CssClass =>
             if(!cssClass.emitted) {
                 cssClass.emitted = true
-                doAddStyle(cssClass.name, CssChild.cssToString(cssClass))
+                doAddStyle(cssClass.name, CssChild.cssToString(cssClass, emitKeyframes = true))
             }
             props.update("className", props.get("className").map(_ + " " + cssClass.name : js.Any).getOrElse(cssClass.name))
 
