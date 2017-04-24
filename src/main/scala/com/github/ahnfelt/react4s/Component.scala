@@ -400,5 +400,15 @@ object S {
     val textDecoration = Style("text-decoration", "")
     val textAlign = Style("text-align", "")
     val verticalAlign = Style("vertical-align", "")
-    val boxSizing = Style("box-sizing", "")
+    /** It's recommended that you use the CssKeyframe class instead of this property. */
+    val animation = Style("animation", "")
+    /** It's recommended that you use the CssKeyframe class instead of this property. */
+    val animationName = Style("animation-name", "")
+    val animationDuration = Style("animation-duration", "")
+    val animationFill = Style("animation-fill", "")
+    val animationIterationCount = Style("animation-iteration-count", "")
+    val animationPlayState = Style("animation-play-state", "")
+    val animationTimingFunction = Style("animation-timing-function", "")
+    val animationDelay = Style("animation-delay", "")
+    val animationDirection = Style("animation-direction", "")
 }
