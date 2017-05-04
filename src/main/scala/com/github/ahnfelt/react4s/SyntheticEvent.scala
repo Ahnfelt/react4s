@@ -4,6 +4,7 @@ import scala.scalajs.js
 
 @js.native
 trait SyntheticEvent extends js.Object {
+    def persist() : Unit
     val bubbles : Boolean
     val cancelable : Boolean
     val currentTarget : js.Dynamic

@@ -449,7 +449,7 @@ object A extends CommonEvents {
     def download(value : String = "true") = Attribute("download", value)
     def draggable(value : String = "true") = Attribute("draggable", value)
     def encType(value : String = "true") = Attribute("encType", value)
-    def `for`(value : String = "true") = Attribute("for", value)
+    def `for`(value : String = "true") = Attribute("htmlFor", value)
     def form(value : String = "true") = Attribute("form", value)
     def formAction(value : String = "true") = Attribute("formAction", value)
     def formEncType(value : String = "true") = Attribute("formEncType", value)
