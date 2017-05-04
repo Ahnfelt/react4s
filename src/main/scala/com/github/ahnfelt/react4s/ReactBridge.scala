@@ -101,9 +101,8 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
             props.update(name, if(cs.size == 1) cs.head else js.Array(cs : _*))
 
         case cssClass : CssClass =>
-            if(!cssClass.emitted) {
-                cssClass.emitted = true
-                doAddStyle(cssClass.name, CssChild.cssToString(cssClass, emitKeyframes = true))
+            if(addCss(cssClass.name)) {
+                doAddStyle(cssClass.name, CssChild.cssToString(cssClass, Some(addCss)))
             }
             props.update("className", props.get("className").map(_ + " " + cssClass.name : js.Any).getOrElse(cssClass.name))
 
@@ -136,6 +135,8 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     }
 
     private val componentClassMap = js.Dictionary[js.Any]()
+    private val cssMap = js.Dictionary[Boolean]()
+    private val addCss : String => Boolean = { cssName => val result = !cssMap.contains(cssName); cssMap.update(cssName, true); result }
 
     def componentToReact(constructorData : ConstructorData[_]) : ReactElement = {
         val props = js.Dictionary[js.Any]()

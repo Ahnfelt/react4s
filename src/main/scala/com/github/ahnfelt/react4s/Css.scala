@@ -58,14 +58,13 @@ object Css {
 
 object CssChild {
 
-    def cssToString(cssClass : CssClass, emitKeyframes : Boolean = false) : String = {
+    def cssToString(cssClass : CssClass, addCssOption : Option[String => Boolean] = None) : String = {
         val selector = "." + cssClass.name
         val builder = new StringBuilder()
         val keyframes = ListBuffer[CssKeyframes]()
         emitCssChildren(builder, keyframes, "", selector, cssClass.children)
-        if(emitKeyframes) {
-            for(frames <- keyframes) if(!frames.emitted) {
-                frames.emitted = true
+        addCssOption.foreach { addCss =>
+            for(frames <- keyframes) if(addCss("@keyframes-" + frames.name)) {
                 builder.append(frames.toCss)
             }
         }
@@ -107,41 +106,6 @@ object CssChild {
             case _ =>
         }
 
-    }
-
-}
-
-/** For serving .css files. Example:
-<pre>
-object FancyStylesheet extends CssStylesheet(
-    FancyButtonCss,
-    FancyInputCss,
-    FancyLinkCss
-)
-</pre>
-<p>Server-side:</p>
-<pre>
-val stylesheetToServeViaHttp = FancyStylesheet.emitAsStylesheet(true)
-</pre>
-<p>Client-side:</p>
-<pre>
-FancyStylesheet.emitAsStylesheet(false)
-</pre>
-<p>The emitAsStylesheet method must be called before components are rendered. Otherwise, the CSS classes may be emitted twice.</p>
-*/
-class CssStylesheet(cssClasses : CssClass*) {
-
-    /** Emits the stylesheet code (or the empty string, if generateOutput is false) and marks all the cssClasses as emitted. */
-    def emitAsStylesheet(generateOutput : Boolean) : String = {
-        val builder = new StringBuilder()
-        for(cssClass <- cssClasses) {
-            cssClass.emitted = true
-            if(generateOutput) {
-                builder.append(CssChild.cssToString(cssClass, emitKeyframes = true))
-                builder.append("\n")
-            }
-        }
-        builder.toString()
     }
 
 }

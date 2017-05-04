@@ -150,7 +150,6 @@ abstract class CssClass(val children : CssChild*) extends Tag with CssChild {
     override def toString : String = name
     def toCss : String = CssChild.cssToString(this)
     val name = getClass.getSimpleName + "-" + getClass.getName.hashCode.toHexString
-    var emitted = false
 }
 
 /** CSS keyframes that will be inserted into the DOM the first time it's used to render a component. When keyframes are used in a CssClass, the appropriate animation-name rule is automatically inserted. Be careful not to create these dynamically, or you'll end up filling up the DOM with keyframes. */
@@ -163,7 +162,6 @@ abstract class CssKeyframes(val keyframes : (String, Seq[Style])*) extends CssCh
         }).mkString +
         "}\n"
     val name = getClass.getSimpleName + "-" + getClass.getName.hashCode.toHexString
-    var emitted = false
 }
 
 /** A style, eg. color: rgb(255, 0, 0). Can be used inline to style an Element or in a CssClass. */
