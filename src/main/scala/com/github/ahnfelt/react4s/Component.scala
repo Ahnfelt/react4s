@@ -1,6 +1,7 @@
 package com.github.ahnfelt.react4s
 
 import scala.collection.mutable.ListBuffer
+import scalajs.js
 
 /** Represents a React component that can emit messages of type M. Use Component[NoEmit] for components that never emit messages. */
 trait Component[M] {
