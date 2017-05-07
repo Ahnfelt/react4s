@@ -16,7 +16,6 @@ object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.globa
     @js.native
     trait React extends js.Object {
         def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any]) : ReactElement = js.native
-        def createClass(methods : js.Dictionary[js.Any]) : js.Any = js.native
     }
 
 }
@@ -187,62 +186,79 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     }
 
     def createComponentClass(constructorData : ConstructorData[_]) = {
-        React.createClass(js.Dictionary(
-            "getInitialState" -> { () =>
-                js.Dictionary("stateUpdates" -> 0.0)
-            },
-            "componentWillMount" -> ({ (self : js.Dynamic) =>
-                def newP[T](name : String) : P[T] = new P[T] {
-                    def apply() : T = self.props.selectDynamic(name).asInstanceOf[T]
+
+        // These lines are inspired by the create-react-component implementation
+
+        val react = React.asInstanceOf[js.Dynamic]
+        val classConstructor : js.ThisFunction3[js.Dynamic, js.Dynamic, js.Dynamic, js.Dynamic, js.Any] = { (self, props, context, updater) =>
+            self.props = props
+            self.context = context
+            self.refs = {}
+            self.updater = updater || js.Dynamic.newInstance(react.Component)().asInstanceOf[js.Dynamic].updater
+            self.state = js.Dynamic.literal("stateUpdates" -> 0.0)
+        }
+        val dynamicConstructor = classConstructor.asInstanceOf[js.Dynamic]
+        dynamicConstructor.prototype = js.Dynamic.newInstance(react.Component)()
+        dynamicConstructor.prototype.constructor = dynamicConstructor
+
+        // The following lines bridges between React4s components and React components
+
+        dynamicConstructor.prototype.componentWillMount = { (self : js.Dynamic) =>
+            def newP[T](name : String) : P[T] = new P[T] {
+                def apply() : T = self.props.selectDynamic(name).asInstanceOf[T]
+            }
+            val instance = constructorData.constructor match {
+                case Constructor0(f) => f()
+                case Constructor1(f, _) => f(newP("p1"))
+                case Constructor2(f, _, _) => f(newP("p1"), newP("p2"))
+                case Constructor3(f, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"))
+                case Constructor4(f, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"))
+                case Constructor5(f, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"))
+                case Constructor6(f, _, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"), newP("p6"))
+                case Constructor7(f, _, _, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"), newP("p6"), newP("p7"))
+                case Constructor8(f, _, _, _, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"), newP("p6"), newP("p7"), newP("p8"))
+                case Constructor9(f, _, _, _, _, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"), newP("p6"), newP("p7"), newP("p8"), newP("p9"))
+            }
+            instance.update = { () =>
+                if(!instance.updateScheduled) {
+                    instance.updateScheduled = true
+                    val stateUpdates = self.state.stateUpdates.asInstanceOf[Double] + 1.0
+                    self.setState(js.Dictionary("stateUpdates" -> stateUpdates))
                 }
-                val instance = constructorData.constructor match {
-                    case Constructor0(f) => f()
-                    case Constructor1(f, _) => f(newP("p1"))
-                    case Constructor2(f, _, _) => f(newP("p1"), newP("p2"))
-                    case Constructor3(f, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"))
-                    case Constructor4(f, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"))
-                    case Constructor5(f, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"))
-                    case Constructor6(f, _, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"), newP("p6"))
-                    case Constructor7(f, _, _, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"), newP("p6"), newP("p7"))
-                    case Constructor8(f, _, _, _, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"), newP("p6"), newP("p7"), newP("p8"))
-                    case Constructor9(f, _, _, _, _, _, _, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"), newP("p6"), newP("p7"), newP("p8"), newP("p9"))
-                }
-                instance.update = { () =>
-                    if(!instance.updateScheduled) {
-                        instance.updateScheduled = true
-                        val stateUpdates = self.state.stateUpdates.asInstanceOf[Double] + 1.0
-                        self.setState(js.Dictionary("stateUpdates" -> stateUpdates))
-                    }
-                }
-                instance.emit = { message =>
-                    self.props.handler(message.asInstanceOf[js.Any])
-                }
-                self.constructor.displayName = instance.getClass.getSimpleName
-                self.instance = instance.asInstanceOf[js.Any]
-            } : js.ThisFunction),
-            "componentWillUnmount" -> ({ (self : js.Dynamic) =>
-                val instance = self.instance.asInstanceOf[Component[_]]
-                instance.componentWillUnmount()
-                for(attachable <- instance.attachedAttachables) attachable.componentWillUnmount()
-            } : js.ThisFunction),
-            "shouldComponentUpdate" -> ({ (self : js.Dynamic, nextProps : js.Dictionary[js.Any], nextState : js.Dictionary[Double]) =>
-                self.state.stateUpdates.asInstanceOf[Double] != nextState("stateUpdates") ||
-                    (1 to constructorData.constructor.props.length).exists(i =>
-                        self.props.selectDynamic("p" + i).asInstanceOf[js.Any] != nextProps("p" + i)
-                    )
-            } : js.ThisFunction),
-            "render" -> ({ (self : js.Dynamic) =>
-                val instance = self.instance.asInstanceOf[Component[_]]
-                val renderingToString = self.updater.transaction.asInstanceOf[js.UndefOr[js.Any]].isDefined
-                if(!renderingToString) {
-                    instance.updateScheduled = true // Suppresses update() calls inside componentWillRender
-                    instance.componentWillRender()
-                    for(attachable <- instance.attachedAttachables) attachable.componentWillRender(instance.update)
-                }
-                instance.updateScheduled = false
-                elementOrComponentToReact(instance.render())
-            } : js.ThisFunction)
-        ))
+            }
+            instance.emit = { message =>
+                self.props.handler(message.asInstanceOf[js.Any])
+            }
+            self.constructor.displayName = instance.getClass.getSimpleName
+            self.instance = instance.asInstanceOf[js.Any]
+        } : js.ThisFunction
+
+        dynamicConstructor.prototype.componentWillUnmount = { (self : js.Dynamic) =>
+            val instance = self.instance.asInstanceOf[Component[_]]
+            instance.componentWillUnmount()
+            for(attachable <- instance.attachedAttachables) attachable.componentWillUnmount()
+        } : js.ThisFunction
+
+        dynamicConstructor.prototype.shouldComponentUpdate = { (self : js.Dynamic, nextProps : js.Dictionary[js.Any], nextState : js.Dictionary[Double]) =>
+            self.state.stateUpdates.asInstanceOf[Double] != nextState("stateUpdates") ||
+                (1 to constructorData.constructor.props.length).exists(i =>
+                    self.props.selectDynamic("p" + i).asInstanceOf[js.Any] != nextProps("p" + i)
+                )
+        } : js.ThisFunction
+
+        dynamicConstructor.prototype.render = { (self : js.Dynamic) =>
+            val instance = self.instance.asInstanceOf[Component[_]]
+            val renderingToString = self.updater.transaction.asInstanceOf[js.UndefOr[js.Any]].isDefined
+            if(!renderingToString) {
+                instance.updateScheduled = true // Suppresses update() calls inside componentWillRender
+                instance.componentWillRender()
+                for(attachable <- instance.attachedAttachables) attachable.componentWillRender(instance.update)
+            }
+            instance.updateScheduled = false
+            elementOrComponentToReact(instance.render())
+        } : js.ThisFunction
+
+        dynamicConstructor
     }
 
 }
