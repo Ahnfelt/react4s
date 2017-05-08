@@ -190,7 +190,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         // These lines are inspired by the create-react-component implementation
 
         val react = React.asInstanceOf[js.Dynamic]
-        val classConstructor : js.ThisFunction3[js.Dynamic, js.Dynamic, js.Dynamic, js.Dynamic, js.Any] = { (self, props, context, updater) =>
+        val classConstructor : js.ThisFunction = { (self : js.Dynamic, props : js.Dynamic, context : js.Dynamic, updater : js.Dynamic) =>
             self.props = props
             self.context = context
             self.refs = {}
