@@ -90,7 +90,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
             for(t <- tags) insert(t, props, children, style)
 
         case Attribute(name, value) =>
-            props.update(name, value)
+            props.update(name, value.asInstanceOf[js.Any])
 
         case JsProp(name, value) =>
             props.update(name, value)

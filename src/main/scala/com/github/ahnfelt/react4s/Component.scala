@@ -1,7 +1,6 @@
 package com.github.ahnfelt.react4s
 
 import scala.collection.mutable.ListBuffer
-import scalajs.js
 
 /** Represents a React component that can emit messages of type M. Use Component[NoEmit] for components that never emit messages. */
 trait Component[M] {
@@ -138,7 +137,7 @@ object Tags {
 }
 
 /** An attribute, such as "name" (or prop, for dynamic components). */
-case class Attribute(name : String, value : String) extends Tag
+case class Attribute(name : String, value : Any) extends Tag
 
 /** A piece of plain text. */
 case class Text(value : String) extends Node
@@ -429,7 +428,6 @@ object A extends CommonEvents {
     def cellSpacing(value : String = "true") = Attribute("cellSpacing", value)
     def challenge(value : String = "true") = Attribute("challenge", value)
     def charSet(value : String = "true") = Attribute("charSet", value)
-    def checked(value : String = "true") = Attribute("checked", value)
     def cite(value : String = "true") = Attribute("cite", value)
     def colSpan(value : String = "true") = Attribute("colSpan", value)
     def cols(value : String = "true") = Attribute("cols", value)
@@ -539,6 +537,7 @@ object A extends CommonEvents {
     def wmode(value : String = "true") = Attribute("wmode", value)
     def wrap(value : String = "true") = Attribute("wrap", value)
 
+    def checked(value : Boolean = true) = Attribute("checked", value)
     def className(value : String*) = Attribute("className", value.mkString(" "))
     /** Set up an event handler. Note that the event name must contain the 'on', eg. 'onClick' instead of 'click'. */
     def on(eventName : String, handler : SyntheticEvent => Unit) = EventHandler(eventName, handler)
