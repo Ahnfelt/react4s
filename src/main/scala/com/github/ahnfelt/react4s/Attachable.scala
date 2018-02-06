@@ -38,47 +38,61 @@ trait Loader[T] extends (() => Option[T]) {
     def error() : Option[Throwable]
     /** True until the most recent future completes, then false. */
     def loading() : Boolean
+    /** Force the loader to reload. */
+    def retry() : Unit
 }
 
-/** Used to create a Loader. Whenever the dependency (eg. a prop) changes, a new future is created and the old future (if any) is ignored. */
+/** Used to create a Loader. Whenever the dependency (eg. a prop) changes, a new future is created and the old future (if any) is ignored. To avoid race conditions, it waits for the old future to complete before starting a new. If initial is Some(initialValue), delays first load until dependency() != initialValue(). */
 object Loader {
     trait AttachableLoader[T] extends Loader[T] with Attachable
 
-    /** Create a Loader. Whenever the dependency (eg. a prop) changes, a new future is created and the old future (if any) is ignored. */
-    def apply[I, O](component : Component[_], dependency : () => I)(future : I => Future[O]) : Loader[O] = component.attach(new AttachableLoader[O] {
+    /** Create a Loader. Whenever the dependency (eg. a prop) changes, a new future is created and the old future (if any) is ignored. To avoid race conditions, it waits for the old future to complete before starting a new. If initial is Some(initialValue), delays first load until dependency() != initialValue(). */
+    def apply[I, O](component : Component[_], dependency : () => I, initial : Option[() => I] = None)(future : I => Future[O]) : Loader[O] = component.attach(new AttachableLoader[O] {
         var lastDependency : Option[I] = None
+        var nextDependency : Option[I] = None
         var lastValue : Option[O] = None
         var lastError : Option[Throwable] = None
         var isLoading : Boolean = false
         var lastVersion : Long = 0
+        var lastRetries : Long = 0
+        var retries : Long  = 0
+        var changedSinceInitial : Boolean = false
 
         override def componentWillRender(update : () => Unit) : Unit = {
             val newDependency = dependency()
-            if(!lastDependency.contains(newDependency)) {
+            val isInitial = !changedSinceInitial && initial.exists(_.apply() == newDependency)
+            if((!lastDependency.contains(newDependency) || retries != lastRetries) && !isInitial && !isLoading) {
+                changedSinceInitial = true
+                lastRetries = retries
                 lastDependency = Some(newDependency)
                 isLoading = true
                 lastVersion += 1
                 val version = lastVersion
                 import scala.concurrent.ExecutionContext.Implicits.global
-                future(newDependency).onComplete {
-                    case Success(newValue) => if(version == lastVersion) {
-                        lastValue = Some(newValue)
-                        lastError = None
-                        isLoading = false
-                        update()
+                future(newDependency).onComplete { result =>
+                    result match {
+                        case Success(newValue) => if(version == lastVersion) {
+                            lastValue = Some(newValue)
+                            lastError = None
+                        }
+                        case Failure(newError) => if(version == lastVersion) {
+                            lastError = Some(newError)
+                        }
                     }
-                    case Failure(newError) => if(version == lastVersion) {
-                        lastError = Some(newError)
-                        isLoading = false
-                        update()
+                    isLoading = false
+                    if(!lastDependency.contains(dependency()) || retries != lastRetries) {
+                        componentWillRender(update)
+                    } else {
+                        component.update()
                     }
                 }
             }
         }
 
         // Ensure we don't update the state after the component has been unmounted
-        override def componentWillUnmount() = lastVersion += 1
+        override def componentWillUnmount() : Unit = lastVersion += 1
 
+        override def retry() : Unit = { retries += 1; component.update() }
         override def apply() : Option[O] = lastValue
         override def error() : Option[Throwable] = lastError
         override def loading() : Boolean = isLoading
