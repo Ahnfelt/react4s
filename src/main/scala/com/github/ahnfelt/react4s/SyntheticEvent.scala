@@ -68,6 +68,8 @@ trait TouchEvent extends SyntheticEvent {
 }
 
 abstract class CommonEvents {
+    /** A helper method that checks for event.button == 0 for you, to avoid accidentally capturing right/middle clicks. */
+    def onLeftClick(handler : MouseEvent => Unit) = EventHandler("onClick", { e : MouseEvent => if(e.button == 0) handler(e) }.asInstanceOf[SyntheticEvent => Unit])
     def onClick(handler : MouseEvent => Unit) = EventHandler("onClick", handler.asInstanceOf[SyntheticEvent => Unit])
     def onMouseDown(handler : MouseEvent => Unit) = EventHandler("onMouseDown", handler.asInstanceOf[SyntheticEvent => Unit])
     def onMouseUp(handler : MouseEvent => Unit) = EventHandler("onMouseUp", handler.asInstanceOf[SyntheticEvent => Unit])
