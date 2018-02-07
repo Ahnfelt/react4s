@@ -93,7 +93,7 @@ abstract class State[T] extends (Get => T) {
 abstract class P[T] extends (Get => T)
 
 /** The only way to read props, state, etc., to ensure they are not accidentally read at the wrong time (eg. in the constructor). */
-class Get { def apply[T](gettable : Get => T) : T = gettable(this) }
+class Get { def apply[T](extract : Get => T) : T = extract(this) }
 /** A globally available instance of Get. Don't use this directly unless you know what you're doing. */
 object Get extends Get
 
