@@ -30,9 +30,29 @@ trait Component[M] {
         }
     }
 
+    private class AttachableState[T](initial : Get => T) extends State[T] with Attachable {
+        private var lastInitial = initial(Get)
+        private var value = lastInitial
+        override def apply(get : Get) : T = value
+        override def set(value : T) : Unit = {
+            this.value = value
+            if(!updateScheduled) update()
+        }
+        override def componentWillRender(get : Get) : Unit = {
+            val currentInitial = initial(get)
+            if(lastInitial != currentInitial) {
+                lastInitial = currentInitial
+                value = currentInitial
+            }
+        }
+    }
+
     /** Used to represent local component state. The component update() method is automatically called when .set or .modify is called. */
     object State {
-        def apply[T](value : T) : State[T] = new ComponentState(value)
+        /** State whose initial value is a constant. */
+        def apply[T](initial : T) : State[T] = new ComponentState(initial)
+        /** State whose initial value may change over time (eg. it's initialized with a prop or similar). */
+        def apply[T](initial : Get => T) : State[T] = attach(new AttachableState(initial))
     }
 }
 
