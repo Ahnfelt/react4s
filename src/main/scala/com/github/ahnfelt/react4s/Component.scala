@@ -92,8 +92,9 @@ abstract class State[T] extends (Get => T) {
 /** Represents a prop, ie. an argument to a Component. The value it holds can be read with .apply() and may change over time. */
 abstract class P[T] extends (Get => T)
 
-/** The only way to read props, state, etc., to ensure they are not accidentally read at the wrong time. */
+/** The only way to read props, state, etc., to ensure they are not accidentally read at the wrong time (eg. in the constructor). */
 class Get { def apply[T](gettable : Get => T) : T = gettable(this) }
+/** A globally available instance of Get. Don't use this directly unless you know what you're doing. */
 object Get extends Get
 
 /** A class with no instances, used as the type parameter for Component when the component doesn't emit messages. */
