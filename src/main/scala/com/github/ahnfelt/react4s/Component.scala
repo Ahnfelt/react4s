@@ -52,7 +52,7 @@ trait Component[M] {
         /** State whose initial value is a constant. */
         def apply[T](initial : T) : State[T] = new ComponentState(initial)
         /** State whose initial value may change over time (eg. it's initialized with a prop or similar). */
-        def apply[T](initial : Get => T) : State[T] = attach(new AttachableState(initial))
+        def of[T](initial : Get => T) : State[T] = attach(new AttachableState(initial))
     }
 }
 
