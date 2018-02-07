@@ -16,7 +16,7 @@ libraryDependencies += "com.github.ahnfelt" %%% "react4s" % "0.8.6-SNAPSHOT"
 ```scala
 case class OkCancel(label : P[String]) extends Component[Boolean] {
     override def render() = E.div(
-        E.div(Text(label())),
+        E.div(Text(get(label)),
         E.div(
             E.button(
                 Text("OK"),
@@ -62,11 +62,11 @@ case class Counter() extends Component[NoEmit] {
         }
     }
     
-    override def render() = E.div(
+    override def render(get : Get) = E.div(
         Component(OkCancel, "Would you like some icecream?").withHandler(onClick),
         E.hr(),
-        E.div(Text("You've clicked OK " + okClicks() + " times.")),
-        E.div(Text("You've clicked Cancel " + cancelClicks() + " times."))
+        E.div(Text("You've clicked OK " + get(okClicks) + " times.")),
+        E.div(Text("You've clicked Cancel " + get(cancelClicks) + " times."))
     )
     
 }
@@ -80,7 +80,7 @@ The `State` type allows the library to detect when you update the state, so it c
 ```scala
 case class OkCancel(label : P[String]) extends Component[Boolean] {
     override def render() = E.div(
-        E.div(Text(label()), S.color.rgb(0, 0, 255)),
+        E.div(Text(get(label)), S.color.rgb(0, 0, 255)),
         E.div(
             E.button(
                 FancyButtonCss,

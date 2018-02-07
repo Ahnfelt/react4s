@@ -15,15 +15,15 @@ trait Component[M] {
     /** Attach an Attachable that can listen for events in this components lifecycle. */
     def attach[T <: Attachable](attachable : T) : T = { attachedAttachables += attachable; attachable }
     /** Called just before render(). You can modify component state here. Note that componentWillRender() won't fire for ReactBridge.renderToString and ReactBridge.renderToStaticMarkup. */
-    def componentWillRender() : Unit = {}
+    def componentWillRender(get : Get) : Unit = {}
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
-    def componentWillUnmount() : Unit = {}
+    def componentWillUnmount(get : Get) : Unit = {}
     /** Called when the component needs to be rendered. Rerendering only happens when this components props are change or it's state is updated. */
-    def render() : ElementOrComponent
+    def render(get : Get) : ElementOrComponent
 
     /** Internal implementation of a component state variable that automatically calls update() when changed. */
     private class ComponentState[T](var value : T) extends State[T] {
-        def apply() : T = value
+        def apply(get : Get) : T = value
         def set(value : T) : Unit = {
             this.value = value
             if(!updateScheduled) update()
@@ -60,17 +60,21 @@ object Component {
 }
 
 /** Represents local component state. */
-abstract class State[T] extends (() => T) {
+abstract class State[T] extends (Get => T) {
     /** Get the current value. */
-    def apply() : T
+    def apply(get : Get) : T
     /** Set the value. In components, State(...) objects automatically call component.update() when this method is called. */
     def set(value : T) : Unit
     /** Modify the value. In components, State(...) objects automatically call component.update() when this method is called. */
-    def modify(update : T => T) : Unit = set(update(apply()))
+    def modify(update : T => T) : Unit = set(update(apply(Get)))
 }
 
 /** Represents a prop, ie. an argument to a Component. The value it holds can be read with .apply() and may change over time. */
-abstract class P[T] extends (() => T)
+abstract class P[T] extends (Get => T)
+
+/** The only way to read props, state, etc., to ensure they are not accidentally read at the wrong time. */
+class Get { def apply[T](gettable : Get => T) : T = gettable(this) }
+object Get extends Get
 
 /** A class with no instances, used as the type parameter for Component when the component doesn't emit messages. */
 final abstract class NoEmit
@@ -406,11 +410,6 @@ object A extends CommonEvents {
     def onChangeText(onChange : String => Unit) = {
         A.onChange(e => onChange(e.target.value.asInstanceOf[String]))
     }
-    /** A helper method for setting up A.value and A.onChange for State[String]. Example: {{{E.input(A.bindValue(name))}}} */
-    def bindValue(state : State[String]) : Tags = Tags(List(
-        A.value(state()),
-        A.onChangeText(v => state.set(v))
-    ))
 
     def accept(value : String = "true") = Attribute("accept", value)
     def acceptCharset(value : String = "true") = Attribute("acceptCharset", value)
