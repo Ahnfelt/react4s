@@ -235,8 +235,8 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
 
         dynamicConstructor.prototype.componentWillUnmount = { (self : js.Dynamic) =>
             val instance = self.instance.asInstanceOf[Component[_]]
-            instance.componentWillUnmount(Get)
-            for(attachable <- instance.attachedAttachables) attachable.componentWillUnmount(Get)
+            instance.componentWillUnmount(Get.Unsafe)
+            for(attachable <- instance.attachedAttachables) attachable.componentWillUnmount(Get.Unsafe)
         } : js.ThisFunction
 
         dynamicConstructor.prototype.shouldComponentUpdate = { (self : js.Dynamic, nextProps : js.Dictionary[js.Any], nextState : js.Dictionary[Double]) =>
@@ -251,11 +251,11 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
             val renderingToString = self.updater.transaction.asInstanceOf[js.UndefOr[js.Any]].isDefined
             if(!renderingToString) {
                 instance.updateScheduled = true // Suppresses update() calls inside componentWillRender
-                instance.componentWillRender(Get)
-                for(attachable <- instance.attachedAttachables) attachable.componentWillRender(Get)
+                instance.componentWillRender(Get.Unsafe)
+                for(attachable <- instance.attachedAttachables) attachable.componentWillRender(Get.Unsafe)
             }
             instance.updateScheduled = false
-            elementOrComponentToReact(instance.render(Get))
+            elementOrComponentToReact(instance.render(Get.Unsafe))
         } : js.ThisFunction
 
         dynamicConstructor

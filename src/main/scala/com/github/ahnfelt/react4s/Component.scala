@@ -31,7 +31,7 @@ trait Component[M] {
     }
 
     private class AttachableState[T](initial : Get => T) extends State[T] with Attachable {
-        private var lastInitial = initial(Get)
+        private var lastInitial = initial(Get.Unsafe)
         private var value = lastInitial
         override def apply(get : Get) : T = value
         override def set(value : T) : Unit = {
@@ -86,16 +86,18 @@ abstract class State[T] extends (Get => T) {
     /** Set the value. In components, State(...) objects automatically call component.update() when this method is called. */
     def set(value : T) : Unit
     /** Modify the value. In components, State(...) objects automatically call component.update() when this method is called. */
-    def modify(update : T => T) : Unit = set(update(apply(Get)))
+    def modify(update : T => T) : Unit = set(update(apply(Get.Unsafe)))
 }
 
 /** Represents a prop, ie. an argument to a Component. The value it holds can be read with .apply() and may change over time. */
 abstract class P[T] extends (Get => T)
 
 /** The only way to read props, state, etc., to ensure they are not accidentally read at the wrong time (eg. in the constructor). */
-class Get { def apply[T](extract : Get => T) : T = extract(this) }
-/** A globally available instance of Get. Don't use this directly unless you know what you're doing. */
-object Get extends Get
+class Get { @inline def apply[T](extract : Get => T) : T = extract(this) }
+object Get {
+    /** A globally available instance of Get. Don't use this directly unless you know what you're doing. */
+    object Unsafe extends Get
+}
 
 /** A class with no instances, used as the type parameter for Component when the component doesn't emit messages. */
 final abstract class NoEmit
