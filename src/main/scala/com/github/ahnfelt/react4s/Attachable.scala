@@ -11,10 +11,10 @@ import scala.util._
   so during that, the values of attachables won't be updated yet.
  */
 trait Attachable {
-    /** Called after componentWillRender() returns on the component to which this is attached. Use update() to signal to the component that state has changed. Note that componentWillRender() won't fire for reactBridge.renderToString and .renderToStaticMarkup. */
-    def componentWillRender(update : () => Unit) : Unit = {}
-    /** Called after componentWillUnmount() returns on the component to which this is attached. */
-    def componentWillUnmount() : Unit = {}
+    /** Called after componentWillRender() returns on the component to which this is attached. The "get" argument lets you read props etc. Use update() to signal to the component that state has changed. Note that componentWillRender() won't fire for reactBridge.renderToString and .renderToStaticMarkup. */
+    def componentWillRender(get : Get) : Unit = {}
+    /** Called after componentWillUnmount() returns on the component to which this is attached. The "get" argument lets you read props etc. */
+    def componentWillUnmount(get : Get) : Unit = {}
 }
 
 /**
@@ -24,20 +24,20 @@ val itemName = Loader(this, itemId) { id =>
     Ajax.get("/item/" + id + "/name").map(_.responseText)
 }
 
-def render() = E.div(
-    E.div(Text("Loading...")).when(itemName.loading()),
-    itemName().map(name => E.div(Text(name))).getOrElse(TagList.empty),
-    itemName.error().map(throwable => E.div(Text(throwable.getMessage))).getOrElse(TagList.empty)
+def render(get : Get) = E.div(
+    E.div(Text("Loading...")).when(get(itemName.loading)),
+    get(itemName).map(name => E.div(Text(name))).getOrElse(TagList.empty),
+    get(itemName.error).map(throwable => E.div(Text(throwable.getMessage))).getOrElse(TagList.empty)
 )
 }}}
 */
-trait Loader[T] extends (() => Option[T]) {
+trait Loader[T] extends (Get => Option[T]) {
     /** The last loaded value, if any. Not cleared when the most recent future fails. */
-    def apply() : Option[T]
+    def apply(get : Get) : Option[T]
     /** The last error, if any. Cleared when the most recent future succeeds. */
-    def error() : Option[Throwable]
+    def error(get : Get) : Option[Throwable]
     /** True until the most recent future completes, then false. */
-    def loading() : Boolean
+    def loading(get : Get) : Boolean
     /** Force the loader to reload. */
     def retry() : Unit
 }
@@ -47,7 +47,7 @@ object Loader {
     trait AttachableLoader[T] extends Loader[T] with Attachable
 
     /** Create a Loader. Whenever the dependency (eg. a prop) changes, a new future is created and the old future (if any) is ignored. To avoid race conditions, it waits for the old future to complete before starting a new. If initial is Some(initialValue), delays first load until dependency() != initialValue(). */
-    def apply[I, O](component : Component[_], dependency : () => I, initial : Option[() => I] = None)(future : I => Future[O]) : Loader[O] = component.attach(new AttachableLoader[O] {
+    def apply[I, O](component : Component[_], dependency : Get => I, initial : Option[Get => I] = None)(future : I => Future[O]) : Loader[O] = component.attach(new AttachableLoader[O] {
         var lastDependency : Option[I] = None
         var nextDependency : Option[I] = None
         var lastValue : Option[O] = None
@@ -58,9 +58,9 @@ object Loader {
         var retries : Long  = 0
         var changedSinceInitial : Boolean = false
 
-        override def componentWillRender(update : () => Unit) : Unit = {
-            val newDependency = dependency()
-            val isInitial = !changedSinceInitial && initial.exists(_.apply() == newDependency)
+        override def componentWillRender(get : Get) : Unit = {
+            val newDependency = get(dependency)
+            val isInitial = !changedSinceInitial && initial.exists(i => get(i) == newDependency)
             if((!lastDependency.contains(newDependency) || retries != lastRetries) && !isInitial && !isLoading) {
                 changedSinceInitial = true
                 lastRetries = retries
@@ -80,8 +80,8 @@ object Loader {
                         }
                     }
                     isLoading = false
-                    if(!lastDependency.contains(dependency()) || retries != lastRetries) {
-                        componentWillRender(update)
+                    if(!lastDependency.contains(get(dependency)) || retries != lastRetries) {
+                        componentWillRender(get)
                     } else {
                         component.update()
                     }
@@ -90,23 +90,23 @@ object Loader {
         }
 
         // Ensure we don't update the state after the component has been unmounted
-        override def componentWillUnmount() : Unit = lastVersion += 1
+        override def componentWillUnmount(get : Get) : Unit = lastVersion += 1
 
         override def retry() : Unit = { retries += 1; component.update() }
-        override def apply() : Option[O] = lastValue
-        override def error() : Option[Throwable] = lastError
-        override def loading() : Boolean = isLoading
+        override def apply(get : Get) : Option[O] = lastValue
+        override def error(get : Get) : Option[Throwable] = lastError
+        override def loading(get : Get) : Boolean = isLoading
     })
 }
 
 /** Set after a specified timeout, or on an interval. */
-trait Timeout {
+trait Timeout extends (Get => Boolean) {
     /** Has the timeout triggered yet? */
-    def apply() : Boolean
+    def apply(get : Get) : Boolean
     /** The number of times the timeout has triggered (only ever higher than 1 for intervals). */
-    def ticks() : Long
+    def ticks(get : Get) : Long
     /** The number of milliseconds since the timeout was started. */
-    def elapsed() : Long
+    def elapsed(get : Get) : Long
 }
 
 /** Used to run a function after a specified timeout, or on an interval. */
@@ -115,7 +115,7 @@ object Timeout {
     trait AttachableTimeout extends Timeout with Attachable
 
     /** Sets a timeout that restarts every time the dependency changes. If interval is set, it triggers every interval instead of just once. */
-    def apply[T](component: Component[_], dependency : () => T, interval : Boolean = false)(milliseconds : T => Long) : Timeout = component.attach(new AttachableTimeout {
+    def apply[T](component: Component[_], dependency : Get => T, interval : Boolean = false)(milliseconds : T => Long) : Timeout = component.attach(new AttachableTimeout {
         var timeout : Option[SetTimeoutHandle] = None
         var oldValue : Option[T] = None
         var startTime = System.nanoTime()
@@ -129,32 +129,32 @@ object Timeout {
             })
         }
 
-        override def componentWillRender(update : () => Unit) : Unit = {
-            val newValue = dependency()
+        override def componentWillRender(get : Get) : Unit = {
+            val newValue = get(dependency)
             if(!oldValue.contains(newValue)) {
                 for(oldTimeout <- timeout) js.timers.clearTimeout(oldTimeout)
                 oldValue = Some(newValue)
                 startTime = System.nanoTime()
                 triggered = 0
                 val duration = milliseconds(newValue)
-                setTimeout(update, duration)
+                setTimeout(component.update, duration)
             }
         }
 
-        override def componentWillUnmount() : Unit = {
+        override def componentWillUnmount(get : Get) : Unit = {
             for(oldTimeout <- timeout) js.timers.clearTimeout(oldTimeout)
         }
 
-        override def apply() = triggered > 0
-        override def ticks() = triggered
-        override def elapsed() = (System.nanoTime() - startTime) / (1000 * 1000)
+        override def apply(get : Get) = triggered > 0
+        override def ticks(get : Get) = triggered
+        override def elapsed(get : Get) = (System.nanoTime() - startTime) / (1000 * 1000)
     })
 }
 
 /** Used to debounce or throttle changes. */
-trait Debounce[T] extends (() => T) {
+trait Debounce[T] extends (Get => T) {
     /** Get the debounced value. */
-    def apply() : T
+    def apply(get : Get) : T
 }
 
 object Debounce {
@@ -162,14 +162,14 @@ object Debounce {
     trait AttachableDebounce[T] extends Debounce[T] with Attachable
 
     /** When the dependency is changed, don't propagate the value immediately - instead wait until no change has been made for the specified milliseconds. If immediate is set, propagate the first change after a pause immediately. */
-    def apply[T](component : Component[_], dependency : () => T, milliseconds : Long = 250, immediate : Boolean = false) : Debounce[T] = component.attach(new AttachableDebounce[T] {
+    def apply[T](component : Component[_], dependency : Get => T, milliseconds : Long = 250, immediate : Boolean = false) : Debounce[T] = component.attach(new AttachableDebounce[T] {
         private var timeout : Option[SetTimeoutHandle] = None
-        private var oldValue : T = dependency()
+        private var oldValue : T = Get.Unsafe(dependency)
 
-        override def apply() = oldValue
+        override def apply(get : Get) = oldValue
 
-        override def componentWillRender(update : () => Unit) : Unit = {
-            val newValue = dependency()
+        override def componentWillRender(get : Get) : Unit = {
+            val newValue = get(dependency)
             if(oldValue != newValue) {
                 if(immediate && timeout.isEmpty) {
                     oldValue = newValue
@@ -178,12 +178,12 @@ object Debounce {
                 timeout = Some(js.timers.setTimeout(milliseconds) {
                     oldValue = newValue
                     timeout = None
-                    update()
+                    component.update()
                 })
             }
         }
 
-        override def componentWillUnmount() : Unit = {
+        override def componentWillUnmount(get : Get) : Unit = {
             for(oldTimeout <- timeout) js.timers.clearTimeout(oldTimeout)
         }
     })
