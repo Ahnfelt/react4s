@@ -31,7 +31,7 @@ case class OkCancel(label : P[String]) extends Component[Boolean] {
 }
 ```
 
-This defines a component `OkCancel` that takes one String "prop" named `label`. 
+This defines a component `OkCancel` that takes one String "prop" named `label`. You read props, state, etc. with the `get` object, which is only available where you can safely read from these.
 The `Boolean` in `Component[Boolean]` says that this component emits `Boolean` messages, which is done with the `emit(...)` method.
 The `render()` method is what renders your component, 
 and the component is rerendered automatically when the props change or the state is updated.
