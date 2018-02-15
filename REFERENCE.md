@@ -5,7 +5,7 @@ It uses React internally, but has a simpler lifecycle and interface.
 
 The library comes with no macros, no implicits, and no complicated types.
 
-Components emit messages instead of taking in callbacks. There's no need for Redux.
+Components emit messages instead of taking in callbacks. You won't be needing Redux.
 
 
 # Getting started
@@ -91,6 +91,15 @@ https://github.com/Ahnfelt/react4s-example
 # Lifecycle
 
 ![image](https://cloud.githubusercontent.com/assets/78472/22898855/198ae112-f229-11e6-8784-b854dd679f50.png)
+
+This is the complete component lifecycle for React4s. It's simpler than plain React because the React4s model makes the assumption that your props are immutable and have structural equality.
+
+1. When your component is added to the Virtual DOM, the constructor is invoked.
+2. Before each render, the componentWillRender() method is called. Here you can update any state that depends on props that have changed.
+3. Then in render(), you'll return the Virual DOM that displays your component. State updates are not allowed during this call.
+4. When your component is removed from the Virtual DOM, componentWillUnmount() is called.
+
+The component will only be rerendered when your props have changed, as defined by Scala's structural inequality `!=`, or your state has been updated. The state is considered updated when you've called `update()` explicitly or called `.set(...)` or `.modify(...)` on State objects. React4s never looks inside your state to see if it changed.
 
 ```scala
 trait Component[M] {
@@ -182,3 +191,9 @@ and `get(artists.error)` is `Some(...)` if the most recent future failed. That w
 success, loading and error states in the render method.
 
 The `retry()` method forces the loader to start a new future.
+
+
+# Example application
+
+React4s doesn't mandate any specific project structure, but if you'd like to start from something, 
+check out the [Example Application](https://github.com/Ahnfelt/react4s-example).
