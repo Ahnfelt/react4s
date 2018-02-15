@@ -85,7 +85,7 @@ https://github.com/Ahnfelt/react4s-example
 # HTML elements and attributes
 
 | Syntax | HTML equivalent |
-----------------------------
+|--------|-----------------|
 | `E("div", ...)` | `<div>...</div>` |
 | `E.div(...)` | `<div>...</div>` |
 | `E.div(A("data", "hello"))` | `<div data="hello"></div>` |
@@ -136,7 +136,7 @@ It styles a button to be white with a black border, and black with white text wh
 The resulting `<style>...</style>` will be added to the DOM the first time `FancyButtonCss` is used to render a component.
 
 | Syntax | HTML equivalent |
-----------------------------
+|--------|-----------------|
 | `S("color", "black")` | `style="color: black"` |
 | `S.color("black")` | `style="color: black"` |
 | `S.color.rgba(255, 0, 0, 0.5)` | `style="color: rgba(255, 0, 0, 0.5)"` |
