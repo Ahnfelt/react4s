@@ -93,6 +93,11 @@ Elements use the `E.` prefix and attributes use the `A.` prefix:
 | `E.div(A("data-x", "hello"))` | `<div data-x="hello"></div>` |
 | `E.input(A.onClick(...))` | `<div onclick="..."></div>` |
 | `E.input(A.onClick(...), Text("next"))` | `<div onclick="...">next</div>` |
+
+Use `Tags(...)` with an `Option` or a `Seq` if you want to show a variable number of tags:
+
+| Syntax | HTML equivalent |
+|--------|-----------------|
 | `Tags(for(x <- 1 to 3) yield E.button(Text(x.toString)))` | `<button>1</button><button>2</button><button>3</button>` |
 
 
