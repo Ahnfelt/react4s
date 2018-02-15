@@ -81,6 +81,56 @@ https://github.com/Ahnfelt/react4s-example
 
 # Components, props & state
 
+Components are `case class`es that takes in "props" (`label : P[String]` below) and `emit` messages of some type 
+(the `Boolean` in `Component[Boolean]`), or no messages `Component[NoEmit]`.
+
+```scala
+case class OkCancel(label : P[String]) extends Component[Boolean] {
+    override def render(get : Get) = E.div(
+        E.div(Text(get(label)),
+        E.div(
+            E.button(
+                Text("OK"),
+                A.onClick(_ => emit(true))
+            ),
+            E.button(
+                Text("Cancel"),
+                A.onClick(_ => emit(false))
+            )
+        )
+    )
+}
+```
+
+You render a component like this: `Component(MyComponent, prop1, prop2, ...)` and listen to what it emits
+by adding `.withHandler(...)`.
+
+```scala
+case class Counter() extends Component[NoEmit] {
+    
+    val okClicks = State(0)
+    val cancelClicks = State(0)
+    
+    def onClick(ok : Boolean) = {
+        if(ok) {
+            okClicks.modify(_ + 1)
+        } else {
+            cancelClicks.modify(_ + 1)
+        }
+    }
+    
+    override def render(get : Get) = E.div(
+        Component(OkCancel, "Would you like some icecream?").withHandler(onClick),
+        E.hr(),
+        E.div(Text("You've clicked OK " + get(okClicks) + " times.")),
+        E.div(Text("You've clicked Cancel " + get(cancelClicks) + " times."))
+    )
+    
+}
+```
+
+Components will only be rerendered when their props change, their state is modified, or when `update()` is called directly.
+
 
 # HTML elements and attributes
 
@@ -198,18 +248,7 @@ case class MainComponent() extends Component[NoEmit] {
     val query = State("")
     val debouncedQuery = Debounce(this, query, 500)
 
-    val artists = Loader(this, debouncedQuery) { q =>
-        if(q.trim.isEmpty) Future.successful(List()) else {
-            val query = js.URIUtils.encodeURIComponent(q)
-            Ajax.get("http://show.ahnfelt.net/react4s-spotify/?q=" + query + "&type=artist").
-                map { ajax =>
-                    js.JSON.parse(ajax.responseText).
-                        artists.items.
-                        asInstanceOf[js.Array[js.Dynamic]].
-                        toList.map(Artist.fromDynamic)
-                }
-        }
-    }
+    val artists = Loader(this, debouncedQuery) { q => fetchArtistsByAjax(q) }
 
     override def render(get : Get) : Element = {
         E.div(
