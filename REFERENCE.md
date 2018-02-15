@@ -84,7 +84,7 @@ https://github.com/Ahnfelt/react4s-example
 
 # HTML elements and attributes
 
-Elements use the `E.` prefix and attributes use the `A.` prefix:
+Elements use the `E.` prefix, attributes use the `A.` prefix and plain text use `Text(...)`:
 
 | Syntax | HTML equivalent |
 |--------|-----------------|
