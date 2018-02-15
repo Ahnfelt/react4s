@@ -102,6 +102,8 @@ case class OkCancel(label : P[String]) extends Component[Boolean] {
 }
 ```
 
+The `get` parameter lets you read from props, state etc., and is only available where it's safe to do so.
+
 You render a component like this: `Component(MyComponent, prop1, prop2, ...)` and listen to what it emits
 by adding `.withHandler(...)`.
 
@@ -130,6 +132,10 @@ case class Counter() extends Component[NoEmit] {
 ```
 
 Components will only be rerendered when their props change, their state is modified, or when `update()` is called directly.
+
+If you need state whose initial value is a prop, you can use `State.of(prop)`. 
+Wherever you can supply a prop, you can also supply a function `Get => T`, where `T` is the result type, 
+eg. `State.of(get => get(prop1) * get(prop2))`.
 
 
 # HTML elements and attributes
