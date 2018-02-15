@@ -84,6 +84,8 @@ https://github.com/Ahnfelt/react4s-example
 
 # HTML elements and attributes
 
+Elements use the `E.` prefix and attributes use the `A.` prefix:
+
 | Syntax | HTML equivalent |
 |--------|-----------------|
 | `E("div", ...)` | `<div>...</div>` |
@@ -91,6 +93,7 @@ https://github.com/Ahnfelt/react4s-example
 | `E.div(A("data-x", "hello"))` | `<div data-x="hello"></div>` |
 | `E.input(A.onClick(...))` | `<div onclick="..."></div>` |
 | `E.input(A.onClick(...), Text("next"))` | `<div onclick="...">next</div>` |
+| `Tags(for(x <- 1 to 3) yield E.button(Text(x)))` | `<button>1</button><button>2</button><button>3</button>` |
 
 
 # CSS styles and classes
