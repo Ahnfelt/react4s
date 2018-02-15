@@ -88,7 +88,7 @@ https://github.com/Ahnfelt/react4s-example
 |--------|-----------------|
 | `E("div", ...)` | `<div>...</div>` |
 | `E.div(...)` | `<div>...</div>` |
-| `E.div(A("data", "hello"))` | `<div data="hello"></div>` |
+| `E.div(A("data-x", "hello"))` | `<div data-x="hello"></div>` |
 | `E.input(A.onClick(...))` | `<div onclick="..."></div>` |
 | `E.input(A.onClick(...), Text("next"))` | `<div onclick="...">next</div>` |
 
