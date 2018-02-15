@@ -154,9 +154,9 @@ case class MainComponent() extends Component[NoEmit] {
                 Component(SearchInputComponent, get(query)).withHandler(q => query.set(q))
             ),
             E.div(
-                Component(LoadingComponent).withKey("loading").when(get(artists.loading)),
-                Tags(get(artists.error).map(e => Component(ErrorComponent, e.getMessage).withKey("error"))),
-                Tags(get(artists).map(results => Component(ResultsComponent, results).withKey("results")))
+                Component(LoadingComponent).when(get(artists.loading)),
+                Tags(get(artists.error).map(e => Component(ErrorComponent, e.getMessage))),
+                Tags(get(artists).map(results => Component(ResultsComponent, results)))
             )
         )
     }
