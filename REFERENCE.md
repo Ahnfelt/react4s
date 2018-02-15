@@ -84,8 +84,63 @@ https://github.com/Ahnfelt/react4s-example
 
 # HTML elements and attributes
 
+| Syntax | HTML equivalent |
+----------------------------
+| `E("div", ...)` | `<div>...</div>` |
+| `E.div(...)` | `<div>...</div>` |
+| `E.div(A("data", "hello"))` | `<div data="hello"></div>` |
+| `E.input(A.onClick(...))` | `<div onclick="..."></div>` |
+| `E.input(A.onClick(...), Text("next"))` | `<div onclick="...">next</div>` |
+
 
 # CSS styles and classes
+
+Inline styles use the `S.` prefix:
+
+```scala
+case class OkCancel(label : P[String]) extends Component[Boolean] {
+    override def render(get : Get) = E.div(
+        E.div(Text(get(label)), S.color.rgb(0, 0, 255)),
+        E.div(
+            E.button(
+                FancyButtonCss,
+                Text("OK"),
+                A.onClick(_ => emit(true))
+            ),
+            E.button(
+                FancyButtonCss,
+                Text("Cancel"),
+                A.onClick(_ => emit(false))
+            )
+        )
+    )
+}
+```
+
+The above uses one inline style `S.color.rgb(0, 0, 255)` and one css class `FancyButtonCss`. The css class is defined as follows:
+
+```scala
+object FancyButtonCss extends CssClass(
+    S.cursor.pointer(),
+    S.border.px(2).solid().rgb(0, 0, 0),
+    S.color.rgb(0, 0, 0),
+    S.backgroundColor.rgb(255, 255, 255),
+    Css.hover(
+        S.color.rgb(255, 255, 255),
+        S.backgroundColor.rgb(0, 0, 0)
+    )
+)
+```
+
+It styles a button to be white with a black border, and black with white text when the mouse is hovered over it. 
+The resulting `<style>...</style>` will be added to the DOM the first time `FancyButtonCss` is used to render a component.
+
+| Syntax | HTML equivalent |
+----------------------------
+| `S("color", "black")` | `style="color: black"` |
+| `S.color("black")` | `style="color: black"` |
+| `S.color.rgba(255, 0, 0, 0.5)` | `style="color: rgba(255, 0, 0, 0.5)"` |
+| `FancyButtonCss` | `class="FancyButtonCss-c4f3b4be"` |
 
 
 # Lifecycle
