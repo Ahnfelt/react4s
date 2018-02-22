@@ -433,6 +433,10 @@ object A extends CommonEvents {
     def onChangeText(onChange : String => Unit) = {
         A.onChange(e => onChange(e.target.value.asInstanceOf[String]))
     }
+    /** A helper method that checks for event.button == 0 for you, to avoid accidentally capturing right/middle clicks. */
+    def onLeftClick(handler : MouseEvent => Unit) = EventHandler("onClick", { e : MouseEvent =>
+        if(e.button == 0) handler(e)
+    }.asInstanceOf[SyntheticEvent => Unit])
 
     def accept(value : String = "true") = Attribute("accept", value)
     def acceptCharset(value : String = "true") = Attribute("acceptCharset", value)
@@ -561,8 +565,13 @@ object A extends CommonEvents {
 
     def checked(value : Boolean = true) = Attribute("checked", value)
     def className(value : String*) = Attribute("className", value.mkString(" "))
-    /** Set up an event handler. Note that the event name must contain the 'on', eg. 'onClick' instead of 'click'. */
-    def on(eventName : String, handler : SyntheticEvent => Unit) = EventHandler(eventName, handler)
+    /** Set up an event handler for any event. */
+    def on(eventName : String, handler : SyntheticEvent => Unit) = {
+        val name =
+            if(eventName.startsWith("on")) eventName
+            else "on" + eventName.take(1).toUpperCase + eventName.drop(1)
+        EventHandler(eventName, handler)
+    }
 }
 
 /** A convenience object for constructing Styles. */
