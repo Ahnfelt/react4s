@@ -570,7 +570,7 @@ object A extends CommonEvents {
         val name =
             if(eventName.startsWith("on")) eventName
             else "on" + eventName.take(1).toUpperCase + eventName.drop(1)
-        EventHandler(eventName, handler)
+        EventHandler(name, handler)
     }
 }
 
