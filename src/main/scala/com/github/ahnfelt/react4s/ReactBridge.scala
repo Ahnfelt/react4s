@@ -43,6 +43,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     private lazy val React = react.asInstanceOf[React]
     private lazy val ReactDOM = reactDom.asInstanceOf[js.Dynamic]
     private lazy val ReactDOMServer = reactDomServer.asInstanceOf[js.Dynamic]
+    private var isRenderingToString = false
 
     private def doAddStyle(name : String, css : String) : Unit = if(addStyle != null) addStyle(name, css) else {
         if(js.isUndefined(js.Dynamic.global.document) || js.isUndefined(js.Dynamic.global.document.createElement)) return
@@ -51,22 +52,28 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         js.Dynamic.global.document.head.appendChild(domStyle)
     }
 
-    /** Insert the specified element or component inside the DOM element with the given ID. The DOM element must already exist in the DOM. */
-    def renderToDomById(elementOrComponent : ElementOrComponent, id : String) : Unit = {
+    /** Insert the specified element or component inside the DOM element with the given ID. The DOM element must already exist in the DOM. Set the hydrate flag if hydrating server side rendered DOM. */
+    def renderToDomById(elementOrComponent : ElementOrComponent, id : String, hydrate : Boolean = false) : Unit = {
         val domElement = js.Dynamic.global.document.getElementById(id)
         renderToDom(elementOrComponent, domElement)
     }
 
-    /** Insert the specified element or component inside the given DOM element. The DOM element must already exist in the DOM. */
-    def renderToDom(elementOrComponent : ElementOrComponent, domElement : js.Any) : Unit = {
+    /** Insert the specified element or component inside the given DOM element. The DOM element must already exist in the DOM. Set the hydrate flag if hydrating server side rendered DOM. */
+    def renderToDom(elementOrComponent : ElementOrComponent, domElement : js.Any, hydrate : Boolean = false) : Unit = {
         val e = elementOrComponentToReact(elementOrComponent)
-        ReactDOM.render(e, domElement)
+        if(hydrate) ReactDOM.hydrate(e, domElement)
+        else ReactDOM.render(e, domElement)
     }
 
     /** Generates static HTML with additional attributes that preserves the HTML if renderToDom is later called on the same element. For server-side use. */
     def renderToString(elementOrComponent : ElementOrComponent) : String = {
-        val e = elementOrComponentToReact(elementOrComponent)
-        ReactDOMServer.renderToString(e).asInstanceOf[String]
+        isRenderingToString = true
+        try {
+            val e = elementOrComponentToReact(elementOrComponent)
+            ReactDOMServer.renderToString(e).asInstanceOf[String]
+        } finally {
+            isRenderingToString = false
+        }
     }
 
     /** Generates plain static HTML without the additional attributes of renderToString. For server-side use. */
@@ -190,11 +197,10 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         // These lines are inspired by the create-react-component implementation
 
         val react = React.asInstanceOf[js.Dynamic]
-        val classConstructor : js.ThisFunction = { (self : js.Dynamic, props : js.Dynamic, context : js.Dynamic, updater : js.Dynamic) =>
+        val classConstructor : js.ThisFunction = { (self : js.Dynamic, props : js.Dynamic, context : js.Dynamic) =>
             self.props = props
             self.context = context
             self.refs = {}
-            self.updater = updater || js.Dynamic.newInstance(react.Component)().asInstanceOf[js.Dynamic].updater
             self.state = js.Dynamic.literal("stateUpdates" -> 0.0)
         }
         val dynamicConstructor = classConstructor.asInstanceOf[js.Dynamic]
@@ -248,8 +254,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
 
         dynamicConstructor.prototype.render = { (self : js.Dynamic) =>
             val instance = self.instance.asInstanceOf[Component[_]]
-            val renderingToString = self.updater.transaction.asInstanceOf[js.UndefOr[js.Any]].isDefined
-            if(!renderingToString) {
+            if(!isRenderingToString) {
                 instance.updateScheduled = true // Suppresses update() calls inside componentWillRender
                 instance.componentWillRender(Get.Unsafe)
                 for(attachable <- instance.attachedAttachables) attachable.componentWillRender(Get.Unsafe)
