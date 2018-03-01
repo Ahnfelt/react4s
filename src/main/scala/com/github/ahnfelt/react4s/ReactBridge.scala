@@ -55,7 +55,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     /** Insert the specified element or component inside the DOM element with the given ID. The DOM element must already exist in the DOM. Set the hydrate flag if hydrating server side rendered DOM. */
     def renderToDomById(elementOrComponent : ElementOrComponent, id : String, hydrate : Boolean = false) : Unit = {
         val domElement = js.Dynamic.global.document.getElementById(id)
-        renderToDom(elementOrComponent, domElement)
+        renderToDom(elementOrComponent, domElement, hydrate)
     }
 
     /** Insert the specified element or component inside the given DOM element. The DOM element must already exist in the DOM. Set the hydrate flag if hydrating server side rendered DOM. */
