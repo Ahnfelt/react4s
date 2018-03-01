@@ -4,7 +4,7 @@ It exposes an API that makes it easy to write plain and simple Scala code for yo
 You get the indispensable `shouldComponentUpdate()` for free, no callback memoization required.
 It uses no macros, no implicits and no complicated types.
 
-[Example Application](https://github.com/Ahnfelt/react4s-example)
+[Online Demo](http://www.react4s.org/)
 
 ```sbt
 resolvers += Resolver.sonatypeRepo("snapshots")
@@ -149,4 +149,4 @@ This is the complete component lifecycle for React4s. It's simpler than plain Re
 
 The component will only be rerendered when your props have changed, as defined by Scala's structural inequality `!=`, or your state has been updated. The state is considered updated when you've called `update()` explicitly or called `.set(...)` or `.modify(...)` on State objects. React4s never looks inside your state to see if it changed.
 
-You can attach Attachables that listen on these lifecycle events, and React4s comes with three of those: `Timeout`, `Debounce` and `Loader`. See how they're used in https://github.com/Ahnfelt/react4s-example.
+You can attach Attachables that listen on these lifecycle events, and React4s comes with three of those: `Timeout`, `Debounce` and `Loader`. See how they're used in the [Online Examples](http://www.react4s.org/).
