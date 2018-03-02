@@ -15,7 +15,7 @@ object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.globa
     /** Represents the React object. */
     @js.native
     trait React extends js.Object {
-        def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any]) : ReactElement = js.native
+        def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any], children : js.Any*) : ReactElement = js.native
     }
 
 }
@@ -134,9 +134,8 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         for(k <- element.key) props.update("key", k)
         for(r <- element.ref) props.update("ref", r)
         if(style.nonEmpty) props.update("style", style)
-        if(children.nonEmpty) props.update("children", children)
 
-        React.createElement(element.tagName, props)
+        React.createElement(element.tagName, props, children : _*)
 
     }
 
@@ -171,10 +170,8 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         for(k <- dynamic.key) props.update("key", k)
         for(r <- dynamic.ref) props.update("ref", r)
         if(style.nonEmpty) props.update("style", style)
-        if(children.size == 1) props.update("children", children.head)
-        if(children.size > 1) props.update("children", children)
 
-        React.createElement(dynamic.componentClass.asInstanceOf[js.Any], props)
+        React.createElement(dynamic.componentClass.asInstanceOf[js.Any], props, children : _*)
     }
 
     def elementOrComponentToReact(elementOrComponent : ElementOrComponent) : ReactElement = {
