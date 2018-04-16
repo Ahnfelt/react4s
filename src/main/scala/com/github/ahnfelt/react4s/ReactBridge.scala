@@ -88,6 +88,9 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case element : Element =>
             children.push(elementToReact(element))
 
+        case portal : Portal =>
+            children.push(nodeToReact(portal))
+
         case constructor : ConstructorData[_] =>
             children.push(componentToReact(constructor))
 
