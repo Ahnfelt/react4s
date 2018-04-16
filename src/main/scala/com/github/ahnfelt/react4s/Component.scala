@@ -19,7 +19,7 @@ trait Component[M] {
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
     def componentWillUnmount(get : Get) : Unit = {}
     /** Called when the component needs to be rendered. Rerendering only happens when this components props are change or it's state is updated. */
-    def render(get : Get) : ElementOrComponent
+    def render(get : Get) : Node
 
     /** Internal implementation of a component state variable that automatically calls update() when changed. */
     private class ComponentState[T](var value : T) extends State[T] {
@@ -168,6 +168,9 @@ case class Attribute(name : String, value : Any) extends Tag
 
 /** A piece of plain text. */
 case class Text(value : String) extends Node
+
+/** A portal, used to place the resulting DOM node inside the container instead. */
+case class Portal(child : Node, container : Any) extends Node
 
 /** An event handler, eg. onClick(...). */
 case class EventHandler(name : String, handler : SyntheticEvent => Unit) extends Tag

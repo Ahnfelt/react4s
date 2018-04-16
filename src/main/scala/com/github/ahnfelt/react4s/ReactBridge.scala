@@ -16,6 +16,7 @@ object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.globa
     @js.native
     trait React extends js.Object {
         def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any], children : js.Any*) : ReactElement = js.native
+        def createPortal(node : js.Any, container : js.Any) : ReactElement = js.native
     }
 
 }
@@ -185,6 +186,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     def nodeToReact(node : Node) : ReactElement = {
         node match {
             case element : ElementOrComponent => elementOrComponentToReact(element)
+            case Portal(child, container) => React.createPortal(nodeToReact(child), container.asInstanceOf[js.Any])
             case Text(text : String) => text.asInstanceOf[ReactElement]
         }
     }
@@ -257,7 +259,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
                 for(attachable <- instance.attachedAttachables) attachable.componentWillRender(Get.Unsafe)
             }
             instance.updateScheduled = false
-            elementOrComponentToReact(instance.render(Get.Unsafe))
+            nodeToReact(instance.render(Get.Unsafe))
         } : js.ThisFunction
 
         dynamicConstructor
