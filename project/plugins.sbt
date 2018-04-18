@@ -1,2 +1,2 @@
-addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.14")
-addSbtPlugin("com.typesafe.sbt" % "sbt-pgp" % "0.8")
+addSbtPlugin("org.scala-js" % "sbt-scalajs" % "0.6.22")
+addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.1.1")
