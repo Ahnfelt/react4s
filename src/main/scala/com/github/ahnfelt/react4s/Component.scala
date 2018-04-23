@@ -113,6 +113,9 @@ sealed abstract class Tag extends JsTag {
 /** An interface for things that are either elements, components or text. */
 sealed trait Node extends Tag
 
+/** The children of a fragment will be inserted directly into the DOM in place of the fragment. */
+case class Fragment(children : Node*) extends Node
+
 /** An interface for things that are either elements or components. */
 sealed trait ElementOrComponent extends Node {
     /** Change the key for this element or component. React uses this to reorder components, thus saving time and keeping the internal component state where it belongs. */

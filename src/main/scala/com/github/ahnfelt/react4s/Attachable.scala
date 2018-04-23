@@ -57,6 +57,7 @@ object Loader {
         var lastRetries : Long = 0
         var retries : Long  = 0
         var changedSinceInitial : Boolean = false
+        var unmounted : Boolean = false
 
         override def componentWillRender(get : Get) : Unit = {
             val newDependency = get(dependency)
@@ -70,27 +71,28 @@ object Loader {
                 val version = lastVersion
                 import scala.concurrent.ExecutionContext.Implicits.global
                 future(newDependency).onComplete { result =>
-                    result match {
-                        case Success(newValue) => if(version == lastVersion) {
-                            lastValue = Some(newValue)
-                            lastError = None
+                    if(!unmounted) {
+                        result match {
+                            case Success(newValue) => if(version == lastVersion) {
+                                lastValue = Some(newValue)
+                                lastError = None
+                            }
+                            case Failure(newError) => if(version == lastVersion) {
+                                lastError = Some(newError)
+                            }
                         }
-                        case Failure(newError) => if(version == lastVersion) {
-                            lastError = Some(newError)
+                        isLoading = false
+                        if(!lastDependency.contains(get(dependency)) || retries != lastRetries) {
+                            componentWillRender(get)
+                        } else {
+                            component.update()
                         }
-                    }
-                    isLoading = false
-                    if(!lastDependency.contains(get(dependency)) || retries != lastRetries) {
-                        componentWillRender(get)
-                    } else {
-                        component.update()
                     }
                 }
             }
         }
 
-        // Ensure we don't update the state after the component has been unmounted
-        override def componentWillUnmount(get : Get) : Unit = lastVersion += 1
+        override def componentWillUnmount(get : Get) : Unit = unmounted = true
 
         override def retry() : Unit = { retries += 1; component.update() }
         override def apply(get : Get) : Option[O] = lastValue

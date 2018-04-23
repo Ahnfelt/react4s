@@ -16,6 +16,7 @@ object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.globa
     @js.native
     trait React extends js.Object {
         def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any], children : js.Any*) : ReactElement = js.native
+        val Fragment : js.Dynamic = js.native
     }
 
 }
@@ -83,6 +84,9 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     }
 
     private def insert(tag : JsTag, props : js.Dictionary[js.Any], children : js.Array[js.Any], style : js.Dictionary[js.Any]) : Unit = tag match {
+
+        case fragment : Fragment =>
+            children.push(nodeToReact(fragment))
 
         case element : Element =>
             children.push(elementToReact(element))
@@ -187,6 +191,10 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
 
     def nodeToReact(node : Node) : ReactElement = {
         node match {
+            case fragment : Fragment =>
+                val children = js.Array[js.Any]()
+                for(node <- fragment.children) children.push(nodeToReact(node))
+                React.createElement(React.Fragment, null, children : _*)
             case element : ElementOrComponent =>
                 elementOrComponentToReact(element)
             case Portal(child, container) =>
