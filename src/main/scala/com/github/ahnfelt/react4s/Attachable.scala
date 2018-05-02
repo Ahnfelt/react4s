@@ -65,8 +65,8 @@ object Loader {
         var unmounted : Boolean = false
 
         override def componentWillRender(get : Get) : Unit = {
-            val newDependency = dependency(get)
-            val isInitial = !changedSinceInitial && initial.exists(i => i(get) == newDependency)
+            val newDependency = get(dependency)
+            val isInitial = !changedSinceInitial && initial.exists(i => get(i) == newDependency)
             if((!lastDependency.contains(newDependency) || retries != lastRetries) && !isInitial && !isLoading) {
                 changedSinceInitial = true
                 lastRetries = retries
@@ -87,7 +87,7 @@ object Loader {
                             }
                         }
                         isLoading = false
-                        if(!lastDependency.contains(dependency(get)) || retries != lastRetries) {
+                        if(!lastDependency.contains(get(dependency)) || retries != lastRetries) {
                             componentWillRender(get)
                         } else {
                             component.update()
@@ -135,7 +135,7 @@ object Timeout {
         }
 
         override def componentWillRender(get : Get) : Unit = {
-            val newValue = dependency(get)
+            val newValue = get(dependency)
             if(!oldValue.contains(newValue)) {
                 for(oldTimeout <- timeout) js.timers.clearTimeout(oldTimeout)
                 oldValue = Some(newValue)
@@ -169,12 +169,12 @@ object Debounce {
     /** When the dependency is changed, don't propagate the value immediately - instead wait until no change has been made for the specified milliseconds. If immediate is set, propagate the first change after a pause immediately. */
     def apply[T](component : Component[_], dependency : Signal[T], milliseconds : Long = 250, immediate : Boolean = false) : Debounce[T] = component.attach(new AttachableDebounce[T] {
         private var timeout : Option[SetTimeoutHandle] = None
-        private var oldValue : T = dependency(Get.Unsafe)
+        private var oldValue : T = Get.Unsafe(dependency)
 
         override def sample(get : Get) = oldValue
 
         override def componentWillRender(get : Get) : Unit = {
-            val newValue = dependency(get)
+            val newValue = get(dependency)
             if(oldValue != newValue) {
                 if(immediate && timeout.isEmpty) {
                     oldValue = newValue
