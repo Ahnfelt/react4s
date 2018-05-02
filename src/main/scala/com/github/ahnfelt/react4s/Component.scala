@@ -88,7 +88,7 @@ trait Signal[T] { self =>
         new Signal[T1] { def sample(get : Get) = body(get(self)) }
     /** Create a new signal by sampling after applying the function to the value of this signal. */
     def flatMap[T1](body : T => Signal[T1]) : Signal[T1] =
-        new Signal[T1] { def sample(get : Get) = body(get(self))(get) }
+        new Signal[T1] { def sample(get : Get) = get(body(get(self))) }
     /** Create a new signal that when sampled returns the pair of values sampled from this and that signal. */
     def zip[T1](that1 : Signal[T1]) : Signal[(T, T1)] =
         new Signal[(T, T1)] { def sample(get : Get) = (get(self), get(that1)) }
