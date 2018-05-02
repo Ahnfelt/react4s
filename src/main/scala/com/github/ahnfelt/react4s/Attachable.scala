@@ -52,7 +52,7 @@ object Loader {
     trait AttachableLoader[T] extends Loader[T] with Attachable
 
     /** Create a Loader. Whenever the dependency (eg. a prop) changes, a new future is created and the old future (if any) is ignored. To avoid race conditions, it waits for the old future to complete before starting a new. If initial is Some(initialValue), delays first load until dependency() != initialValue(). */
-    def apply[I, O](component : Component[_], dependency : Get => I, initial : Option[Get => I] = None)(future : I => Future[O]) : Loader[O] = component.attach(new AttachableLoader[O] {
+    def apply[I, O](component : Component[_], dependency : Signal[I], initial : Option[Signal[I]] = None)(future : I => Future[O]) : Loader[O] = component.attach(new AttachableLoader[O] {
         var lastDependency : Option[I] = None
         var nextDependency : Option[I] = None
         var lastValue : Option[O] = None

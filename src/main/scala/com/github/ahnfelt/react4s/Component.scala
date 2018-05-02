@@ -106,6 +106,13 @@ trait Signal[T] { self =>
         new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6), get(that7), get(that8), get(that9)) }
 }
 
+object Signal {
+    /** Create a signal that's sampled by calling the supplied function. */
+    def of[T](sample : Get => T) : Signal[T] = new Signal[T] { def sample(get : Get) = sample(get) }
+    /** Create a signal that always returns the supplied constant when sampled. */
+    def apply[T](constant : T) : Signal[T] = new Signal[T] { def sample(get : Get) = constant }
+}
+
 /** Represents local component state. */
 abstract class State[T] extends Signal[T] {
     /** Set the value. In components, State(...) objects automatically call component.update() when this method is called. */
