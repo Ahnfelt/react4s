@@ -31,7 +31,7 @@ def render(get : Get) = E.div(
 )
 }}}
 */
-trait Loader[T] extends (Get => Option[T]) {
+trait Loader[T] extends Signal[Option[T]] {
     /** The last loaded value, if any. Not cleared when the most recent future fails. */
     def apply(get : Get) : Option[T]
     /** The last error, if any. Cleared when the most recent future succeeds. */
@@ -60,8 +60,8 @@ object Loader {
         var unmounted : Boolean = false
 
         override def componentWillRender(get : Get) : Unit = {
-            val newDependency = get(dependency)
-            val isInitial = !changedSinceInitial && initial.exists(i => get(i) == newDependency)
+            val newDependency = dependency(get)
+            val isInitial = !changedSinceInitial && initial.exists(i => i(get) == newDependency)
             if((!lastDependency.contains(newDependency) || retries != lastRetries) && !isInitial && !isLoading) {
                 changedSinceInitial = true
                 lastRetries = retries
@@ -82,7 +82,7 @@ object Loader {
                             }
                         }
                         isLoading = false
-                        if(!lastDependency.contains(get(dependency)) || retries != lastRetries) {
+                        if(!lastDependency.contains(dependency(get)) || retries != lastRetries) {
                             componentWillRender(get)
                         } else {
                             component.update()
@@ -102,7 +102,7 @@ object Loader {
 }
 
 /** Set after a specified timeout, or on an interval. */
-trait Timeout extends (Get => Boolean) {
+trait Timeout extends Signal[Boolean] {
     /** Has the timeout triggered yet? */
     def apply(get : Get) : Boolean
     /** The number of times the timeout has triggered (only ever higher than 1 for intervals). */
@@ -132,7 +132,7 @@ object Timeout {
         }
 
         override def componentWillRender(get : Get) : Unit = {
-            val newValue = get(dependency)
+            val newValue = dependency(get)
             if(!oldValue.contains(newValue)) {
                 for(oldTimeout <- timeout) js.timers.clearTimeout(oldTimeout)
                 oldValue = Some(newValue)
@@ -154,7 +154,7 @@ object Timeout {
 }
 
 /** Used to debounce or throttle changes. */
-trait Debounce[T] extends (Get => T) {
+trait Debounce[T] extends Signal[T] {
     /** Get the debounced value. */
     def apply(get : Get) : T
 }
@@ -166,12 +166,12 @@ object Debounce {
     /** When the dependency is changed, don't propagate the value immediately - instead wait until no change has been made for the specified milliseconds. If immediate is set, propagate the first change after a pause immediately. */
     def apply[T](component : Component[_], dependency : Get => T, milliseconds : Long = 250, immediate : Boolean = false) : Debounce[T] = component.attach(new AttachableDebounce[T] {
         private var timeout : Option[SetTimeoutHandle] = None
-        private var oldValue : T = Get.Unsafe(dependency)
+        private var oldValue : T = dependency(Get.Unsafe)
 
         override def apply(get : Get) = oldValue
 
         override def componentWillRender(get : Get) : Unit = {
-            val newValue = get(dependency)
+            val newValue = dependency(get)
             if(oldValue != newValue) {
                 if(immediate && timeout.isEmpty) {
                     oldValue = newValue

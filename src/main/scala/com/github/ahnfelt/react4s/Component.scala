@@ -79,8 +79,34 @@ object Component {
     def apply[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](   f : { def apply(p1 : P[P1], p2 : P[P2], p3 : P[P3], p4 : P[P4], p5 : P[P5], p6 : P[P6], p7 : P[P7], p8 : P[P8], p9 : P[P9]) : Component[M] }, p1 : P1, p2 : P2, p3 : P3, p4 : P4, p5 : P5, p6 : P6, p7 : P7, p8 : P8, p9 : P9)      = ConstructorData(Constructor9(f, p1, p2, p3, p4, p5, p6, p7, p8, p9))
 }
 
+/** Represents a value that changes over time, like props and state, as well as most attachables. */
+trait Signal[T] extends (Get => T) { self =>
+    def map[T1](body : T => T1) : Signal[T1] =
+        new Signal[T1] { def apply(get : Get) = body(self(get)) }
+    def flatMap[T1](body : T => Signal[T1]) : Signal[T1] =
+        new Signal[T1] { def apply(get : Get) = body(self(get))(get) }
+    def zip[T1](that1 : Signal[T1]) : Signal[(T, T1)] =
+        new Signal[(T, T1)] { def apply(get : Get) = (self(get), that1(get)) }
+    def zip2[T1, T2](that1 : Signal[T1], that2 : Signal[T2]) : Signal[(T, T1, T2)] =
+        new Signal[(T, T1, T2)] { def apply(get : Get) = (self(get), that1(get), that2(get)) }
+    def zip3[T1, T2, T3](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3]) : Signal[(T, T1, T2, T3)] =
+        new Signal[(T, T1, T2, T3)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get)) }
+    def zip4[T1, T2, T3, T4](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4]) : Signal[(T, T1, T2, T3, T4)] =
+        new Signal[(T, T1, T2, T3, T4)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get)) }
+    def zip5[T1, T2, T3, T4, T5](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5]) : Signal[(T, T1, T2, T3, T4, T5)] =
+        new Signal[(T, T1, T2, T3, T4, T5)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get)) }
+    def zip6[T1, T2, T3, T4, T5, T6](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6]) : Signal[(T, T1, T2, T3, T4, T5, T6)] =
+        new Signal[(T, T1, T2, T3, T4, T5, T6)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get), that6(get)) }
+    def zip7[T1, T2, T3, T4, T5, T6, T7](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7)] =
+        new Signal[(T, T1, T2, T3, T4, T5, T6, T7)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get), that6(get), that7(get)) }
+    def zip8[T1, T2, T3, T4, T5, T6, T7, T8](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7], that8 : Signal[T8]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] =
+        new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get), that6(get), that7(get), that8(get)) }
+    def zip9[T1, T2, T3, T4, T5, T6, T7, T8, T9](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7], that8 : Signal[T8], that9 : Signal[T9]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] =
+        new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get), that6(get), that7(get), that8(get), that9(get)) }
+}
+
 /** Represents local component state. */
-abstract class State[T] extends (Get => T) {
+abstract class State[T] extends Signal[T] {
     /** Get the current value. */
     def apply(get : Get) : T
     /** Set the value. In components, State(...) objects automatically call component.update() when this method is called. */
@@ -90,10 +116,10 @@ abstract class State[T] extends (Get => T) {
 }
 
 /** Represents a prop, ie. an argument to a Component. The value it holds can be read with .apply() and may change over time. */
-abstract class P[T] extends (Get => T)
+abstract class P[T] extends Signal[T]
 
 /** The only way to read props, state, etc., to ensure they are not accidentally read at the wrong time (eg. in the constructor). */
-class Get { @inline def apply[T](extract : Get => T) : T = extract(this) }
+class Get { @inline def apply[T](extract : Signal[T]) : T = extract(this) }
 object Get {
     /** A globally available instance of Get. Don't use this directly unless you know what you're doing. */
     object Unsafe extends Get
