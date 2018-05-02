@@ -42,7 +42,7 @@ def render(get : Get) = E.div(
 )
 }}}
 */
-trait Loader[T] extends Signal[Option[T]] {
+trait Loader[T] extends Signal[Loaded[T]] {
     def sample(get : Get) : Loaded[T]
     def retry() : Unit
 }
