@@ -81,11 +81,15 @@ object Component {
 
 /** Represents a value that changes over time, like props and state, as well as most attachables. */
 trait Signal[T] { self =>
+    /** Sample the signal to get the current value. */
     def sample(get : Get) : T
+    /** Create a new signal by applying the function to the value of this signal. */
     def map[T1](body : T => T1) : Signal[T1] =
         new Signal[T1] { def sample(get : Get) = body(get(self)) }
+    /** Create a new signal by sampling after applying the function to the value of this signal. */
     def flatMap[T1](body : T => Signal[T1]) : Signal[T1] =
         new Signal[T1] { def sample(get : Get) = body(get(self))(get) }
+    /** Create a new signal that when sampled returns the pair of values sampled from this and that signal. */
     def zip[T1](that1 : Signal[T1]) : Signal[(T, T1)] =
         new Signal[(T, T1)] { def sample(get : Get) = (get(self), get(that1)) }
     def zip2[T1, T2](that1 : Signal[T1], that2 : Signal[T2]) : Signal[(T, T1, T2)] =
