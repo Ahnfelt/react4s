@@ -81,7 +81,7 @@ object Component {
 
 /** Represents a value that changes over time, like props and state, as well as most attachables. */
 trait Signal[T] { self =>
-    /** Sample the signal to get the current value. */
+    /** Sample the signal to get the current value. Instead of calling signal.sample(get), use get(signal). */
     def sample(get : Get) : T
     /** Create a new signal by applying the function to the value of this signal. */
     def map[T1](body : T => T1) : Signal[T1] =
