@@ -128,7 +128,7 @@ abstract class State[T] extends Signal[T] {
 /** Represents a prop, ie. an argument to a Component. The value it holds can be read with .apply() and may change over time. */
 abstract class P[T] extends Signal[T]
 
-/** The only way to read props, state, etc., to ensure they are not accidentally read at the wrong time (eg. in the constructor). */
+/** The only way to read signals like props, state, etc., to ensure they are not accidentally read at the wrong time (eg. in the constructor). */
 class Get { @inline def apply[T](signal : Signal[T]) : T = signal.sample(this) }
 object Get {
     /** A globally available instance of Get. Don't use this directly unless you know what you're doing. */
