@@ -23,23 +23,23 @@ trait Component[M] {
 
     /** Internal implementation of a component state variable that automatically calls update() when changed. */
     private class ComponentState[T](var value : T) extends State[T] {
-        def apply(get : Get) : T = value
+        def sample(get : Get) : T = value
         def set(value : T) : Unit = {
             this.value = value
             if(!updateScheduled) update()
         }
     }
 
-    private class AttachableState[T](initial : Get => T) extends State[T] with Attachable {
-        private var lastInitial = initial(Get.Unsafe)
+    private class AttachableState[T](initial : Signal[T]) extends State[T] with Attachable {
+        private var lastInitial = Get.Unsafe(initial)
         private var value = lastInitial
-        override def apply(get : Get) : T = value
+        override def sample(get : Get) : T = value
         override def set(value : T) : Unit = {
             this.value = value
             if(!updateScheduled) update()
         }
         override def componentWillRender(get : Get) : Unit = {
-            val currentInitial = initial(get)
+            val currentInitial = get(initial)
             if(lastInitial != currentInitial) {
                 lastInitial = currentInitial
                 value = currentInitial
@@ -52,7 +52,7 @@ trait Component[M] {
         /** State whose initial value is a constant. */
         def apply[T](initial : T) : State[T] = new ComponentState(initial)
         /** State whose initial value may change over time (eg. it's initialized with a prop or similar). */
-        def of[T](initial : Get => T) : State[T] = attach(new AttachableState(initial))
+        def of[T](initial : Signal[T]) : State[T] = attach(new AttachableState(initial))
     }
 }
 
@@ -80,46 +80,45 @@ object Component {
 }
 
 /** Represents a value that changes over time, like props and state, as well as most attachables. */
-trait Signal[T] extends (Get => T) { self =>
+trait Signal[T] { self =>
+    def sample(get : Get) : T
     def map[T1](body : T => T1) : Signal[T1] =
-        new Signal[T1] { def apply(get : Get) = body(self(get)) }
+        new Signal[T1] { def sample(get : Get) = body(get(self)) }
     def flatMap[T1](body : T => Signal[T1]) : Signal[T1] =
-        new Signal[T1] { def apply(get : Get) = body(self(get))(get) }
+        new Signal[T1] { def sample(get : Get) = body(get(self))(get) }
     def zip[T1](that1 : Signal[T1]) : Signal[(T, T1)] =
-        new Signal[(T, T1)] { def apply(get : Get) = (self(get), that1(get)) }
+        new Signal[(T, T1)] { def sample(get : Get) = (get(self), get(that1)) }
     def zip2[T1, T2](that1 : Signal[T1], that2 : Signal[T2]) : Signal[(T, T1, T2)] =
-        new Signal[(T, T1, T2)] { def apply(get : Get) = (self(get), that1(get), that2(get)) }
+        new Signal[(T, T1, T2)] { def sample(get : Get) = (get(self), get(that1), get(that2)) }
     def zip3[T1, T2, T3](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3]) : Signal[(T, T1, T2, T3)] =
-        new Signal[(T, T1, T2, T3)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get)) }
+        new Signal[(T, T1, T2, T3)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3)) }
     def zip4[T1, T2, T3, T4](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4]) : Signal[(T, T1, T2, T3, T4)] =
-        new Signal[(T, T1, T2, T3, T4)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get)) }
+        new Signal[(T, T1, T2, T3, T4)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4)) }
     def zip5[T1, T2, T3, T4, T5](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5]) : Signal[(T, T1, T2, T3, T4, T5)] =
-        new Signal[(T, T1, T2, T3, T4, T5)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get)) }
+        new Signal[(T, T1, T2, T3, T4, T5)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5)) }
     def zip6[T1, T2, T3, T4, T5, T6](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6]) : Signal[(T, T1, T2, T3, T4, T5, T6)] =
-        new Signal[(T, T1, T2, T3, T4, T5, T6)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get), that6(get)) }
+        new Signal[(T, T1, T2, T3, T4, T5, T6)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6)) }
     def zip7[T1, T2, T3, T4, T5, T6, T7](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7)] =
-        new Signal[(T, T1, T2, T3, T4, T5, T6, T7)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get), that6(get), that7(get)) }
+        new Signal[(T, T1, T2, T3, T4, T5, T6, T7)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6), get(that7)) }
     def zip8[T1, T2, T3, T4, T5, T6, T7, T8](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7], that8 : Signal[T8]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] =
-        new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get), that6(get), that7(get), that8(get)) }
+        new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6), get(that7), get(that8)) }
     def zip9[T1, T2, T3, T4, T5, T6, T7, T8, T9](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7], that8 : Signal[T8], that9 : Signal[T9]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] =
-        new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] { def apply(get : Get) = (self(get), that1(get), that2(get), that3(get), that4(get), that5(get), that6(get), that7(get), that8(get), that9(get)) }
+        new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6), get(that7), get(that8), get(that9)) }
 }
 
 /** Represents local component state. */
 abstract class State[T] extends Signal[T] {
-    /** Get the current value. */
-    def apply(get : Get) : T
     /** Set the value. In components, State(...) objects automatically call component.update() when this method is called. */
     def set(value : T) : Unit
     /** Modify the value. In components, State(...) objects automatically call component.update() when this method is called. */
-    def modify(update : T => T) : Unit = set(update(apply(Get.Unsafe)))
+    def modify(update : T => T) : Unit = set(update(Get.Unsafe(this)))
 }
 
 /** Represents a prop, ie. an argument to a Component. The value it holds can be read with .apply() and may change over time. */
 abstract class P[T] extends Signal[T]
 
 /** The only way to read props, state, etc., to ensure they are not accidentally read at the wrong time (eg. in the constructor). */
-class Get { @inline def apply[T](extract : Signal[T]) : T = extract(this) }
+class Get { @inline def apply[T](signal : Signal[T]) : T = signal.sample(this) }
 object Get {
     /** A globally available instance of Get. Don't use this directly unless you know what you're doing. */
     object Unsafe extends Get

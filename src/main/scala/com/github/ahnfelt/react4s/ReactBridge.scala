@@ -223,7 +223,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
 
         dynamicConstructor.prototype.componentWillMount = { (self : js.Dynamic) =>
             def newP[T](name : String) : P[T] = new P[T] {
-                def apply(get : Get) : T = self.props.selectDynamic(name).asInstanceOf[T]
+                def sample(get : Get) : T = self.props.selectDynamic(name).asInstanceOf[T]
             }
             val instance = constructorData.constructor match {
                 case Constructor0(f) => f()

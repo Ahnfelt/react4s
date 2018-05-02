@@ -17,6 +17,17 @@ trait Attachable {
     def componentWillUnmount(get : Get) : Unit = {}
 }
 
+case class Loaded[T](
+    /** The last loaded value, if any. Not cleared when the most recent future fails. */
+    value : Option[T],
+    /** The last error, if any. Cleared when the most recent future succeeds. */
+    error : Option[Throwable],
+    /** True until the most recent future completes, then false. */
+    loading : Boolean
+) {
+    def result : Option[Try[T]] = if(loading) None else error.map(Failure(_)).orElse(value.map(Success(_)))
+}
+
 /**
 For loading things based on props and state asynchronously without introducing race conditions. Assuming itemId : P[Long], here's an example:
 {{{
@@ -32,13 +43,7 @@ def render(get : Get) = E.div(
 }}}
 */
 trait Loader[T] extends Signal[Option[T]] {
-    /** The last loaded value, if any. Not cleared when the most recent future fails. */
-    def apply(get : Get) : Option[T]
-    /** The last error, if any. Cleared when the most recent future succeeds. */
-    def error(get : Get) : Option[Throwable]
-    /** True until the most recent future completes, then false. */
-    def loading(get : Get) : Boolean
-    /** Force the loader to reload. */
+    def sample(get : Get) : Loaded[T]
     def retry() : Unit
 }
 
@@ -95,16 +100,14 @@ object Loader {
         override def componentWillUnmount(get : Get) : Unit = unmounted = true
 
         override def retry() : Unit = { retries += 1; component.update() }
-        override def apply(get : Get) : Option[O] = lastValue
-        override def error(get : Get) : Option[Throwable] = lastError
-        override def loading(get : Get) : Boolean = isLoading
+        override def sample(get : Get) : Loaded[O] = Loaded(lastValue, lastError, isLoading)
     })
 }
 
 /** Set after a specified timeout, or on an interval. */
 trait Timeout extends Signal[Boolean] {
     /** Has the timeout triggered yet? */
-    def apply(get : Get) : Boolean
+    def sample(get : Get) : Boolean
     /** The number of times the timeout has triggered (only ever higher than 1 for intervals). */
     def ticks(get : Get) : Long
     /** The number of milliseconds since the timeout was started. */
@@ -117,7 +120,7 @@ object Timeout {
     trait AttachableTimeout extends Timeout with Attachable
 
     /** Sets a timeout that restarts every time the dependency changes. If interval is set, it triggers every interval instead of just once. */
-    def apply[T](component: Component[_], dependency : Get => T, interval : Boolean = false)(milliseconds : T => Long) : Timeout = component.attach(new AttachableTimeout {
+    def apply[T](component: Component[_], dependency : Signal[T], interval : Boolean = false)(milliseconds : T => Long) : Timeout = component.attach(new AttachableTimeout {
         var timeout : Option[SetTimeoutHandle] = None
         var oldValue : Option[T] = None
         var startTime = System.nanoTime()
@@ -147,7 +150,7 @@ object Timeout {
             for(oldTimeout <- timeout) js.timers.clearTimeout(oldTimeout)
         }
 
-        override def apply(get : Get) = triggered > 0
+        override def sample(get : Get) = triggered > 0
         override def ticks(get : Get) = triggered
         override def elapsed(get : Get) = (System.nanoTime() - startTime) / (1000 * 1000)
     })
@@ -156,7 +159,7 @@ object Timeout {
 /** Used to debounce or throttle changes. */
 trait Debounce[T] extends Signal[T] {
     /** Get the debounced value. */
-    def apply(get : Get) : T
+    def sample(get : Get) : T
 }
 
 object Debounce {
@@ -164,11 +167,11 @@ object Debounce {
     trait AttachableDebounce[T] extends Debounce[T] with Attachable
 
     /** When the dependency is changed, don't propagate the value immediately - instead wait until no change has been made for the specified milliseconds. If immediate is set, propagate the first change after a pause immediately. */
-    def apply[T](component : Component[_], dependency : Get => T, milliseconds : Long = 250, immediate : Boolean = false) : Debounce[T] = component.attach(new AttachableDebounce[T] {
+    def apply[T](component : Component[_], dependency : Signal[T], milliseconds : Long = 250, immediate : Boolean = false) : Debounce[T] = component.attach(new AttachableDebounce[T] {
         private var timeout : Option[SetTimeoutHandle] = None
         private var oldValue : T = dependency(Get.Unsafe)
 
-        override def apply(get : Get) = oldValue
+        override def sample(get : Get) = oldValue
 
         override def componentWillRender(get : Get) : Unit = {
             val newValue = dependency(get)
