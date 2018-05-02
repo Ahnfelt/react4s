@@ -25,6 +25,7 @@ case class Loaded[T](
     /** True until the most recent future completes, then false. */
     loading : Boolean
 ) {
+    /** A value for matching on, where None = loading, Some(Failure(e)) = error, Some(Success(v)) = successful load. */
     def result : Option[Try[T]] = if(loading) None else error.map(Failure(_)).orElse(value.map(Success(_)))
 }
 

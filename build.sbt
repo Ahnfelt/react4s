@@ -2,7 +2,7 @@ enablePlugins(ScalaJSPlugin)
 
 name := "react4s"
 organization := "com.github.ahnfelt"
-version := "0.9.9.1-SNAPSHOT"
+version := "0.0.10-SNAPSHOT"
 
 // Publish cross versions with: sbt +publish
 crossScalaVersions := Seq("2.11.8", scalaVersion.value)
