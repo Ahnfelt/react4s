@@ -112,7 +112,7 @@ trait Signal[T] { self =>
 
 object Signal {
     /** Create a signal that's sampled by calling the supplied function. */
-    def of[T](sample : Get => T) : Signal[T] = new Signal[T] { def sample(get : Get) = sample(get) }
+    def of[T](getSample : Get => T) : Signal[T] = new Signal[T] { def sample(get : Get) = getSample(get) }
     /** Create a signal that always returns the supplied constant when sampled. */
     def apply[T](constant : T) : Signal[T] = new Signal[T] { def sample(get : Get) = constant }
 }
