@@ -50,17 +50,13 @@ object Loader {
 
     /** The status of a loader: Loading if the current future is running. Error if the current future has failed. Result otherwise. */
     sealed abstract class Loaded[T] {
-        def zip[T1](that1 : Loaded[T1]) = (this, that1) match {
+        def zip[T1](that1 : Loaded[T1]) : Loaded[(T, T1)] = (this, that1) match {
             case (Loading(), _) => Loading()
             case (_, Loading()) => Loading()
             case (Error(throwable), _) => Error(throwable)
             case (_, Error(throwable)) => Error(throwable)
             case (Result(v1), Result(v2)) => Result((v1, v2))
         }
-        def zip[T1, T2](that1 : Loaded[T1], that2 : Loaded[T2]) = { val ((l1, l2), l3) = this.zip(that1).zip(that2); (l1, l2, l3) }
-        def zip[T1, T2, T3](that1 : Loaded[T1], that2 : Loaded[T2], that3 : Loaded[T3]) = { val (((l1, l2), l3), l4) = this.zip(that1).zip(that2).zip(that3); (l1, l2, l3, l4) }
-        def zip[T1, T2, T3, T4](that1 : Loaded[T1], that2 : Loaded[T2], that3 : Loaded[T3], that4 : Loaded[T4]) = { val (((l1, l2), l3), l4) = this.zip(that1).zip(that2).zip(that3).zip(that4); (l1, l2, l3, l4) }
-        def zip[T1, T2, T3, T4, T5](that1 : Loaded[T1], that2 : Loaded[T2], that3 : Loaded[T3], that4 : Loaded[T4], that5 : Loaded[T5]) = { val ((((l1, l2), l3), l4), l5) = this.zip(that1).zip(that2).zip(that3).zip(that4).zip(that5); (l1, l2, l3, l4, l5) }
     }
     case class Loading[T]() extends Loaded[T]
     case class Error[T](throwable : Throwable) extends Loaded[T]
