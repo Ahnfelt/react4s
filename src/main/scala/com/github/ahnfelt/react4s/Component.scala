@@ -92,22 +92,33 @@ trait Signal[T] { self =>
     /** Create a new signal that when sampled returns the pair of values sampled from this and that signal. */
     def zip[T1](that1 : Signal[T1]) : Signal[(T, T1)] =
         new Signal[(T, T1)] { def sample(get : Get) = (get(self), get(that1)) }
-    def zip2[T1, T2](that1 : Signal[T1], that2 : Signal[T2]) : Signal[(T, T1, T2)] =
+    def zip[T1, T2](that1 : Signal[T1], that2 : Signal[T2]) : Signal[(T, T1, T2)] =
         new Signal[(T, T1, T2)] { def sample(get : Get) = (get(self), get(that1), get(that2)) }
-    def zip3[T1, T2, T3](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3]) : Signal[(T, T1, T2, T3)] =
+    def zip[T1, T2, T3](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3]) : Signal[(T, T1, T2, T3)] =
         new Signal[(T, T1, T2, T3)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3)) }
-    def zip4[T1, T2, T3, T4](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4]) : Signal[(T, T1, T2, T3, T4)] =
+    def zip[T1, T2, T3, T4](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4]) : Signal[(T, T1, T2, T3, T4)] =
         new Signal[(T, T1, T2, T3, T4)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4)) }
-    def zip5[T1, T2, T3, T4, T5](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5]) : Signal[(T, T1, T2, T3, T4, T5)] =
+    def zip[T1, T2, T3, T4, T5](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5]) : Signal[(T, T1, T2, T3, T4, T5)] =
         new Signal[(T, T1, T2, T3, T4, T5)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5)) }
-    def zip6[T1, T2, T3, T4, T5, T6](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6]) : Signal[(T, T1, T2, T3, T4, T5, T6)] =
+    def zip[T1, T2, T3, T4, T5, T6](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6]) : Signal[(T, T1, T2, T3, T4, T5, T6)] =
         new Signal[(T, T1, T2, T3, T4, T5, T6)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6)) }
-    def zip7[T1, T2, T3, T4, T5, T6, T7](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7)] =
+    def zip[T1, T2, T3, T4, T5, T6, T7](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7)] =
         new Signal[(T, T1, T2, T3, T4, T5, T6, T7)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6), get(that7)) }
-    def zip8[T1, T2, T3, T4, T5, T6, T7, T8](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7], that8 : Signal[T8]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] =
+    def zip[T1, T2, T3, T4, T5, T6, T7, T8](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7], that8 : Signal[T8]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] =
         new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6), get(that7), get(that8)) }
-    def zip9[T1, T2, T3, T4, T5, T6, T7, T8, T9](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7], that8 : Signal[T8], that9 : Signal[T9]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] =
+    def zip[T1, T2, T3, T4, T5, T6, T7, T8, T9](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5], that6 : Signal[T6], that7 : Signal[T7], that8 : Signal[T8], that9 : Signal[T9]) : Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] =
         new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] { def sample(get : Get) = (get(self), get(that1), get(that2), get(that3), get(that4), get(that5), get(that6), get(that7), get(that8), get(that9)) }
+    /** Create a new signal that when sampled returns the body applied to the values sampled from this and that signal. */
+    def zipWith[T1, R](that1 : Signal[T1])(body : (T, T1) => R) : Signal[R] =
+        new Signal[R] { def sample(get : Get) = body(get(self), get(that1)) }
+    def zipWith[T1, T2, R](that1 : Signal[T1], that2 : Signal[T2])(body : (T, T1, T2) => R) : Signal[R] =
+        new Signal[R] { def sample(get : Get) = body(get(self), get(that1), get(that2)) }
+    def zipWith[T1, T2, T3, R](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3])(body : (T, T1, T2, T3) => R) : Signal[R] =
+        new Signal[R] { def sample(get : Get) = body(get(self), get(that1), get(that2), get(that3)) }
+    def zipWith[T1, T2, T3, T4, R](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4])(body : (T, T1, T2, T3, T4) => R) : Signal[R] =
+        new Signal[R] { def sample(get : Get) = body(get(self), get(that1), get(that2), get(that3), get(that4)) }
+    def zipWith[T1, T2, T3, T4, T5, R](that1 : Signal[T1], that2 : Signal[T2], that3 : Signal[T3], that4 : Signal[T4], that5 : Signal[T5])(body : (T, T1, T2, T3, T4, T5) => R) : Signal[R] =
+        new Signal[R] { def sample(get : Get) = body(get(self), get(that1), get(that2), get(that3), get(that4), get(that5)) }
 }
 
 object Signal {

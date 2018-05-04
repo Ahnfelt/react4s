@@ -1,5 +1,7 @@
 package com.github.ahnfelt.react4s
 
+import com.github.ahnfelt.react4s.Loader.Loaded
+
 import scala.concurrent.Future
 import scala.scalajs.js
 import scala.scalajs.js.timers.SetTimeoutHandle
@@ -15,18 +17,6 @@ trait Attachable {
     def componentWillRender(get : Get) : Unit = {}
     /** Called after componentWillUnmount() returns on the component to which this is attached. The "get" argument lets you read props etc. */
     def componentWillUnmount(get : Get) : Unit = {}
-}
-
-case class Loaded[T](
-    /** The last loaded value, if any. Not cleared when the most recent future fails. */
-    value : Option[T],
-    /** The last error, if any. Cleared when the most recent future succeeds. */
-    error : Option[Throwable],
-    /** True until the most recent future completes, then false. */
-    loading : Boolean
-) {
-    /** A value for matching on, where None = loading, Some(Failure(e)) = error, Some(Success(v)) = successful load. */
-    def result : Option[Try[T]] = if(loading) None else error.map(Failure(_)).orElse(value.map(Success(_)))
 }
 
 /**
@@ -45,11 +35,25 @@ def render(get : Get) = E.div(
 */
 trait Loader[T] extends Signal[Loaded[T]] {
     def sample(get : Get) : Loaded[T]
+    /** True until the most recent future completes, then false. */
+    val loading : Signal[Boolean]
+    /** The last error, if any. Cleared when the most recent future succeeds. */
+    val error : Signal[Option[Throwable]]
+    /** The last loaded value, if any. Not cleared when the most recent future fails. */
+    val result : Signal[Option[T]]
+    /** Forces the loader to restart the future. */
     def retry() : Unit
 }
 
 /** Used to create a Loader. Whenever the dependency (eg. a prop) changes, a new future is created and the old future (if any) is ignored. To avoid race conditions, it waits for the old future to complete before starting a new. If initial is Some(initialValue), delays first load until dependency() != initialValue(). */
 object Loader {
+
+    /** The status of a loader: Loading if the current future is running. Error if the current future has failed. Result otherwise. */
+    sealed abstract class Loaded[T]
+    case class Loading[T]() extends Loaded[T]
+    case class Error[T](throwable : Throwable) extends Loaded[T]
+    case class Result[T](value : T) extends Loaded[T]
+
     trait AttachableLoader[T] extends Loader[T] with Attachable
 
     /** Create a Loader. Whenever the dependency (eg. a prop) changes, a new future is created and the old future (if any) is ignored. To avoid race conditions, it waits for the old future to complete before starting a new. If initial is Some(initialValue), delays first load until dependency() != initialValue(). */
@@ -101,7 +105,12 @@ object Loader {
         override def componentWillUnmount(get : Get) : Unit = unmounted = true
 
         override def retry() : Unit = { retries += 1; component.update() }
-        override def sample(get : Get) : Loaded[O] = Loaded(lastValue, lastError, isLoading)
+        val loading : Signal[Boolean] = Signal.of(_ => isLoading)
+        val error : Signal[Option[Throwable]] = Signal.of(_ => lastError)
+        val result : Signal[Option[O]] = Signal.of(_ => lastValue)
+        override def sample(get : Get) : Loaded[O] =
+            if(isLoading) Loading[O]()
+            else lastError.map(Error[O]).getOrElse(lastValue.map(Result[O]).getOrElse(Loading[O]()))
     })
 }
 
