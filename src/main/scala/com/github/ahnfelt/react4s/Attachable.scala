@@ -49,7 +49,7 @@ trait Loader[T] extends Signal[Loaded[T]] {
 object Loader {
 
     /** The status of a loader: Loading if the current future is running. Error if the current future has failed. Result otherwise. */
-    sealed abstract class Loaded[T] {
+    sealed abstract class Loaded[+T] {
         def zip[T1](that1 : Loaded[T1]) : Loaded[(T, T1)] = (this, that1) match {
             case (Loading(), _) => Loading()
             case (_, Loading()) => Loading()
@@ -58,9 +58,9 @@ object Loader {
             case (Result(v1), Result(v2)) => Result((v1, v2))
         }
     }
-    case class Loading[T]() extends Loaded[T]
-    case class Error[T](throwable : Throwable) extends Loaded[T]
-    case class Result[T](value : T) extends Loaded[T]
+    case class Loading[+T]() extends Loaded[T]
+    case class Error[+T](throwable : Throwable) extends Loaded[T]
+    case class Result[+T](value : T) extends Loaded[T]
 
     trait AttachableLoader[T] extends Loader[T] with Attachable
 
