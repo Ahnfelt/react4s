@@ -18,13 +18,13 @@ trait Component[M] {
     def componentWillRender(get : Get) : Unit = {}
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
     def componentWillUnmount(get : Get) : Unit = {}
-    /** Called when the component needs to be rendered. Rerendering only happens when this components props are change or it's state is updated. */
+    /** Called when the component needs to be rendered. Rerendering only happens when this components props or state are changed according to the != operator. */
     def render(get : Get) : Node
 
-    /** Internal implementation of a component state variable that automatically calls update() when changed. */
+    /** Internal implementation of a component state variable that automatically calls update() when changed according to the != operator. */
     private class ComponentState[T](var value : T) extends State[T] {
         def sample(get : Get) : T = value
-        def set(value : T) : Unit = {
+        def set(value : T) : Unit = if(this.value != value) {
             this.value = value
             if(!updateScheduled) update()
         }
@@ -34,7 +34,7 @@ trait Component[M] {
         private var lastInitial = Get.Unsafe(initial)
         private var value = lastInitial
         override def sample(get : Get) : T = value
-        override def set(value : T) : Unit = {
+        override def set(value : T) : Unit = if(this.value != value) {
             this.value = value
             if(!updateScheduled) update()
         }

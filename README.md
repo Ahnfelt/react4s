@@ -8,7 +8,7 @@ It uses no macros, no implicits and no complicated types.
 
 ```sbt
 resolvers += Resolver.sonatypeRepo("snapshots")
-libraryDependencies += "com.github.ahnfelt" %%% "react4s" % "0.9.12-SNAPSHOT"
+libraryDependencies += "com.github.ahnfelt" %%% "react4s" % "0.9.13-SNAPSHOT"
 ```
 
 # Writing a component
@@ -34,7 +34,7 @@ case class OkCancel(label : P[String]) extends Component[Boolean] {
 This defines a component `OkCancel` that takes one String "prop" named `label`. You read props, state, etc. with the `get` object, which is only available where you can safely read from these.
 The `Boolean` in `Component[Boolean]` says that this component emits `Boolean` messages, which is done with the `emit(...)` method.
 The `render()` method is what renders your component, 
-and the component is rerendered automatically when the props change or the state is updated.
+and the component is rerendered automatically when the props or state change.
 The `E`, `A` and `S` objects provide methods for building the Virtual DOM.
 
 Emitting messages instead of taking in callbacks via props is a departure from the usual React API, 
@@ -147,6 +147,6 @@ This is the complete component lifecycle for React4s. It's simpler than plain Re
 3. Then in render(), you'll return the Virual DOM that displays your component. State updates are not allowed during this call.
 4. When your component is removed from the Virtual DOM, componentWillUnmount() is called.
 
-The component will only be rerendered when your props have changed, as defined by Scala's structural inequality `!=`, or your state has been updated. The state is considered updated when you've called `update()` explicitly or called `.set(...)` or `.modify(...)` on State objects. React4s never looks inside your state to see if it changed.
+The component will only be rerendered when your props have changed, as defined by Scala's structural inequality `!=`, or your state has been updated. The state is considered updated when you've called `update()` explicitly or called `.set(...)` or `.modify(...)` on State objects with a value that's different from the previous according to the `!=` operator.
 
 You can attach Attachables that listen on these lifecycle events, and React4s comes with three of those: `Timeout`, `Debounce` and `Loader`. See how they're used in the [Online Examples](http://www.react4s.org/).
