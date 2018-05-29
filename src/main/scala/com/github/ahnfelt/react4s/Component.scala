@@ -208,11 +208,11 @@ final case class Element(tagName : String, children : Seq[Tag], key : Option[Str
 case class Tags(tags : Seq[Tag]) extends Tag
 object Tags {
     /** Varargs tag. */
-    def apply(tags : Tag*) = Tags(tags)
+    def apply(tags : Tag*) : Tag = Tags(tags)
     /** An optional tag. */
-    def apply(option : Option[Tag]) = option.getOrElse(empty)
+    def apply(option : Option[Tag]) : Tag = option.getOrElse(empty)
     /** Conditionally include a tag. The tag is only computed if the condition is true, otherwise no tag is inserted. */
-    def when(condition : Boolean, tag : => Tag) = if(condition) tag else empty
+    def when(condition : Boolean, tag : => Tag) : Tag = if(condition) tag else empty
     /** An empty list of tags. Since the list is empty, it will be completely removed before the Virtual DOM is reconciled. */
     val empty : Tags = Tags(Seq())
 }
