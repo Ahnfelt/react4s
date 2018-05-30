@@ -1,13 +1,11 @@
 package com.github.ahnfelt.react4s
 
-import scala.collection.mutable.ListBuffer
-
 /** Represents a React component that can emit messages of type M. Use Component[NoEmit] for components that never emit messages. */
 trait Component[M] {
     /** Internal flag that ensures we only update the state once between renderings. */
     private[react4s] var updateScheduled = false
     /** Internal list of attached listeners. */
-    private[react4s] val attachedAttachables = ListBuffer[Attachable]()
+    private[react4s] val attachedAttachables = scala.collection.mutable.ListBuffer[Attachable]()
     /** Emit a message of type M, which can be handled by a parent component by using .withHandler(...). */
     var emit : M => Unit = { _ => }
     /** Signal that the component state has changed. This always results in a re-rendering of this component. */
