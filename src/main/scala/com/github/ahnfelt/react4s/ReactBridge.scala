@@ -103,6 +103,10 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case Tags(tags) =>
             for(t <- tags) insert(t, props, children, style)
 
+        case Attribute("className", value : String) =>
+            // Special case to handle combinations of React4s defined CssClasses and plain CSS classes
+            props.update("className", props.get("className").map(_ + " " + value : js.Any).getOrElse(value.asInstanceOf[js.Any]))
+
         case Attribute(name, value) =>
             props.update(name, value.asInstanceOf[js.Any])
 
