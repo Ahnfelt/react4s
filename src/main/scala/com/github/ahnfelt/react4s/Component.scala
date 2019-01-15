@@ -230,12 +230,18 @@ case class EventHandler(name : String, handler : SyntheticEvent => Unit) extends
 /** React.js Context, ie. a dynamically scoped value. <pre>object MyThemeColor extends Context[String]("red")</pre> */
 abstract class Context[T](val defaultValue : T) {
     private[react4s] val name = getClass.getName
-    def provide(value : T, children : Node*) : Node = ContextProvider[T](this, value, children : _*)
-    def consume(body : T => Node) : Node = ContextConsumer[T](this, body)
+    def provide(value : T, children : Node*) : Node = ContextProvider(this, value, children : _*)
+    def consume(body : T => Node) : Node = ContextConsumer(this, value => body(value.asInstanceOf[T]))
 }
 
-private[react4s] case class ContextProvider[T](contextType : Context[T], value : T, children : Node*) extends Node
-private[react4s] case class ContextConsumer[T](contextType : Context[T], body : T => Node) extends Node
+/** Same as Context, but takes in a raw context created with React.createContext(...). */
+abstract class JsContext[T](contextType : Any) {
+    def provide(value : T, children : Node*) : Node = ContextProvider(contextType, value, children : _*)
+    def consume(body : T => Node) : Node = ContextConsumer(contextType, value => body(value.asInstanceOf[T]))
+}
+
+private[react4s] case class ContextProvider(contextType : Any, value : Any, children : Node*) extends Node
+private[react4s] case class ContextConsumer(contextType : Any, body : Any => Node) extends Node
 
 /** A CSS class that will be inserted into the DOM the first time it's used to render a component. Be careful not to create these dynamically, or you'll end up filling up the DOM with styles. */
 abstract class CssClass(val children : CssChild*) extends Tag with CssChild {

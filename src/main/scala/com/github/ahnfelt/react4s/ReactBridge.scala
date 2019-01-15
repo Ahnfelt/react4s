@@ -102,10 +102,10 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case portal : Portal =>
             children.push(nodeToReact(portal))
 
-        case consumer : ContextConsumer[_] =>
+        case consumer : ContextConsumer =>
             children.push(nodeToReact(consumer))
 
-        case provider : ContextProvider[_] =>
+        case provider : ContextProvider =>
             children.push(nodeToReact(provider))
 
         case constructor : ConstructorData[_] =>
@@ -217,19 +217,13 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
             case element : ElementOrComponent =>
                 elementOrComponentToReact(element)
             case ContextProvider(contextType, value, nodes @ _*) =>
-                val context = contextClassMap.getOrElseUpdate(
-                    contextType.name,
-                    React.createContext(contextType.defaultValue)
-                )
+                val context = getReactContext(contextType)
                 val children = js.Array[js.Any]()
                 for(node <- nodes) children.push(nodeToReact(node))
                 val binding = js.Dictionary[js.Any]("value" -> value.asInstanceOf[js.Any])
                 React.createElement(context.Provider, binding, children : _*)
             case ContextConsumer(contextType, body) =>
-                val context = contextClassMap.getOrElseUpdate(
-                    contextType.name,
-                    React.createContext(contextType.defaultValue)
-                )
+                val context = getReactContext(contextType)
                 React.createElement(context.Consumer, null, { value : js.Any => nodeToReact(body(value)) })
             case Portal(child, container) =>
                 ReactDOM.createPortal(nodeToReact(child), container.asInstanceOf[js.Any]).asInstanceOf[ReactElement]
@@ -237,6 +231,17 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
                 text.asInstanceOf[ReactElement]
         }
     }
+
+    private def getReactContext(contextType : Any) =
+        contextType match {
+            case t : Context[_] =>
+                contextClassMap.getOrElseUpdate(
+                    t.name,
+                    React.createContext(t.defaultValue)
+                )
+            case t =>
+                t.asInstanceOf[ReactContext]
+        }
 
     def createComponentClass(constructorData : ConstructorData[_]) = {
 
