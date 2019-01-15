@@ -1,6 +1,6 @@
 package com.github.ahnfelt.react4s
 
-import com.github.ahnfelt.react4s.ReactBridge.{React, ReactElement}
+import com.github.ahnfelt.react4s.ReactBridge.{React, ReactContext, ReactElement}
 
 import scala.language.reflectiveCalls
 import scala.scalajs.js
@@ -12,10 +12,18 @@ object ReactBridge extends ReactBridge(js.Dynamic.global.React, js.Dynamic.globa
     @js.native
     trait ReactElement extends js.Object {}
 
+    /** Represents a plain Contex element. */
+    @js.native
+    trait ReactContext extends js.Object {
+        val Provider : js.Any
+        val Consumer : js.Any
+    }
+
     /** Represents the React object. */
     @js.native
     trait React extends js.Object {
         def createElement(tagNameOrClass : js.Any, props : js.Dictionary[js.Any], children : js.Any*) : ReactElement = js.native
+        def createContext(defaultValue : Any) : ReactContext = js.native
         val Fragment : js.Dynamic = js.native
     }
 
@@ -94,6 +102,12 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         case portal : Portal =>
             children.push(nodeToReact(portal))
 
+        case consumer : ContextConsumer[_] =>
+            children.push(nodeToReact(consumer))
+
+        case provider : ContextProvider[_] =>
+            children.push(nodeToReact(provider))
+
         case constructor : ConstructorData[_] =>
             children.push(componentToReact(constructor))
 
@@ -151,6 +165,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
     }
 
     private val componentClassMap = js.Dictionary[js.Any]()
+    private val contextClassMap = js.Dictionary[ReactContext]()
     private val cssMap = js.Dictionary[Boolean]()
     private val addCss : String => Boolean = { cssName => val result = !cssMap.contains(cssName); cssMap.update(cssName, true); result }
 
@@ -201,6 +216,21 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
                 React.createElement(React.Fragment, null, children : _*)
             case element : ElementOrComponent =>
                 elementOrComponentToReact(element)
+            case ContextProvider(contextType, value, nodes @ _*) =>
+                val context = contextClassMap.getOrElseUpdate(
+                    contextType.name,
+                    React.createContext(contextType.defaultValue)
+                )
+                val children = js.Array[js.Any]()
+                for(node <- nodes) children.push(nodeToReact(node))
+                val binding = js.Dictionary[js.Any]("value" -> value.asInstanceOf[js.Any])
+                React.createElement(context.Provider, binding, children : _*)
+            case ContextConsumer(contextType, body) =>
+                val context = contextClassMap.getOrElseUpdate(
+                    contextType.name,
+                    React.createContext(contextType.defaultValue)
+                )
+                React.createElement(context.Consumer, null, { value : js.Any => nodeToReact(body(value)) })
             case Portal(child, container) =>
                 ReactDOM.createPortal(nodeToReact(child), container.asInstanceOf[js.Any]).asInstanceOf[ReactElement]
             case Text(text : String) =>
