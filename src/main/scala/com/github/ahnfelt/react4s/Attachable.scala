@@ -19,6 +19,43 @@ trait Attachable {
     def componentWillUnmount(get : Get) : Unit = {}
 }
 
+trait EventListener[T] extends Signal[T]
+
+object EventListener {
+    trait AttachableEventListener[T] extends EventListener[T] with Attachable
+
+    /** Listens for an addEventListener event. Fires handler(value, None) initially and when the dependency changes, and handler(value, Some(event)) when the event occurs. */
+    def apply[I, O](component : Component[_], target : js.Any, eventName : String, dependency : Signal[I])(handler : (I, Option[js.Dynamic]) => O) : EventListener[O] = component.attach(new AttachableEventListener[O] {
+
+        var listener : js.Function1[Any, Unit] = _
+        var result : O = _
+        var lastDependency : Option[I] = None
+
+        override def componentWillRender(get : Get) : Unit = {
+            val newDependency = get(dependency)
+            if(!lastDependency.contains(newDependency)) {
+                lastDependency = Some(newDependency)
+                result = handler(newDependency, None)
+            }
+            if(listener == null) {
+                listener = { e : Any => result = handler(get(dependency), Some(e.asInstanceOf[js.Dynamic])) }
+                target.asInstanceOf[js.Dynamic].addEventListener(eventName, listener)
+            }
+        }
+
+        override def componentWillUnmount(get : Get) : Unit = {
+            if(listener != null) {
+                target.asInstanceOf[js.Dynamic].removeEventListener(eventName, listener)
+                listener = null
+            }
+        }
+
+        override def sample(get : Get) = result
+
+    })
+
+}
+
 /**
 For loading things based on props and state asynchronously without introducing race conditions. Assuming itemId : P[Long], here's an example:
 {{{
