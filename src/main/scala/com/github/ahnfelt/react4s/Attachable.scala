@@ -19,13 +19,13 @@ trait Attachable {
     def componentWillUnmount(get : Get) : Unit = {}
 }
 
-trait EventListener[T] extends Signal[T]
+trait AddEventListener[T] extends Signal[T]
 
-object EventListener {
-    trait AttachableEventListener[T] extends EventListener[T] with Attachable
+object AddEventListener {
+    trait AttachableAddEventListener[T] extends AddEventListener[T] with Attachable
 
     /** Listens for an addEventListener event. Fires handler(value, None) initially and when the dependency changes, and handler(value, Some(event)) when the event occurs. */
-    def apply[I, O](component : Component[_], target : js.Any, eventName : String, dependency : Signal[I])(handler : (I, Option[js.Dynamic]) => O) : EventListener[O] = component.attach(new AttachableEventListener[O] {
+    def apply[I, O](component : Component[_], target : js.Any, eventName : String, dependency : Signal[I])(handler : (I, Option[js.Dynamic]) => O) : AddEventListener[O] = component.attach(new AttachableAddEventListener[O] {
 
         var listener : js.Function1[Any, Unit] = _
         var result : O = _
@@ -36,9 +36,13 @@ object EventListener {
             if(!lastDependency.contains(newDependency)) {
                 lastDependency = Some(newDependency)
                 result = handler(newDependency, None)
+                component.update()
             }
             if(listener == null) {
-                listener = { e : Any => result = handler(get(dependency), Some(e.asInstanceOf[js.Dynamic])) }
+                listener = { e : Any =>
+                    result = handler(get(dependency), Some(e.asInstanceOf[js.Dynamic]))
+                    component.update()
+                }
                 target.asInstanceOf[js.Dynamic].addEventListener(eventName, listener)
             }
         }
@@ -53,6 +57,10 @@ object EventListener {
         override def sample(get : Get) = result
 
     })
+
+    /** A version with no signal dependency that returns None until the first event happens. */
+    def apply[I, O](component : Component[_], target : js.Any, eventName : String)(handler : js.Dynamic => O) : AddEventListener[Option[O]] =
+        apply(component, target, eventName, _ => {}) { case (_, None) => None; case (_, Some(e)) => Some(handler(e)) }
 
 }
 
