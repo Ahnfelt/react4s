@@ -60,7 +60,7 @@ object AddEventListener {
 
     /** A version with no signal dependency that returns None until the first event happens. */
     def apply[I, O](component : Component[_], target : js.Any, eventName : String)(handler : js.Dynamic => O) : AddEventListener[Option[O]] =
-        apply(component, target, eventName, _ => {}) { case (_, None) => None; case (_, Some(e)) => Some(handler(e)) }
+        apply(component, target, eventName, Signal({})) { case (_, None) => None; case (_, Some(e)) => Some(handler(e)) }
 
 }
 
