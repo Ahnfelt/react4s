@@ -4,7 +4,7 @@ It exposes an API that makes it easy to write plain and simple Scala code for yo
 You get the indispensable `shouldComponentUpdate()` for free, no callback memoization required.
 It uses no macros, no implicits and no complicated types.
 
-**[See the documentation at react4s.org](http://www.react4s.org/)**
+### **[See the documentation at react4s.org](http://www.react4s.org/) • [View TodoMVC](https://github.com/Ahnfelt/react4s-todomvc)**
 
 ```sbt
 resolvers += Resolver.sonatypeRepo("snapshots")
