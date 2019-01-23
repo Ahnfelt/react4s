@@ -11,10 +11,12 @@ import scala.scalajs.js
 
 /** Used to bridge between the React4s API and the plain React API. This instances uses React etc. form the global namespace. */
 object ReactBridge
-    extends ReactBridge(js.Dynamic.global.React,
-                        js.Dynamic.global.ReactDOM,
-                        js.Dynamic.global.ReactDOMServer,
-                        null) {
+    extends ReactBridge(
+      js.Dynamic.global.React,
+      js.Dynamic.global.ReactDOM,
+      js.Dynamic.global.ReactDOMServer,
+      null
+    ) {
 
   /** Represents a plain React element. */
   @js.native
@@ -40,22 +42,22 @@ object ReactBridge
 }
 
 /**
-  Used to bridge between the React4s API and the plain React API.
-  Normally you should use the ReactBridge object directly, but
-  if you use a JavaScript module system, use the following instead:
-<pre>
-object ModularReactBridge extends ReactBridge(React, ReactDOM)
-
-&#64;js.native &#64;JSImport("react", JSImport.Namespace)
-private object React extends js.Object
-
-&#64;js.native &#64;JSImport("react-dom", JSImport.Namespace)
-private object ReactDOM extends js.Object
-</pre>
-  <p>And then you can do, for example:</p>
-<pre>
-ModularReactBridge.renderToDomById(component, "main")
-</pre>
+  *Used to bridge between the React4s API and the plain React API.
+  *Normally you should use the ReactBridge object directly, but
+  *if you use a JavaScript module system, use the following instead:
+  *<pre>
+  *object ModularReactBridge extends ReactBridge(React, ReactDOM)
+ **
+ &#64;js.native &#64;JSImport("react", JSImport.Namespace)
+  *private object React extends js.Object
+ **
+ &#64;js.native &#64;JSImport("react-dom", JSImport.Namespace)
+  *private object ReactDOM extends js.Object
+  *</pre>
+  *<p>And then you can do, for example:</p>
+  *<pre>
+  *ModularReactBridge.renderToDomById(component, "main")
+  *</pre>
   */
 class ReactBridge(react: => Any,
                   reactDom: => Any = js.undefined,
@@ -71,7 +73,8 @@ class ReactBridge(react: => Any,
     if (addStyle != null) addStyle(name, css)
     else {
       if (js.isUndefined(js.Dynamic.global.document) || js.isUndefined(
-            js.Dynamic.global.document.createElement)) return
+            js.Dynamic.global.document.createElement
+          )) return
       val domStyle = js.Dynamic.global.document.createElement("style")
       domStyle.textContent = "\n" + css
       js.Dynamic.global.document.head.appendChild(domStyle)
@@ -142,11 +145,13 @@ class ReactBridge(react: => Any,
 
     case Attribute("className", value: String) =>
       // Special case to handle combinations of React4s defined CssClasses and plain CSS classes
-      props.update("className",
-                   props
-                     .get("className")
-                     .map(_ + " " + value: js.Any)
-                     .getOrElse(value.asInstanceOf[js.Any]))
+      props.update(
+        "className",
+        props
+          .get("className")
+          .map(_ + " " + value: js.Any)
+          .getOrElse(value.asInstanceOf[js.Any])
+      )
 
     case Attribute(name, value) =>
       props.update(name, value.asInstanceOf[js.Any])
@@ -162,11 +167,13 @@ class ReactBridge(react: => Any,
       if (addCss(cssClass.name)) {
         doAddStyle(cssClass.name, CssChild.cssToString(cssClass, Some(addCss)))
       }
-      props.update("className",
-                   props
-                     .get("className")
-                     .map(_ + " " + cssClass.name: js.Any)
-                     .getOrElse(cssClass.name))
+      props.update(
+        "className",
+        props
+          .get("className")
+          .map(_ + " " + cssClass.name: js.Any)
+          .getOrElse(cssClass.name)
+      )
 
     case Style(name, value) =>
       style.update(Style.toReactName(name), value)
@@ -230,13 +237,16 @@ class ReactBridge(react: => Any,
     for (r <- dynamic.ref) props.update("ref", r)
     if (style.nonEmpty) props.update("style", style)
 
-    React.createElement(dynamic.componentClass.asInstanceOf[js.Any],
-                        props,
-                        children: _*)
+    React.createElement(
+      dynamic.componentClass.asInstanceOf[js.Any],
+      props,
+      children: _*
+    )
   }
 
   def elementOrComponentToReact(
-      elementOrComponent: ElementOrComponent): ReactElement = {
+      elementOrComponent: ElementOrComponent
+  ): ReactElement = {
     elementOrComponent match {
       case element: Element                => elementToReact(element)
       case constructor: ConstructorData[_] => componentToReact(constructor)
@@ -316,31 +326,38 @@ class ReactBridge(react: => Any,
         case Constructor5(f, _, _, _, _, _) =>
           f(newP("p1"), newP("p2"), newP("p3"), newP("p4"), newP("p5"))
         case Constructor6(f, _, _, _, _, _, _) =>
-          f(newP("p1"),
+          f(
+            newP("p1"),
             newP("p2"),
             newP("p3"),
             newP("p4"),
             newP("p5"),
-            newP("p6"))
+            newP("p6")
+          )
         case Constructor7(f, _, _, _, _, _, _, _) =>
-          f(newP("p1"),
+          f(
+            newP("p1"),
             newP("p2"),
             newP("p3"),
             newP("p4"),
             newP("p5"),
             newP("p6"),
-            newP("p7"))
+            newP("p7")
+          )
         case Constructor8(f, _, _, _, _, _, _, _, _) =>
-          f(newP("p1"),
+          f(
+            newP("p1"),
             newP("p2"),
             newP("p3"),
             newP("p4"),
             newP("p5"),
             newP("p6"),
             newP("p7"),
-            newP("p8"))
+            newP("p8")
+          )
         case Constructor9(f, _, _, _, _, _, _, _, _, _) =>
-          f(newP("p1"),
+          f(
+            newP("p1"),
             newP("p2"),
             newP("p3"),
             newP("p4"),
@@ -348,7 +365,8 @@ class ReactBridge(react: => Any,
             newP("p6"),
             newP("p7"),
             newP("p8"),
-            newP("p9"))
+            newP("p9")
+          )
       }
       instance.update = { () =>
         if (!instance.updateScheduled) {
@@ -376,10 +394,14 @@ class ReactBridge(react: => Any,
        nextProps: js.Dictionary[js.Any],
        nextState: js.Dictionary[Double]) =>
         self.state.stateUpdates.asInstanceOf[Double] != nextState(
-          "stateUpdates") ||
-        (1 to constructorData.constructor.props.length).exists(i =>
-          self.props.selectDynamic("p" + i).asInstanceOf[js.Any] != nextProps(
-            "p" + i))
+          "stateUpdates"
+        ) ||
+        (1 to constructorData.constructor.props.length).exists(
+          i =>
+            self.props.selectDynamic("p" + i).asInstanceOf[js.Any] != nextProps(
+              "p" + i
+          )
+        )
     }: js.ThisFunction
 
     dynamicConstructor.prototype.render = { (self: js.Dynamic) =>

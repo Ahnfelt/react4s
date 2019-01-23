@@ -8,9 +8,9 @@ import scala.scalajs.js.timers.SetTimeoutHandle
 import scala.util._
 
 /**
-  Can be attached to a Component to listen for lifecycle events.
-  Please note that componentWillRender() of attachables are run <u>after</u> componentWillRender() of the component,
-  so during that, the values of attachables won't be updated yet.
+  *Can be attached to a Component to listen for lifecycle events.
+  *Please note that componentWillRender() of attachables are run <u>after</u> componentWillRender() of the component,
+  *so during that, the values of attachables won't be updated yet.
   */
 trait Attachable {
 
@@ -29,11 +29,12 @@ object AddEventListener {
       with Attachable
 
   /** Listens for an addEventListener event. Fires handler(value, None) initially and when the dependency changes, and handler(value, Some(event)) when the event occurs. */
-  def apply[I, O](component: Component[_],
-                  target: js.Any,
-                  eventName: String,
-                  dependency: Signal[I])(
-      handler: (I, Option[js.Dynamic]) => O): AddEventListener[O] =
+  def apply[I, O](
+      component: Component[_],
+      target: js.Any,
+      eventName: String,
+      dependency: Signal[I]
+  )(handler: (I, Option[js.Dynamic]) => O): AddEventListener[O] =
     component.attach(new AttachableAddEventListener[O] {
 
       var listener: js.Function1[Any, Unit] = _
@@ -71,7 +72,8 @@ object AddEventListener {
 
   /** A version with no signal dependency that returns None until the first event happens. */
   def apply[I, O](component: Component[_], target: js.Any, eventName: String)(
-      handler: js.Dynamic => O): AddEventListener[Option[O]] =
+      handler: js.Dynamic => O
+  ): AddEventListener[Option[O]] =
     apply(component, target, eventName, Signal({})) {
       case (_, None) => None; case (_, Some(e)) => Some(handler(e))
     }
@@ -79,18 +81,18 @@ object AddEventListener {
 }
 
 /**
-For loading things based on props and state asynchronously without introducing race conditions. Assuming itemId : P[Long], here's an example:
-{{{
-val itemName = Loader(this, itemId) { id =>
-    Ajax.get("/item/" + id + "/name").map(_.responseText)
-}
-
-def render(get : Get) = E.div(
-    E.div(Text("Loading...")).when(get(itemName.loading)),
-    get(itemName).map(name => E.div(Text(name))).getOrElse(TagList.empty),
-    get(itemName.error).map(throwable => E.div(Text(throwable.getMessage))).getOrElse(TagList.empty)
-)
-}}}
+  *For loading things based on props and state asynchronously without introducing race conditions. Assuming itemId : P[Long], here's an example:
+  *{{{
+  *val itemName = Loader(this, itemId) { id =>
+  *Ajax.get("/item/" + id + "/name").map(_.responseText)
+  *}
+ **
+ def render(get : Get) = E.div(
+  *E.div(Text("Loading...")).when(get(itemName.loading)),
+  *get(itemName).map(name => E.div(Text(name))).getOrElse(TagList.empty),
+  *get(itemName.error).map(throwable => E.div(Text(throwable.getMessage))).getOrElse(TagList.empty)
+  *)
+  *}}}
   */
 trait Loader[T] extends Signal[Loaded[T]] {
   def sample(get: Get): Loaded[T]
@@ -131,7 +133,8 @@ object Loader {
   def apply[I, O](
       component: Component[_],
       dependency: Signal[I],
-      initial: Option[Signal[I]] = None)(future: I => Future[O]): Loader[O] =
+      initial: Option[Signal[I]] = None
+  )(future: I => Future[O]): Loader[O] =
     component.attach(new AttachableLoader[O] {
       var lastDependency: Option[I] = None
       var nextDependency: Option[I] = None
@@ -146,8 +149,9 @@ object Loader {
 
       override def componentWillRender(get: Get): Unit = {
         val newDependency = get(dependency)
-        val isInitial = !changedSinceInitial && initial.exists(i =>
-          get(i) == newDependency)
+        val isInitial = !changedSinceInitial && initial.exists(
+          i => get(i) == newDependency
+        )
         if ((!lastDependency
               .contains(newDependency) || retries != lastRetries) && !isInitial && !isLoading) {
           changedSinceInitial = true

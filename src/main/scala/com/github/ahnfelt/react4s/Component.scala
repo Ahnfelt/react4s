@@ -198,7 +198,8 @@ trait Signal[+T] { self =>
       that2: Signal[T2],
       that3: Signal[T3],
       that4: Signal[T4],
-      that5: Signal[T5]): Signal[(T, T1, T2, T3, T4, T5)] =
+      that5: Signal[T5]
+  ): Signal[(T, T1, T2, T3, T4, T5)] =
     new Signal[(T, T1, T2, T3, T4, T5)] {
       def sample(get: Get) =
         (get(self), get(that1), get(that2), get(that3), get(that4), get(that5))
@@ -209,16 +210,19 @@ trait Signal[+T] { self =>
       that3: Signal[T3],
       that4: Signal[T4],
       that5: Signal[T5],
-      that6: Signal[T6]): Signal[(T, T1, T2, T3, T4, T5, T6)] =
+      that6: Signal[T6]
+  ): Signal[(T, T1, T2, T3, T4, T5, T6)] =
     new Signal[(T, T1, T2, T3, T4, T5, T6)] {
       def sample(get: Get) =
-        (get(self),
-         get(that1),
-         get(that2),
-         get(that3),
-         get(that4),
-         get(that5),
-         get(that6))
+        (
+          get(self),
+          get(that1),
+          get(that2),
+          get(that3),
+          get(that4),
+          get(that5),
+          get(that6)
+        )
     }
   def zip[T1, T2, T3, T4, T5, T6, T7](
       that1: Signal[T1],
@@ -227,17 +231,20 @@ trait Signal[+T] { self =>
       that4: Signal[T4],
       that5: Signal[T5],
       that6: Signal[T6],
-      that7: Signal[T7]): Signal[(T, T1, T2, T3, T4, T5, T6, T7)] =
+      that7: Signal[T7]
+  ): Signal[(T, T1, T2, T3, T4, T5, T6, T7)] =
     new Signal[(T, T1, T2, T3, T4, T5, T6, T7)] {
       def sample(get: Get) =
-        (get(self),
-         get(that1),
-         get(that2),
-         get(that3),
-         get(that4),
-         get(that5),
-         get(that6),
-         get(that7))
+        (
+          get(self),
+          get(that1),
+          get(that2),
+          get(that3),
+          get(that4),
+          get(that5),
+          get(that6),
+          get(that7)
+        )
     }
   def zip[T1, T2, T3, T4, T5, T6, T7, T8](
       that1: Signal[T1],
@@ -247,18 +254,21 @@ trait Signal[+T] { self =>
       that5: Signal[T5],
       that6: Signal[T6],
       that7: Signal[T7],
-      that8: Signal[T8]): Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] =
+      that8: Signal[T8]
+  ): Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] =
     new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8)] {
       def sample(get: Get) =
-        (get(self),
-         get(that1),
-         get(that2),
-         get(that3),
-         get(that4),
-         get(that5),
-         get(that6),
-         get(that7),
-         get(that8))
+        (
+          get(self),
+          get(that1),
+          get(that2),
+          get(that3),
+          get(that4),
+          get(that5),
+          get(that6),
+          get(that7),
+          get(that8)
+        )
     }
   def zip[T1, T2, T3, T4, T5, T6, T7, T8, T9](
       that1: Signal[T1],
@@ -269,19 +279,22 @@ trait Signal[+T] { self =>
       that6: Signal[T6],
       that7: Signal[T7],
       that8: Signal[T8],
-      that9: Signal[T9]): Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] =
+      that9: Signal[T9]
+  ): Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] =
     new Signal[(T, T1, T2, T3, T4, T5, T6, T7, T8, T9)] {
       def sample(get: Get) =
-        (get(self),
-         get(that1),
-         get(that2),
-         get(that3),
-         get(that4),
-         get(that5),
-         get(that6),
-         get(that7),
-         get(that8),
-         get(that9))
+        (
+          get(self),
+          get(that1),
+          get(that2),
+          get(that3),
+          get(that4),
+          get(that5),
+          get(that6),
+          get(that7),
+          get(that8),
+          get(that9)
+        )
     }
 
   /** Create a new signal that when sampled returns the body applied to the values sampled from this and that signal. */
@@ -295,7 +308,8 @@ trait Signal[+T] { self =>
   def zipWith[T1, T2, T3, R](
       that1: Signal[T1],
       that2: Signal[T2],
-      that3: Signal[T3])(body: (T, T1, T2, T3) => R): Signal[R] =
+      that3: Signal[T3]
+  )(body: (T, T1, T2, T3) => R): Signal[R] =
     new Signal[R] {
       def sample(get: Get) = body(get(self), get(that1), get(that2), get(that3))
     }
@@ -303,7 +317,8 @@ trait Signal[+T] { self =>
       that1: Signal[T1],
       that2: Signal[T2],
       that3: Signal[T3],
-      that4: Signal[T4])(body: (T, T1, T2, T3, T4) => R): Signal[R] =
+      that4: Signal[T4]
+  )(body: (T, T1, T2, T3, T4) => R): Signal[R] =
     new Signal[R] {
       def sample(get: Get) =
         body(get(self), get(that1), get(that2), get(that3), get(that4))
@@ -313,15 +328,18 @@ trait Signal[+T] { self =>
       that2: Signal[T2],
       that3: Signal[T3],
       that4: Signal[T4],
-      that5: Signal[T5])(body: (T, T1, T2, T3, T4, T5) => R): Signal[R] =
+      that5: Signal[T5]
+  )(body: (T, T1, T2, T3, T4, T5) => R): Signal[R] =
     new Signal[R] {
       def sample(get: Get) =
-        body(get(self),
-             get(that1),
-             get(that2),
-             get(that3),
-             get(that4),
-             get(that5))
+        body(
+          get(self),
+          get(that1),
+          get(that2),
+          get(that3),
+          get(that4),
+          get(that5)
+        )
     }
 }
 
@@ -388,19 +406,19 @@ sealed trait ElementOrComponent extends Node {
 }
 
 /**
-  For exposing existing components written in JavaScript. Example:
-<pre>
-object FancyButton extends JsComponent(js.Dynamic.global.FancyButton)
-</pre>
-<p>Usage:</p>
-<pre>
-FancyButton(
-    J("onClick", {_ => println("Clicked!")}),
-    J("labelStyle", S.color.rgb(255, 0, 0), S("text-transform", "uppercase")),
-    J("tip", "Click me"),
-    Text("Submit")
-)
-</pre>
+  *For exposing existing components written in JavaScript. Example:
+  *<pre>
+  *object FancyButton extends JsComponent(js.Dynamic.global.FancyButton)
+  *</pre>
+  *<p>Usage:</p>
+  *<pre>
+  *FancyButton(
+  *J("onClick", {_ => println("Clicked!")}),
+  *J("labelStyle", S.color.rgb(255, 0, 0), S("text-transform", "uppercase")),
+  *J("tip", "Click me"),
+  *Text("Submit")
+  *)
+  *</pre>
   */
 abstract class JsComponent(componentClass: Any) {
   def apply(children: JsTag*) =
@@ -559,7 +577,8 @@ case class Style(name: String, value: String) extends Tag with CssChild {
     apply("hsl(" + h.round + ", " + s.round + "%, " + l.round + "%)")
   def hsla(h: Double, s: Double, l: Double, a: Double) =
     apply(
-      "hsla(" + h.round + ", " + s.round + "%, " + l.round + "%, " + a + ")")
+      "hsla(" + h.round + ", " + s.round + "%, " + l.round + "%, " + a + ")"
+    )
   def transparent() = apply("transparent")
   def absolute() = apply("absolute")
   def relative() = apply("relative")
@@ -694,17 +713,16 @@ private[react4s] case class Constructor9[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](
     p6: P6,
     p7: P7,
     p8: P8,
-    p9: P9)
-    extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8, p9))
+    p9: P9
+) extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8, p9))
 
 /** Represents a component constructor plus an associated handler, key and ref. */
-case class ConstructorData[M](
-    constructor: Constructor[M],
-    handler: M => Unit = { _: M =>
-      },
-    key: Option[String] = None,
-    ref: Option[Any => Unit] = None
-) extends ElementOrComponent {
+case class ConstructorData[M](constructor: Constructor[M],
+                              handler: M => Unit = { _: M =>
+                                },
+                              key: Option[String] = None,
+                              ref: Option[Any => Unit] = None)
+    extends ElementOrComponent {
   def withHandler(handler: M => Unit) = copy(handler = handler)
   def withKey(key: String) = copy(key = Some(key))
   def withRef(onAddToDom: Any => Unit) = copy(ref = Some(onAddToDom))

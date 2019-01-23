@@ -112,14 +112,16 @@ object CssChild {
         case s: Style =>
           builder.append(
             mediaSpaces + "  " + Style
-              .toStandardName(s.name) + ":" + s.value + ";\n")
+              .toStandardName(s.name) + ":" + s.value + ";\n"
+          )
         case f: CssKeyframes => animationNames += f.name
         case _               =>
       }
       if (animationNames.nonEmpty) {
         builder.append(
           mediaSpaces + "  animation-name: " + animationNames
-            .mkString(", ") + ";\n")
+            .mkString(", ") + ";\n"
+        )
       }
       builder.append(mediaSpaces + "}\n")
       if (media.nonEmpty) builder.append("}\n")
