@@ -1,10 +1,6 @@
 package com.github.ahnfelt.react4s
 
-import com.github.ahnfelt.react4s.ReactBridge.{
-  React,
-  ReactContext,
-  ReactElement
-}
+import com.github.ahnfelt.react4s.ReactBridge.{React, ReactContext, ReactElement}
 
 import scala.language.reflectiveCalls
 import scala.scalajs.js
@@ -32,9 +28,7 @@ object ReactBridge
   /** Represents the React object. */
   @js.native
   trait React extends js.Object {
-    def createElement(tagNameOrClass: js.Any,
-                      props: js.Dictionary[js.Any],
-                      children: js.Any*): ReactElement = js.native
+    def createElement(tagNameOrClass: js.Any, props: js.Dictionary[js.Any], children: js.Any*): ReactElement = js.native
     def createContext(defaultValue: Any): ReactContext = js.native
     val Fragment: js.Dynamic = js.native
   }
@@ -59,10 +53,11 @@ object ReactBridge
   *ModularReactBridge.renderToDomById(component, "main")
   *</pre>
   */
-class ReactBridge(react: => Any,
-                  reactDom: => Any = js.undefined,
-                  reactDomServer: => Any = js.undefined,
-                  addStyle: (String, String) => Unit = null) {
+class ReactBridge(
+    react: => Any,
+    reactDom: => Any = js.undefined,
+    reactDomServer: => Any = js.undefined,
+    addStyle: (String, String) => Unit = null) {
 
   private lazy val React = react.asInstanceOf[React]
   private lazy val ReactDOM = reactDom.asInstanceOf[js.Dynamic]
@@ -73,25 +68,21 @@ class ReactBridge(react: => Any,
     if (addStyle != null) addStyle(name, css)
     else {
       if (js.isUndefined(js.Dynamic.global.document) || js.isUndefined(
-            js.Dynamic.global.document.createElement
-          )) return
+          js.Dynamic.global.document.createElement
+        )) return
       val domStyle = js.Dynamic.global.document.createElement("style")
       domStyle.textContent = "\n" + css
       js.Dynamic.global.document.head.appendChild(domStyle)
     }
 
   /** Insert the specified element or component inside the DOM element with the given ID. The DOM element must already exist in the DOM. Set the hydrate flag if hydrating server side rendered DOM. */
-  def renderToDomById(elementOrComponent: ElementOrComponent,
-                      id: String,
-                      hydrate: Boolean = false): Unit = {
+  def renderToDomById(elementOrComponent: ElementOrComponent, id: String, hydrate: Boolean = false): Unit = {
     val domElement = js.Dynamic.global.document.getElementById(id)
     renderToDom(elementOrComponent, domElement, hydrate)
   }
 
   /** Insert the specified element or component inside the given DOM element. The DOM element must already exist in the DOM. Set the hydrate flag if hydrating server side rendered DOM. */
-  def renderToDom(elementOrComponent: ElementOrComponent,
-                  domElement: js.Any,
-                  hydrate: Boolean = false): Unit = {
+  def renderToDom(elementOrComponent: ElementOrComponent, domElement: js.Any, hydrate: Boolean = false): Unit = {
     val e = elementOrComponentToReact(elementOrComponent)
     if (hydrate) ReactDOM.hydrate(e, domElement)
     else ReactDOM.render(e, domElement)
@@ -114,10 +105,11 @@ class ReactBridge(react: => Any,
     ReactDOMServer.renderToStaticMarkup(e).asInstanceOf[String]
   }
 
-  private def insert(tag: JsTag,
-                     props: js.Dictionary[js.Any],
-                     children: js.Array[js.Any],
-                     style: js.Dictionary[js.Any]): Unit = tag match {
+  private def insert(
+      tag: JsTag,
+      props: js.Dictionary[js.Any],
+      children: js.Array[js.Any],
+      style: js.Dictionary[js.Any]): Unit = tag match {
 
     case fragment: Fragment =>
       children.push(nodeToReact(fragment))
@@ -248,7 +240,7 @@ class ReactBridge(react: => Any,
       elementOrComponent: ElementOrComponent
   ): ReactElement = {
     elementOrComponent match {
-      case element: Element                => elementToReact(element)
+      case element: Element => elementToReact(element)
       case constructor: ConstructorData[_] => componentToReact(constructor)
       case dynamic: JsComponentConstructor => jsComponentToReact(dynamic)
     }
@@ -299,12 +291,11 @@ class ReactBridge(react: => Any,
     // These lines are inspired by the create-react-component implementation
 
     val react = React.asInstanceOf[js.Dynamic]
-    val classConstructor: js.ThisFunction = {
-      (self: js.Dynamic, props: js.Dynamic, context: js.Dynamic) =>
-        self.props = props
-        self.context = context
-        self.refs = {}
-        self.state = js.Dynamic.literal("stateUpdates" -> 0.0)
+    val classConstructor: js.ThisFunction = { (self: js.Dynamic, props: js.Dynamic, context: js.Dynamic) =>
+      self.props = props
+      self.context = context
+      self.refs = {}
+      self.state = js.Dynamic.literal("stateUpdates" -> 0.0)
     }
     val dynamicConstructor = classConstructor.asInstanceOf[js.Dynamic]
     dynamicConstructor.prototype = js.Dynamic.newInstance(react.Component)()
@@ -317,9 +308,9 @@ class ReactBridge(react: => Any,
         def sample(get: Get): T = self.props.selectDynamic(name).asInstanceOf[T]
       }
       val instance = constructorData.constructor match {
-        case Constructor0(f)          => f()
-        case Constructor1(f, _)       => f(newP("p1"))
-        case Constructor2(f, _, _)    => f(newP("p1"), newP("p2"))
+        case Constructor0(f) => f()
+        case Constructor1(f, _) => f(newP("p1"))
+        case Constructor2(f, _, _) => f(newP("p1"), newP("p2"))
         case Constructor3(f, _, _, _) => f(newP("p1"), newP("p2"), newP("p3"))
         case Constructor4(f, _, _, _, _) =>
           f(newP("p1"), newP("p2"), newP("p3"), newP("p4"))
@@ -390,9 +381,7 @@ class ReactBridge(react: => Any,
     }: js.ThisFunction
 
     dynamicConstructor.prototype.shouldComponentUpdate = {
-      (self: js.Dynamic,
-       nextProps: js.Dictionary[js.Any],
-       nextState: js.Dictionary[Double]) =>
+      (self: js.Dynamic, nextProps: js.Dictionary[js.Any], nextState: js.Dictionary[Double]) =>
         self.state.stateUpdates.asInstanceOf[Double] != nextState(
           "stateUpdates"
         ) ||

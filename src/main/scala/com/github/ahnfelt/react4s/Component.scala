@@ -41,9 +41,7 @@ trait Component[M] {
     }
   }
 
-  private class AttachableState[T](initial: Signal[T])
-      extends State[T]
-      with Attachable {
+  private class AttachableState[T](initial: Signal[T]) extends State[T] with Attachable {
     private var lastInitial = Get.Unsafe(initial)
     private var value = lastInitial
     override def sample(get: Get): T = value
@@ -99,61 +97,32 @@ object Component {
 
   /** Captures a Component constructor with five props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
   def apply[P1, P2, P3, P4, P5, M](f: {
-    def apply(p1: P[P1],
-              p2: P[P2],
-              p3: P[P3],
-              p4: P[P4],
-              p5: P[P5]): Component[M]
+    def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5]): Component[M]
   }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5) =
     ConstructorData(Constructor5(f, p1, p2, p3, p4, p5))
 
   /** Captures a Component constructor with six props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
   def apply[P1, P2, P3, P4, P5, P6, M](f: {
-    def apply(p1: P[P1],
-              p2: P[P2],
-              p3: P[P3],
-              p4: P[P4],
-              p5: P[P5],
-              p6: P[P6]): Component[M]
+    def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5], p6: P[P6]): Component[M]
   }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6) =
     ConstructorData(Constructor6(f, p1, p2, p3, p4, p5, p6))
 
   /** Captures a Component constructor with seven props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
   def apply[P1, P2, P3, P4, P5, P6, P7, M](f: {
-    def apply(p1: P[P1],
-              p2: P[P2],
-              p3: P[P3],
-              p4: P[P4],
-              p5: P[P5],
-              p6: P[P6],
-              p7: P[P7]): Component[M]
+    def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5], p6: P[P6], p7: P[P7]): Component[M]
   }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7) =
     ConstructorData(Constructor7(f, p1, p2, p3, p4, p5, p6, p7))
 
   /** Captures a Component constructor with eight props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
   def apply[P1, P2, P3, P4, P5, P6, P7, P8, M](f: {
-    def apply(p1: P[P1],
-              p2: P[P2],
-              p3: P[P3],
-              p4: P[P4],
-              p5: P[P5],
-              p6: P[P6],
-              p7: P[P7],
-              p8: P[P8]): Component[M]
+    def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5], p6: P[P6], p7: P[P7], p8: P[P8]): Component[M]
   }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8) =
     ConstructorData(Constructor8(f, p1, p2, p3, p4, p5, p6, p7, p8))
 
   /** Captures a Component constructor with nine props so that it can be used as the child of an Element. The constructor will be called the first time an instance is required at this position, and the instance will be reused for subsequent renderings. */
   def apply[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](f: {
-    def apply(p1: P[P1],
-              p2: P[P2],
-              p3: P[P3],
-              p4: P[P4],
-              p5: P[P5],
-              p6: P[P6],
-              p7: P[P7],
-              p8: P[P8],
-              p9: P[P9]): Component[M]
+    def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5], p6: P[P6], p7: P[P7], p8: P[P8], p9: P[P9])
+      : Component[M]
   }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8, p9: P9) =
     ConstructorData(Constructor9(f, p1, p2, p3, p4, p5, p6, p7, p8, p9))
 }
@@ -179,16 +148,15 @@ trait Signal[+T] { self =>
     new Signal[(T, T1, T2)] {
       def sample(get: Get) = (get(self), get(that1), get(that2))
     }
-  def zip[T1, T2, T3](that1: Signal[T1],
-                      that2: Signal[T2],
-                      that3: Signal[T3]): Signal[(T, T1, T2, T3)] =
+  def zip[T1, T2, T3](that1: Signal[T1], that2: Signal[T2], that3: Signal[T3]): Signal[(T, T1, T2, T3)] =
     new Signal[(T, T1, T2, T3)] {
       def sample(get: Get) = (get(self), get(that1), get(that2), get(that3))
     }
-  def zip[T1, T2, T3, T4](that1: Signal[T1],
-                          that2: Signal[T2],
-                          that3: Signal[T3],
-                          that4: Signal[T4]): Signal[(T, T1, T2, T3, T4)] =
+  def zip[T1, T2, T3, T4](
+      that1: Signal[T1],
+      that2: Signal[T2],
+      that3: Signal[T3],
+      that4: Signal[T4]): Signal[(T, T1, T2, T3, T4)] =
     new Signal[(T, T1, T2, T3, T4)] {
       def sample(get: Get) =
         (get(self), get(that1), get(that2), get(that3), get(that4))
@@ -300,8 +268,7 @@ trait Signal[+T] { self =>
   /** Create a new signal that when sampled returns the body applied to the values sampled from this and that signal. */
   def zipWith[T1, R](that1: Signal[T1])(body: (T, T1) => R): Signal[R] =
     new Signal[R] { def sample(get: Get) = body(get(self), get(that1)) }
-  def zipWith[T1, T2, R](that1: Signal[T1], that2: Signal[T2])(
-      body: (T, T1, T2) => R): Signal[R] =
+  def zipWith[T1, T2, R](that1: Signal[T1], that2: Signal[T2])(body: (T, T1, T2) => R): Signal[R] =
     new Signal[R] {
       def sample(get: Get) = body(get(self), get(that1), get(that2))
     }
@@ -426,20 +393,22 @@ abstract class JsComponent(componentClass: Any) {
 }
 
 /** Internal capture of the JsComponent constructor and apply arguments. */
-case class JsComponentConstructor(componentClass: Any,
-                                  children: Seq[JsTag],
-                                  key: Option[String],
-                                  ref: Option[Any => Unit])
+case class JsComponentConstructor(
+    componentClass: Any,
+    children: Seq[JsTag],
+    key: Option[String],
+    ref: Option[Any => Unit])
     extends ElementOrComponent {
   override def withKey(key: String) = copy(key = Some(key))
   override def withRef(onAddToDom: Any => Unit) = copy(ref = Some(onAddToDom))
 }
 
 /** Represents an element (eg. div, span, p, h1, b, etc.). */
-final case class Element(tagName: String,
-                         children: Seq[Tag],
-                         key: Option[String] = None,
-                         ref: Option[Any => Unit] = None)
+final case class Element(
+    tagName: String,
+    children: Seq[Tag],
+    key: Option[String] = None,
+    ref: Option[Any => Unit] = None)
     extends ElementOrComponent {
 
   /** Appends the extra children to this element. */
@@ -475,8 +444,7 @@ case class Text(value: String) extends Node
 case class Portal(child: Node, container: Any) extends Node
 
 /** An event handler, eg. onClick(...). */
-case class EventHandler(name: String, handler: SyntheticEvent => Unit)
-    extends Tag
+case class EventHandler(name: String, handler: SyntheticEvent => Unit) extends Tag
 
 /** React.js Context, ie. a dynamically scoped value. <pre>object MyThemeColor extends Context[String]("red")</pre> */
 abstract class Context[T](val defaultValue: T) {
@@ -495,12 +463,8 @@ abstract class JsContext[T](contextType: Any) {
     ContextConsumer(contextType, value => body(value.asInstanceOf[T]))
 }
 
-private[react4s] case class ContextProvider(contextType: Any,
-                                            value: Any,
-                                            children: Node*)
-    extends Node
-private[react4s] case class ContextConsumer(contextType: Any, body: Any => Node)
-    extends Node
+private[react4s] case class ContextProvider(contextType: Any, value: Any, children: Node*) extends Node
+private[react4s] case class ContextConsumer(contextType: Any, body: Any => Node) extends Node
 
 /** A CSS class that will be inserted into the DOM the first time it's used to render a component. Be careful not to create these dynamically, or you'll end up filling up the DOM with styles. */
 abstract class CssClass(val children: CssChild*) extends Tag with CssChild {
@@ -510,8 +474,7 @@ abstract class CssClass(val children: CssChild*) extends Tag with CssChild {
 }
 
 /** CSS keyframes that will be inserted into the DOM the first time it's used to render a component. When keyframes are used in a CssClass, the appropriate animation-name rule is automatically inserted. Be careful not to create these dynamically, or you'll end up filling up the DOM with keyframes. */
-abstract class CssKeyframes(val keyframes: (String, Seq[Style])*)
-    extends CssChild {
+abstract class CssKeyframes(val keyframes: (String, Seq[Style])*) extends CssChild {
   override def toString: String = name
   def toCss: String =
     "@keyframes " + name + " {\n" +
@@ -641,8 +604,7 @@ object Style {
 private[react4s] sealed abstract class Constructor[M](val props: Seq[Any]) {
   val f: Any
 }
-private[react4s] case class Constructor0[M](f: { def apply(): Component[M] })
-    extends Constructor[M](Seq())
+private[react4s] case class Constructor0[M](f: { def apply(): Component[M] }) extends Constructor[M](Seq())
 private[react4s] case class Constructor1[P1, M](f: {
   def apply(p1: P[P1]): Component[M]
 }, p1: P1)
@@ -664,46 +626,21 @@ private[react4s] case class Constructor5[P1, P2, P3, P4, P5, M](f: {
 }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5)
     extends Constructor[M](Seq(p1, p2, p3, p4, p5))
 private[react4s] case class Constructor6[P1, P2, P3, P4, P5, P6, M](f: {
-  def apply(p1: P[P1],
-            p2: P[P2],
-            p3: P[P3],
-            p4: P[P4],
-            p5: P[P5],
-            p6: P[P6]): Component[M]
+  def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5], p6: P[P6]): Component[M]
 }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6)
     extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6))
 private[react4s] case class Constructor7[P1, P2, P3, P4, P5, P6, P7, M](f: {
-  def apply(p1: P[P1],
-            p2: P[P2],
-            p3: P[P3],
-            p4: P[P4],
-            p5: P[P5],
-            p6: P[P6],
-            p7: P[P7]): Component[M]
+  def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5], p6: P[P6], p7: P[P7]): Component[M]
 }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7)
     extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7))
 private[react4s] case class Constructor8[P1, P2, P3, P4, P5, P6, P7, P8, M](f: {
-  def apply(p1: P[P1],
-            p2: P[P2],
-            p3: P[P3],
-            p4: P[P4],
-            p5: P[P5],
-            p6: P[P6],
-            p7: P[P7],
-            p8: P[P8]): Component[M]
+  def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5], p6: P[P6], p7: P[P7], p8: P[P8]): Component[M]
 }, p1: P1, p2: P2, p3: P3, p4: P4, p5: P5, p6: P6, p7: P7, p8: P8)
     extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8))
 private[react4s] case class Constructor9[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](
     f: {
-      def apply(p1: P[P1],
-                p2: P[P2],
-                p3: P[P3],
-                p4: P[P4],
-                p5: P[P5],
-                p6: P[P6],
-                p7: P[P7],
-                p8: P[P8],
-                p9: P[P9]): Component[M]
+      def apply(p1: P[P1], p2: P[P2], p3: P[P3], p4: P[P4], p5: P[P5], p6: P[P6], p7: P[P7], p8: P[P8], p9: P[P9])
+        : Component[M]
     },
     p1: P1,
     p2: P2,
@@ -717,11 +654,8 @@ private[react4s] case class Constructor9[P1, P2, P3, P4, P5, P6, P7, P8, P9, M](
 ) extends Constructor[M](Seq(p1, p2, p3, p4, p5, p6, p7, p8, p9))
 
 /** Represents a component constructor plus an associated handler, key and ref. */
-case class ConstructorData[M](constructor: Constructor[M],
-                              handler: M => Unit = { _: M =>
-                                },
-                              key: Option[String] = None,
-                              ref: Option[Any => Unit] = None)
+case class ConstructorData[M](constructor: Constructor[M], handler: M => Unit = { _: M =>
+  }, key: Option[String] = None, ref: Option[Any => Unit] = None)
     extends ElementOrComponent {
   def withHandler(handler: M => Unit) = copy(handler = handler)
   def withKey(key: String) = copy(key = Some(key))

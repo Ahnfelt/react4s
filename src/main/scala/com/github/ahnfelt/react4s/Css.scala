@@ -3,12 +3,9 @@ package com.github.ahnfelt.react4s
 import scala.collection.mutable.ListBuffer
 
 trait CssChild
-case class CssPseudoClass(name: String, children: Seq[CssChild])
-    extends CssChild
-case class CssMediaQuery(query: String, children: Seq[CssChild])
-    extends CssChild
-case class CssSelector(selector: String, children: Seq[CssChild])
-    extends CssChild
+case class CssPseudoClass(name: String, children: Seq[CssChild]) extends CssChild
+case class CssMediaQuery(query: String, children: Seq[CssChild]) extends CssChild
+case class CssSelector(selector: String, children: Seq[CssChild]) extends CssChild
 
 object Css {
 
@@ -76,8 +73,7 @@ object Css {
 
 object CssChild {
 
-  def cssToString(cssClass: CssClass,
-                  addCssOption: Option[String => Boolean] = None): String = {
+  def cssToString(cssClass: CssClass, addCssOption: Option[String => Boolean] = None): String = {
     val selector = "." + cssClass.name
     val builder = new StringBuilder()
     val keyframes = ListBuffer[CssKeyframes]()
@@ -90,15 +86,16 @@ object CssChild {
     builder.toString()
   }
 
-  def emitCssChildren(builder: StringBuilder,
-                      keyframes: ListBuffer[CssKeyframes],
-                      media: String,
-                      selector: String,
-                      children: Seq[CssChild]): Unit = {
+  def emitCssChildren(
+      builder: StringBuilder,
+      keyframes: ListBuffer[CssKeyframes],
+      media: String,
+      selector: String,
+      children: Seq[CssChild]): Unit = {
 
     def flatten(children: Seq[CssChild]): Seq[CssChild] = children.flatMap {
       case c: CssClass => flatten(c.children)
-      case c           => Seq(c)
+      case c => Seq(c)
     }
 
     val flattened = flatten(children)
@@ -115,7 +112,7 @@ object CssChild {
               .toStandardName(s.name) + ":" + s.value + ";\n"
           )
         case f: CssKeyframes => animationNames += f.name
-        case _               =>
+        case _ =>
       }
       if (animationNames.nonEmpty) {
         builder.append(

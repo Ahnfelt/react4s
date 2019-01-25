@@ -24,9 +24,7 @@ trait Attachable {
 trait AddEventListener[T] extends Signal[T]
 
 object AddEventListener {
-  trait AttachableAddEventListener[T]
-      extends AddEventListener[T]
-      with Attachable
+  trait AttachableAddEventListener[T] extends AddEventListener[T] with Attachable
 
   /** Listens for an addEventListener event. Fires handler(value, None) initially and when the dependency changes, and handler(value, Some(event)) when the event occurs. */
   def apply[I, O](
@@ -116,10 +114,10 @@ object Loader {
   /** The status of a loader: Loading if the current future is running. Error if the current future has failed. Result otherwise. */
   sealed abstract class Loaded[+T] {
     def zip[T1](that1: Loaded[T1]): Loaded[(T, T1)] = (this, that1) match {
-      case (Loading(), _)           => Loading()
-      case (_, Loading())           => Loading()
-      case (Error(throwable), _)    => Error(throwable)
-      case (_, Error(throwable))    => Error(throwable)
+      case (Loading(), _) => Loading()
+      case (_, Loading()) => Loading()
+      case (Error(throwable), _) => Error(throwable)
+      case (_, Error(throwable)) => Error(throwable)
       case (Result(v1), Result(v2)) => Result((v1, v2))
     }
   }
@@ -153,7 +151,7 @@ object Loader {
           i => get(i) == newDependency
         )
         if ((!lastDependency
-              .contains(newDependency) || retries != lastRetries) && !isInitial && !isLoading) {
+            .contains(newDependency) || retries != lastRetries) && !isInitial && !isLoading) {
           changedSinceInitial = true
           lastRetries = retries
           lastDependency = Some(newDependency)
@@ -161,28 +159,27 @@ object Loader {
           lastVersion += 1
           val version = lastVersion
           import scala.concurrent.ExecutionContext.Implicits.global
-          future(newDependency).onComplete {
-            result =>
-              if (!unmounted) {
-                result match {
-                  case Success(newValue) =>
-                    if (version == lastVersion) {
-                      lastValue = Some(newValue)
-                      lastError = None
-                    }
-                  case Failure(newError) =>
-                    if (version == lastVersion) {
-                      lastError = Some(newError)
-                    }
-                }
-                isLoading = false
-                if (!lastDependency
-                      .contains(get(dependency)) || retries != lastRetries) {
-                  componentWillRender(get)
-                } else {
-                  component.update()
-                }
+          future(newDependency).onComplete { result =>
+            if (!unmounted) {
+              result match {
+                case Success(newValue) =>
+                  if (version == lastVersion) {
+                    lastValue = Some(newValue)
+                    lastError = None
+                  }
+                case Failure(newError) =>
+                  if (version == lastVersion) {
+                    lastError = Some(newError)
+                  }
               }
+              isLoading = false
+              if (!lastDependency
+                  .contains(get(dependency)) || retries != lastRetries) {
+                componentWillRender(get)
+              } else {
+                component.update()
+              }
+            }
           }
         }
       }
@@ -221,9 +218,8 @@ object Timeout {
   trait AttachableTimeout extends Timeout with Attachable
 
   /** Sets a timeout that restarts every time the dependency changes. If interval is set, it triggers every interval instead of just once. */
-  def apply[T](component: Component[_],
-               dependency: Signal[T],
-               interval: Boolean = false)(milliseconds: T => Long): Timeout =
+  def apply[T](component: Component[_], dependency: Signal[T], interval: Boolean = false)(
+      milliseconds: T => Long): Timeout =
     component.attach(new AttachableTimeout {
       var timeout: Option[SetTimeoutHandle] = None
       var oldValue: Option[T] = None
@@ -273,10 +269,11 @@ object Debounce {
   trait AttachableDebounce[T] extends Debounce[T] with Attachable
 
   /** When the dependency is changed, don't propagate the value immediately - instead wait until no change has been made for the specified milliseconds. If immediate is set, propagate the first change after a pause immediately. */
-  def apply[T](component: Component[_],
-               dependency: Signal[T],
-               milliseconds: Long = 250,
-               immediate: Boolean = false): Debounce[T] =
+  def apply[T](
+      component: Component[_],
+      dependency: Signal[T],
+      milliseconds: Long = 250,
+      immediate: Boolean = false): Debounce[T] =
     component.attach(new AttachableDebounce[T] {
       private var timeout: Option[SetTimeoutHandle] = None
       private var oldValue: T = Get.Unsafe(dependency)
