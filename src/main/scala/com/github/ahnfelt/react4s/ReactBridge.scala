@@ -165,7 +165,7 @@ class ReactBridge(react: => Any,
 
     case cssClass: CssClass =>
       if (addCss(cssClass.name)) {
-        doAddStyle(cssClass.name, CssChild.cssToString(cssClass, Some(addCss)))
+        doAddStyle(cssClass.name, cssClass.toCss)
       }
       props.update(
         "className",
