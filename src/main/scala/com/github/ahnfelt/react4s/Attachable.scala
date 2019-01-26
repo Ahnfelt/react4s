@@ -8,9 +8,9 @@ import scala.scalajs.js.timers.SetTimeoutHandle
 import scala.util._
 
 /**
-  *Can be attached to a Component to listen for lifecycle events.
-  *Please note that componentWillRender() of attachables are run <u>after</u> componentWillRender() of the component,
-  *so during that, the values of attachables won't be updated yet.
+  * Can be attached to a Component to listen for lifecycle events.
+  * Please note that componentWillRender() of attachables are run <u>after</u> componentWillRender() of the component,
+  * so during that, the values of attachables won't be updated yet.
   */
 trait Attachable {
 
@@ -24,6 +24,7 @@ trait Attachable {
 trait AddEventListener[T] extends Signal[T]
 
 object AddEventListener {
+
   trait AttachableAddEventListener[T] extends AddEventListener[T] with Attachable
 
   /** Listens for an addEventListener event. Fires handler(value, None) initially and when the dependency changes, and handler(value, Some(event)) when the event occurs. */
@@ -73,24 +74,25 @@ object AddEventListener {
       handler: js.Dynamic => O
   ): AddEventListener[Option[O]] =
     apply(component, target, eventName, Signal({})) {
-      case (_, None) => None; case (_, Some(e)) => Some(handler(e))
+      case (_, None) => None;
+      case (_, Some(e)) => Some(handler(e))
     }
 
 }
 
 /**
-  *For loading things based on props and state asynchronously without introducing race conditions. Assuming itemId : P[Long], here's an example:
-  *{{{
-  *val itemName = Loader(this, itemId) { id =>
-  *Ajax.get("/item/" + id + "/name").map(_.responseText)
-  *}
- **
- def render(get : Get) = E.div(
-  *E.div(Text("Loading...")).when(get(itemName.loading)),
-  *get(itemName).map(name => E.div(Text(name))).getOrElse(TagList.empty),
-  *get(itemName.error).map(throwable => E.div(Text(throwable.getMessage))).getOrElse(TagList.empty)
-  *)
-  *}}}
+  * For loading things based on props and state asynchronously without introducing race conditions. Assuming itemId : P[Long], here's an example:
+  * {{{
+  * val itemName = Loader(this, itemId) { id =>
+  *     Ajax.get("/item/" + id + "/name").map(_.responseText)
+  * }
+  *
+  * def render(get : Get) = E.div(
+  *     E.div(Text("Loading...")).when(get(itemName.loading)),
+  *     get(itemName).map(name => E.div(Text(name))).getOrElse(TagList.empty),
+  *     get(itemName.error).map(throwable => E.div(Text(throwable.getMessage))).getOrElse(TagList.empty)
+  * )
+  * }}}
   */
 trait Loader[T] extends Signal[Loaded[T]] {
   def sample(get: Get): Loaded[T]
@@ -121,8 +123,11 @@ object Loader {
       case (Result(v1), Result(v2)) => Result((v1, v2))
     }
   }
+
   case class Loading[+T]() extends Loaded[T]
+
   case class Error[+T](throwable: Throwable) extends Loaded[T]
+
   case class Result[+T](value: T) extends Loaded[T]
 
   trait AttachableLoader[T] extends Loader[T] with Attachable
@@ -186,10 +191,14 @@ object Loader {
 
       override def componentWillUnmount(get: Get): Unit = unmounted = true
 
-      override def retry(): Unit = { retries += 1; component.update() }
+      override def retry(): Unit = {
+        retries += 1; component.update()
+      }
+
       val loading: Signal[Boolean] = Signal.of(_ => isLoading)
       val error: Signal[Option[Throwable]] = Signal.of(_ => lastError)
       val result: Signal[Option[O]] = Signal.of(_ => lastValue)
+
       override def sample(get: Get): Loaded[O] =
         if (isLoading) Loading[O]()
         else
@@ -251,7 +260,9 @@ object Timeout {
       }
 
       override def sample(get: Get) = triggered > 0
+
       override def ticks(get: Get) = triggered
+
       override def elapsed(get: Get) =
         (System.nanoTime() - startTime) / (1000 * 1000)
     })

@@ -800,7 +800,7 @@ object A extends CommonEvents {
   def apply(attributeName: String, value: String) =
     Attribute(attributeName, value)
 
-  /** A helper method for setting up A.onChange that just looks at e.target.value.}}} */
+  /** A helper method for setting up A.onChange that just looks at {{{e.target.value}}} */
   def onChangeText(onChange: String => Unit) = {
     A.onChange(e => onChange(e.target.value.asInstanceOf[String]))
   }
