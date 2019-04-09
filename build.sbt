@@ -5,8 +5,8 @@ organization := "com.github.ahnfelt"
 version := "0.9.25-SNAPSHOT"
 
 // Publish cross versions with: sbt +publish
-crossScalaVersions := Seq("2.11.8", "2.13.0-RC1", scalaVersion.value)
-scalaVersion := "2.12.5"
+crossScalaVersions := Seq("2.11.8", "2.12.5", scalaVersion.value)
+scalaVersion := "2.13.0-RC1"
 scalacOptions += "-feature"
 
 
