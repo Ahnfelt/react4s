@@ -2,13 +2,18 @@ enablePlugins(ScalaJSPlugin)
 
 name := "react4s"
 organization := "com.github.ahnfelt"
-version := "0.9.24-SNAPSHOT"
+version := "0.9.26-SNAPSHOT"
 
 // Publish cross versions with: sbt +publish
 crossScalaVersions := Seq("2.11.8", scalaVersion.value)
 scalaVersion := "2.12.5"
 scalacOptions += "-feature"
 
+// Absolute paths ended up in the generated source maps
+scalaJSLinkerConfig := {
+    val fastOptJSURI = (artifactPath in (Compile, fastOptJS)).value.toURI
+    scalaJSLinkerConfig.value.withRelativizeSourceMapBase(Some(fastOptJSURI))
+}
 
 publishMavenStyle := true
 publishArtifact in Test := false
