@@ -14,6 +14,8 @@ trait Component[M] {
     def attach[T <: Attachable](attachable : T) : T = { attachedAttachables += attachable; attachable }
     /** Called just before render(). You can modify component state here. Note that componentWillRender() won't fire for ReactBridge.renderToString and ReactBridge.renderToStaticMarkup. */
     def componentWillRender(get : Get) : Unit = {}
+    /** Called after the component is mounted. */
+    def componentDidMount(get : Get) : Unit = {}
     /** Called just before the component is unmounted. This callback is typically used to clean up resources. */
     def componentWillUnmount(get : Get) : Unit = {}
     /** Called when the component needs to be rendered. Rerendering only happens when this components props or state are changed according to the != operator. */

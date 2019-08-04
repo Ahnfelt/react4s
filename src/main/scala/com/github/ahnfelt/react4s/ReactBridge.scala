@@ -296,6 +296,12 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
             for(attachable <- instance.attachedAttachables) attachable.componentWillUnmount(Get.Unsafe)
         } : js.ThisFunction
 
+        dynamicConstructor.prototype.componentDidMount = { (self : js.Dynamic) =>
+            val instance = self.instance.asInstanceOf[Component[_]]
+            instance.componentDidMount(Get.Unsafe)
+            for(attachable <- instance.attachedAttachables) attachable.componentDidMount(Get.Unsafe)
+        } : js.ThisFunction
+
         dynamicConstructor.prototype.shouldComponentUpdate = { (self : js.Dynamic, nextProps : js.Dictionary[js.Any], nextState : js.Dictionary[Double]) =>
             self.state.stateUpdates.asInstanceOf[Double] != nextState("stateUpdates") ||
                 (1 to constructorData.constructor.props.length).exists(i =>

@@ -15,6 +15,8 @@ import scala.util._
 trait Attachable {
     /** Called after componentWillRender() returns on the component to which this is attached. The "get" argument lets you read props etc. Use update() to signal to the component that state has changed. Note that componentWillRender() won't fire for reactBridge.renderToString and .renderToStaticMarkup. */
     def componentWillRender(get : Get) : Unit = {}
+    /** Called after the component is mounted. */
+    def componentDidMount(get : Get) : Unit = {}
     /** Called after componentWillUnmount() returns on the component to which this is attached. The "get" argument lets you read props etc. */
     def componentWillUnmount(get : Get) : Unit = {}
 }
