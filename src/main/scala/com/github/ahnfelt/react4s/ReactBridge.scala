@@ -160,7 +160,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         for(r <- element.ref) props.update("ref", r)
         if(style.nonEmpty) props.update("style", style)
 
-        React.createElement(element.tagName, props, children : _*)
+        React.createElement(element.tagName, props, children.toSeq : _*)
 
     }
 
@@ -197,7 +197,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
         for(r <- dynamic.ref) props.update("ref", r)
         if(style.nonEmpty) props.update("style", style)
 
-        React.createElement(dynamic.componentClass.asInstanceOf[js.Any], props, children : _*)
+        React.createElement(dynamic.componentClass.asInstanceOf[js.Any], props, children.toSeq : _*)
     }
 
     def elementOrComponentToReact(elementOrComponent : ElementOrComponent) : ReactElement = {
@@ -213,7 +213,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
             case fragment : Fragment =>
                 val children = js.Array[js.Any]()
                 for(node <- fragment.children) children.push(nodeToReact(node))
-                React.createElement(React.Fragment, null, children : _*)
+                React.createElement(React.Fragment, null, children.toSeq : _*)
             case element : ElementOrComponent =>
                 elementOrComponentToReact(element)
             case ContextProvider(contextType, value, nodes @ _*) =>
@@ -221,7 +221,7 @@ class ReactBridge(react : => Any, reactDom : => Any = js.undefined, reactDomServ
                 val children = js.Array[js.Any]()
                 for(node <- nodes) children.push(nodeToReact(node))
                 val binding = js.Dictionary[js.Any]("value" -> value.asInstanceOf[js.Any])
-                React.createElement(context.Provider, binding, children : _*)
+                React.createElement(context.Provider, binding, children.toSeq : _*)
             case ContextConsumer(contextType, body) =>
                 val context = getReactContext(contextType)
                 React.createElement(context.Consumer, null, { value : js.Any => nodeToReact(body(value)) })
