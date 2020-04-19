@@ -17,7 +17,7 @@ scalaJSLinkerConfig := {
 
 publishMavenStyle := true
 publishArtifact in Test := false
-credentials += Credentials(Path.userHome / ".ivy2" / ".credentials")
+credentials += Credentials(Path.userHome / "Documents" / "keys" / "sbt-credentials")
 publishTo := {
     val nexus = "https://oss.sonatype.org/"
     if(isSnapshot.value)
