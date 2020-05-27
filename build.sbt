@@ -2,11 +2,11 @@ enablePlugins(ScalaJSPlugin)
 
 name := "react4s"
 organization := "com.github.ahnfelt"
-version := "0.9.29-SNAPSHOT"
+version := "0.10.0-SNAPSHOT"
 
 // Publish cross versions with: sbt +publish
-crossScalaVersions := Seq("2.11.8", "2.12.11", scalaVersion.value)
-scalaVersion := "2.13.0"
+crossScalaVersions := Seq("2.12.11", scalaVersion.value)
+scalaVersion := "2.13.2"
 scalacOptions += "-feature"
 
 // Absolute paths ended up in the generated source maps
