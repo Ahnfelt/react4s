@@ -1,6 +1,15 @@
 // To publish to Sonatype Central:
-// sbt +publishSigned
-// sbt +sonatypeCentralUpload
+// sbt
+// ++ 2.12.19
+// publishSigned
+// sonatypeCentralUpload
+// exit
+// rm -rf target/sonatype-staging/
+// sbt
+// ++ 2.13.18
+// publishSigned
+// sonatypeCentralUpload
+
 
 import xerial.sbt.Sonatype.sonatypeCentralHost
 
