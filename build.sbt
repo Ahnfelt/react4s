@@ -1,48 +1,44 @@
+// To publish to Sonatype Central:
+// sbt +publishSigned
+// sbt +sonatypeCentralUpload
+
+import xerial.sbt.Sonatype.sonatypeCentralHost
+
 enablePlugins(ScalaJSPlugin)
 
-name := "react4s"
-organization := "com.github.ahnfelt"
-version := "0.10.0-SNAPSHOT"
+ThisBuild / scalaVersion := "2.13.18"
+ThisBuild / crossScalaVersions := Seq("2.12.19", "2.13.18")
+ThisBuild / organization := "com.github.ahnfelt"
+ThisBuild / version := "0.11.0"
 
-// Publish cross versions with: sbt +publish
-crossScalaVersions := Seq("2.12.11", scalaVersion.value)
-scalaVersion := "2.13.2"
+ThisBuild / organizationName := "ahnfelt"
+ThisBuild / organizationHomepage := Some(url("https://github.com/Ahnfelt"))
+
+ThisBuild / description := "A simple React wrapper for Scala.js"
+ThisBuild / licenses := List("MIT" -> url("http://www.opensource.org/licenses/mit-license.php"))
+ThisBuild / homepage := Some(url("https://github.com/Ahnfelt/react4s"))
+
+ThisBuild / scmInfo := Some(ScmInfo(
+    url("https://github.com/Ahnfelt/react4s"),
+    "scm:git@github.com:Ahnfelt/react4s.git"
+))
+
+ThisBuild / developers := List(Developer(
+    id    = "ahnfelt",
+    name  = "Joakim Ahnfelt-Rønne",
+    email = "",
+    url   = url("https://github.com/Ahnfelt")
+))
+
+ThisBuild / Test / publishArtifact := false
+
+sonatypeCredentialHost := sonatypeCentralHost
+ThisBuild / publishTo := sonatypePublishToBundle.value
+
+name := "react4s"
 scalacOptions += "-feature"
 
-// Absolute paths ended up in the generated source maps
 scalaJSLinkerConfig := {
-    val fastOptJSURI = (artifactPath in (Compile, fastOptJS)).value.toURI
+    val fastOptJSURI = (Compile / fastOptJS / artifactPath).value.toURI
     scalaJSLinkerConfig.value.withRelativizeSourceMapBase(Some(fastOptJSURI))
 }
-
-publishMavenStyle := true
-publishArtifact in Test := false
-credentials += Credentials(Path.userHome / "Documents" / "keys" / "sbt-credentials")
-publishTo := {
-    val nexus = "https://oss.sonatype.org/"
-    if(isSnapshot.value)
-        Some("snapshots" at nexus + "content/repositories/snapshots")
-    else
-        Some("releases"  at nexus + "service/local/staging/deploy/maven2")
-}
-
-pomExtra :=
-    <url>https://github.com/Ahnfelt/react4s</url>
-    <licenses>
-        <license>
-            <name>MIT-style</name>
-            <url>http://www.opensource.org/licenses/mit-license.php</url>
-            <distribution>repo</distribution>
-        </license>
-    </licenses>
-    <scm>
-        <url>git@github.com:Ahnfelt/react4s.git</url>
-        <connection>scm:git:git@github.com:Ahnfelt/react4s.git</connection>
-    </scm>
-    <developers>
-        <developer>
-            <id>ahnfelt</id>
-            <name>Joakim Ahnfelt-Rønne</name>
-            <url>https://github.com/Ahnfelt</url>
-        </developer>
-    </developers>
